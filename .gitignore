@@ -1,0 +1,357 @@
+# .gitignore für Gin-App
+# Erstellt: Januar 2026
+
+###############################################################################
+# Abhängig vom Framework/Stack - unten sind verschiedene Optionen
+###############################################################################
+
+###############################################################################
+# React / React Native (falls zutreffend)
+###############################################################################
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Expo (falls React Native mit Expo)
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Metro Bundler
+.metro-health-check*
+
+# React Native
+*.jsbundle
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build Output
+build/
+dist/
+*.tsbuildinfo
+
+###############################################################################
+# Progressive Web App (PWA)
+###############################################################################
+
+# Service Worker
+sw.js
+service-worker.js
+workbox-*.js
+
+# Cache
+.cache/
+.parcel-cache/
+
+###############################################################################
+# Android (falls native App)
+###############################################################################
+
+# Gradle
+.gradle/
+build/
+*.apk
+*.aab
+
+# Android Studio
+.idea/
+*.iml
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keystore
+*.jks
+*.keystore
+key.properties
+
+###############################################################################
+# iOS (falls native App)
+###############################################################################
+
+# Xcode
+xcuserdata/
+*.xcworkspace/
+*.xcodeproj/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+###############################################################################
+# Firebase / Supabase / Backend
+###############################################################################
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+database-rules.json
+
+# Supabase
+.supabase/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+###############################################################################
+# Datenbank
+###############################################################################
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Datenbank-Exports
+exports/*.sql
+exports/*.json
+database_backup_*.sql
+
+###############################################################################
+# Assets & Media
+###############################################################################
+
+# Große Bilddateien (über 5MB)
+*.jpg.large
+*.png.large
+
+# Temporäre Uploads
+uploads/temp/*
+uploads/tmp/*
+
+# Generierte Thumbnails
+thumbnails/*
+.thumbs/
+
+###############################################################################
+# IDE & Editor
+###############################################################################
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# WebStorm / IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+###############################################################################
+# Betriebssystem
+###############################################################################
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.directory
+.fuse_hidden*
+
+###############################################################################
+# Logs
+###############################################################################
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# Runtime logs
+*.log.*
+combined.log
+error.log
+access.log
+
+###############################################################################
+# Testing & Coverage
+###############################################################################
+
+# Jest
+coverage/
+.nyc_output/
+*.lcov
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Test Results
+test-results/
+junit.xml
+
+###############################################################################
+# Build & Distribution
+###############################################################################
+
+# Production Build
+build/
+dist/
+out/
+.next/
+.nuxt/
+
+# Bundler Output
+bundle.js
+bundle.js.map
+
+# Compiled TypeScript
+*.js.map
+*.d.ts
+
+###############################################################################
+# Package Manager
+###############################################################################
+
+# npm
+package-lock.json
+npm-debug.log
+
+# Yarn
+yarn.lock
+yarn-error.log
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# pnpm
+pnpm-lock.yaml
+.pnpm-debug.log
+
+###############################################################################
+# Deployment
+###############################################################################
+
+# Vercel
+.vercel/
+
+# Netlify
+.netlify/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+###############################################################################
+# API Keys & Secrets
+###############################################################################
+
+# API Configuration
+config/api-keys.js
+config/secrets.json
+secrets.yaml
+
+# Credentials
+credentials.json
+service-account.json
+*.pem
+*.key
+
+###############################################################################
+# Documentation
+###############################################################################
+
+# Auto-generated docs (optional)
+# docs/api/
+# docs/generated/
+
+###############################################################################
+# Temporary Files
+###############################################################################
+
+# Temp
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Cache
+.cache/
+*.cache
+
+###############################################################################
+# Custom - Gin-App spezifisch
+###############################################################################
+
+# Gin-Datenbank
+/data/gins.json
+/data/user_collections.json
+
+# User-Uploads
+/public/uploads/user-photos/*
+/public/uploads/gin-images/*
+
+# Analytics & Tracking (falls verwendet)
+analytics.json
+
+# Backup-Dateien
+backup_*.json
+*.backup
+
+###############################################################################
+# Optional: Assets die du NICHT versionieren willst
+###############################################################################
+
+# Große Asset-Dateien (kommentiere aus was du brauchst)
+# *.mp4
+# *.mov
+# *.avi
+# *.mp3
+# *.wav
