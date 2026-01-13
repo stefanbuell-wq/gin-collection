@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2c3e50">
+    <title>Admin Dashboard - Gin Collection</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🍸 Gin Collection - Admin</h1>
+            <nav class="nav">
+                <button class="nav-btn" onclick="location.href='index.html'">Sammlung</button>
+                <button class="nav-btn active">Admin Dashboard</button>
+            </nav>
+            <div class="user-info">
+                <span class="admin-badge">👑 Admin</span>
+                <span class="user-name" id="user-name">Lädt...</span>
+                <button class="logout-btn" id="logout-btn" title="Abmelden">🚪</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <h2>Admin Dashboard</h2>
+
+            <!-- Dashboard Stats -->
+            <div class="stats-grid" id="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="stat-users">0</div>
+                    <div class="stat-label">Benutzer</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🍸</div>
+                    <div class="stat-value" id="stat-gins">0</div>
+                    <div class="stat-label">Gins (Gesamt)</div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>Benutzer-Verwaltung</h3>
+                    <input type="text" id="search-users" placeholder="Benutzer suchen..." class="search-input">
+                </div>
+
+                <div class="table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortUsers('id')">ID</th>
+                                <th onclick="sortUsers('username')">Username</th>
+                                <th onclick="sortUsers('email')">Email</th>
+                                <th onclick="sortUsers('full_name')">Name</th>
+                                <th onclick="sortUsers('gin_count')">Gins</th>
+                                <th onclick="sortUsers('created_at')">Registriert</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="7" class="loading">Lädt...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- User Details Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Benutzer-Details</h3>
+                <button class="close-btn" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-actions" id="modal-actions">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Benutzer bearbeiten</h3>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form">
+                    <input type="hidden" id="edit-user-id">
+
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input type="email" id="edit-email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-full-name">Vollständiger Name</label>
+                        <input type="text" id="edit-full-name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="saveUser()">Speichern</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/admin.js"></script>
+    <script>
+        // Check admin authentication
+        (async () => {
+            const user = await requireAuth();
+            if (user) {
+                // Check if user is admin
+                if (!user.is_admin) {
+                    alert('Zugriff verweigert. Nur Administratoren haben Zugriff auf diese Seite.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Display user info
+                const userName = user.full_name || user.username;
+                document.getElementById('user-name').textContent = userName;
+
+                // Setup logout button
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    if (confirm('Möchtest du dich wirklich abmelden?')) {
+                        await logout();
+                    }
+                });
+
+                // Load dashboard data
+                loadDashboard();
+            }
+        })();
+    </script>
+</body>
+
+</html>

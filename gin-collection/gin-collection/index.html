@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="Verwalte deine Gin-Sammlung">
+
+    <title>Gin Collection</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/images/icon-512.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Barcode Scanner Library -->
+    <script src="https://unpkg.com/@ericblade/quagga2@1.8.2/dist/quagga.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🍸 Gin Collection</h1>
+            <nav class="nav">
+                <button class="nav-btn active" data-view="collection">Sammlung</button>
+                <button class="nav-btn" data-view="stats">Statistiken</button>
+                <button class="nav-btn" data-view="add">Hinzufügen</button>
+                <button class="nav-btn" id="admin-nav-btn" style="display: none;"
+                    onclick="location.href='admin.html'">Admin</button>
+            </nav>
+            <div class="user-info">
+                <span class="admin-badge" id="admin-badge" style="display: none;">👑 Admin</span>
+                <span class="user-name" id="user-name">Lädt...</span>
+                <button class="logout-btn" id="logout-btn" title="Abmelden">🚪</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+
+            <!-- Collection View -->
+            <div id="collection-view" class="view active">
+                <div class="view-header">
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Suche nach Name, Marke, Land...">
+                        <button id="search-btn">🔍</button>
+                    </div>
+
+                    <div class="filters">
+                        <select id="filter-select">
+                            <option value="all">Alle Gins</option>
+                            <option value="available">Verfügbar</option>
+                            <option value="finished">Ausgetrunken</option>
+                        </select>
+
+                        <select id="sort-select">
+                            <option value="name">Nach Name</option>
+                            <option value="rating">Nach Bewertung</option>
+                            <option value="price">Nach Preis</option>
+                            <option value="country">Nach Land</option>
+                            <option value="date">Nach Kaufdatum</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="gin-grid" class="gin-grid">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Statistics View -->
+            <div id="stats-view" class="view">
+                <h2>Statistiken</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Gesamt</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="stat-available">0</div>
+                        <div class="stat-label">Verfügbar</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="stat-rating">0</div>
+                        <div class="stat-label">Ø Bewertung</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="stat-value">0€</div>
+                        <div class="stat-label">Gesamtwert</div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3>Länder</h3>
+                    <div id="countries-chart" class="chart"></div>
+                </div>
+
+                <div class="stats-section">
+                    <h3>Top Bewertungen</h3>
+                    <div id="top-rated-list" class="top-rated-list"></div>
+                </div>
+            </div>
+
+            <!-- Add/Edit View -->
+            <div id="add-view" class="view">
+                <h2 id="form-title">Gin hinzufügen</h2>
+
+                <form id="gin-form" class="gin-form">
+                    <input type="hidden" id="gin-id">
+
+                    <div class="form-section">
+                        <h3>Barcode scannen</h3>
+                        <button type="button" id="scan-btn" class="btn btn-secondary">📷 Barcode scannen</button>
+                        <input type="text" id="barcode" placeholder="Oder manuell eingeben">
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Grunddaten</h3>
+
+                        <div class="form-group">
+                            <label for="name">Name *</label>
+                            <input type="text" id="name" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="brand">Marke</label>
+                                <input type="text" id="brand">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="country">Land</label>
+                                <input type="text" id="country">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="abv">Alkoholgehalt (%)</label>
+                                <input type="number" id="abv" step="0.1" min="0" max="100">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bottle_size">Flaschengröße (ml)</label>
+                                <input type="number" id="bottle_size" value="700">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Preis (€)</label>
+                                <input type="number" id="price" step="0.01" min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="purchase_date">Kaufdatum</label>
+                                <input type="date" id="purchase_date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Bewertung & Notizen</h3>
+
+                        <div class="form-group">
+                            <label for="rating">Bewertung</label>
+                            <div class="rating-input" id="rating-input">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                            <input type="hidden" id="rating">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tasting_notes">Verkostungsnotizen</label>
+                            <textarea id="tasting_notes" rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Beschreibung</label>
+                            <textarea id="description" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Foto</h3>
+                        <div class="photo-upload">
+                            <input type="file" id="photo-input" accept="image/*" capture="environment">
+                            <label for="photo-input" class="photo-label">
+                                <div id="photo-preview" class="photo-preview">
+                                    <span>📸 Foto aufnehmen</span>
+                                </div>
+                            </label>
+                        </div>
+                        <input type="hidden" id="photo_url">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Speichern</button>
+                        <button type="button" id="cancel-btn" class="btn btn-secondary">Abbrechen</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Scanner Modal -->
+    <div id="scanner-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Barcode scannen</h3>
+                <button class="close-btn" id="close-scanner">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="scanner-container"></div>
+                <p class="scanner-hint">Barcode im Rahmen positionieren</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detail-name"></h3>
+                <button class="close-btn" id="close-detail">&times;</button>
+            </div>
+            <div class="modal-body" id="detail-content">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-actions">
+                <button id="edit-gin-btn" class="btn btn-secondary">Bearbeiten</button>
+                <button id="delete-gin-btn" class="btn btn-danger">Löschen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/scanner.js"></script>
+    <script>
+        // Check authentication before loading app
+        (async () => {
+            const user = await requireAuth();
+            if (user) {
+                // Display user info
+                const userName = user.full_name || user.username;
+                document.getElementById('user-name').textContent = userName;
+
+                // Show admin badge and link if user is admin
+                if (user.is_admin) {
+                    document.getElementById('admin-badge').style.display = 'inline-block';
+                    document.getElementById('admin-nav-btn').style.display = 'block';
+                }
+
+                // Setup logout button
+                document.getElementById('logout-btn').addEventListener('click', async () => {
+                    if (confirm('Möchtest du dich wirklich abmelden?')) {
+                        await logout();
+                    }
+                });
+            }
+        })();
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+
+</html>
