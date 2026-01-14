@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="GinVault - Der digitale Tresor für Gin-Sammler. Strukturierte Verkostungen, Bestandsverwaltung, Marktwert-Analysen und KI-gestützte Empfehlungen.">
+    <meta name="keywords" content="Gin, Sammlung, Verkostung, Destillerie, Premium, GinVault">
+    <title>GinVault – Where Gin Becomes Legacy</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-container">
+                <img src="assets/logo.jpg" alt="GinVault Logo" class="logo">
+                <span class="brand-name">GinVault</span>
+            </div>
+            <nav class="nav">
+                <a href="#story" class="nav-link" data-i18n="nav-story">Story</a>
+                <a href="#features" class="nav-link" data-i18n="nav-features">Features</a>
+                <a href="#vision" class="nav-link" data-i18n="nav-vision">Vision</a>
+                <a href="#cta" class="nav-link cta-button" data-i18n="nav-cta">Early Access</a>
+                <button class="language-toggle" id="languageToggle" aria-label="Switch language">
+                    <span class="lang-flag">🇩🇪</span>
+                    <span class="lang-code">DE</span>
+                </button>
+            </nav>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-background"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="title-line" data-i18n="hero-title-1">Where Gin</span>
+                    <span class="title-line" data-i18n="hero-title-2">Becomes</span>
+                    <span class="title-line highlight" data-i18n="hero-title-3">Legacy</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero-subtitle">Der digitale Tresor für Gin-Sammler, die ihre
+                    Leidenschaft bewahren,
+                    strukturieren und teilen möchten.</p>
+                <div class="hero-cta">
+                    <a href="#cta" class="btn btn-primary" data-i18n="hero-cta-primary">Jetzt entdecken</a>
+                    <a href="#story" class="btn btn-secondary" data-i18n="hero-cta-secondary">Mehr erfahren</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="floating-card card-1">
+                    <div class="card-icon">🍸</div>
+                    <div class="card-text" data-i18n="hero-card1">Strukturierte Verkostungen</div>
+                </div>
+                <div class="floating-card card-2">
+                    <div class="card-icon">📊</div>
+                    <div class="card-text" data-i18n="hero-card2">Marktwert-Analysen</div>
+                </div>
+                <div class="floating-card card-3">
+                    <div class="card-icon">🤖</div>
+                    <div class="card-text" data-i18n="hero-card3">KI-Empfehlungen</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="story" id="story">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="story-label">Die Geschichte</span>
+                <h2 class="section-title" data-i18n="story-title">Gin ist mehr als ein Getränk</h2>
+            </div>
+            <div class="story-grid">
+                <div class="story-card">
+                    <div class="story-icon">🌿</div>
+                    <h3 data-i18n="story-card1-title">Handwerk & Herkunft</h3>
+                    <p data-i18n="story-card1-text">Jede Flasche erzählt eine Geschichte – von Destillerien, die mit
+                        Leidenschaft brennen, von
+                        Botanicals, die Regionen prägen.</p>
+                </div>
+                <div class="story-card">
+                    <div class="story-icon">💎</div>
+                    <h3 data-i18n="story-card2-title">Sammler & Charakter</h3>
+                    <p data-i18n="story-card2-text">Sammler feiern diese Vielfalt, doch ihre Geschichten gehen oft
+                        verloren: in Notizen, Tabellen,
+                        Fotos oder im Kopf.</p>
+                </div>
+                <div class="story-card">
+                    <div class="story-icon">🔐</div>
+                    <h3 data-i18n="story-card3-title">GinVault – Die Lösung</h3>
+                    <p data-i18n="story-card3-text">Ein digitaler Tresor, der alles vereint, was eine Sammlung lebendig
+                        macht. Struktur trifft auf
+                        Genuss.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="features-label">Features</span>
+                <h2 class="section-title" data-i18n="features-title">Alles, was Ihre Sammlung lebendig macht</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="feature1-title">Strukturierte Verkostungen</h3>
+                    <p data-i18n="feature1-text">Erfassen Sie Aromen, Noten und Eindrücke mit einem professionellen
+                        Tasting-System. Ihre
+                        Verkostungen werden zu wertvollen Erinnerungen.</p>
+                    <div class="feature-stats">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label" data-i18n="feature1-stat">Verkostungsnotizen</span>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="feature2-title">Präzise Bestandsverwaltung</h3>
+                    <p data-i18n="feature2-text">Verwalten Sie Ihre Sammlung mit allen Details: Destillerie, Jahrgang,
+                        Füllstand, Standort.
+                        Behalten Sie den Überblick.</p>
+                    <div class="feature-stats">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label" data-i18n="feature2-stat">Transparenz</span>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="feature3-title">Marktwert-Analysen</h3>
+                    <p data-i18n="feature3-text">Verstehen Sie den Wert Ihrer Sammlung. Erhalten Sie Einblicke in
+                        Markttrends und
+                        Preisentwicklungen seltener Abfüllungen.</p>
+                    <div class="feature-stats">
+                        <span class="stat-number">Live</span>
+                        <span class="stat-label" data-i18n="feature3-stat">Marktdaten</span>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </div>
+                    <h3 data-i18n="feature4-title">KI-gestützte Empfehlungen</h3>
+                    <p data-i18n="feature4-text">Entdecken Sie neue Gins basierend auf Ihren Vorlieben. Unsere KI lernt
+                        Ihren Geschmack und
+                        schlägt passende Abfüllungen vor.</p>
+                    <div class="feature-stats">
+                        <span class="stat-number">Smart</span>
+                        <span class="stat-label" data-i18n="feature4-stat">Algorithmus</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision Section -->
+    <section class="vision" id="vision">
+        <div class="container">
+            <div class="vision-content">
+                <div class="vision-text">
+                    <span class="section-label" data-i18n="vision-label">Vision</span>
+                    <h2 class="section-title" data-i18n="vision-title">Mehr als ein Tool</h2>
+                    <p class="vision-description" data-i18n="vision-description">
+                        GinVault ist ein Ort, an dem Sammler ihre Schätze bewahren, vergleichen, entdecken und teilen
+                        können.
+                    </p>
+                    <div class="vision-features">
+                        <div class="vision-feature">
+                            <div class="vision-feature-icon">✓</div>
+                            <div>
+                                <h4 data-i18n="vision-feature1-title">Bewahren</h4>
+                                <p data-i18n="vision-feature1-text">Jede Flasche, jede Verkostung, jede Erinnerung –
+                                    sicher verwahrt</p>
+                            </div>
+                        </div>
+                        <div class="vision-feature">
+                            <div class="vision-feature-icon">✓</div>
+                            <div>
+                                <h4 data-i18n="vision-feature2-title">Vergleichen</h4>
+                                <p data-i18n="vision-feature2-text">Analysieren Sie Ihre Sammlung und entdecken Sie
+                                    Muster</p>
+                            </div>
+                        </div>
+                        <div class="vision-feature">
+                            <div class="vision-feature-icon">✓</div>
+                            <div>
+                                <h4 data-i18n="vision-feature3-title">Entdecken</h4>
+                                <p data-i18n="vision-feature3-text">Neue Destillerien, Botanicals und
+                                    Geschmacksrichtungen</p>
+                            </div>
+                        </div>
+                        <div class="vision-feature">
+                            <div class="vision-feature-icon">✓</div>
+                            <div>
+                                <h4 data-i18n="vision-feature4-title">Teilen</h4>
+                                <p data-i18n="vision-feature4-text">Ihre Leidenschaft mit einer Community von
+                                    Gleichgesinnten</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="vision-visual">
+                    <div class="glass-card">
+                        <div class="glass-card-content">
+                            <div class="stat-display">
+                                <div class="stat-item">
+                                    <span class="stat-value" data-target="247">0</span>
+                                    <span class="stat-label" data-i18n="stat-bottles">Flaschen</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value" data-target="89">0</span>
+                                    <span class="stat-label" data-i18n="stat-distilleries">Destillerien</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value" data-target="156">0</span>
+                                    <span class="stat-label" data-i18n="stat-tastings">Verkostungen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title" data-i18n="cta-title">Bereit für GinVault?</h2>
+                <p class="cta-subtitle" data-i18n="cta-subtitle">Sichern Sie sich frühzeitigen Zugang und werden Sie
+                    Teil einer exklusiven
+                    Community von Gin-Sammlern.</p>
+                <form class="cta-form" id="earlyAccessForm">
+                    <input type="email" placeholder="Ihre E-Mail-Adresse" class="cta-input"
+                        data-i18n-placeholder="cta-email-placeholder" required>
+                    <button type="submit" class="btn btn-primary" data-i18n="cta-button">Early Access sichern</button>
+                </form>
+                <p class="cta-note" data-i18n="cta-note">Kein Spam. Nur Updates zu GinVault und exklusive Einblicke.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/logo.jpg" alt="GinVault Logo" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer-tagline">Where Gin Becomes Legacy</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#story" data-i18n="nav-story">Story</a>
+                    <a href="#features" data-i18n="nav-features">Features</a>
+                    <a href="#vision" data-i18n="nav-vision">Vision</a>
+                    <a href="#cta" data-i18n="nav-cta">Early Access</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GinVault. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

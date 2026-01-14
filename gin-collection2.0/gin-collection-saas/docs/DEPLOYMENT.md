@@ -44,17 +44,44 @@ git clone https://github.com/yourusername/gin-collection-saas.git
 cd gin-collection-saas
 ```
 
-### 2. Setup Environment
+### 2. Start Docker Desktop (Windows/macOS)
+
+**⚠️ WICHTIG:** Bevor Sie fortfahren!
+
+1. **Öffnen Sie Docker Desktop:**
+   - Windows: Suchen Sie "Docker Desktop" im Startmenü
+   - macOS: Öffnen Sie Docker Desktop aus Applications
+
+2. **Warten Sie auf grünes Icon:**
+   - Das Docker-Icon in der Taskleiste/Menu Bar sollte grün sein
+   - Es sollte "Docker Desktop is running" anzeigen
+   - Dies dauert ca. 30-60 Sekunden
+
+3. **Prüfen Sie die Installation:**
+   ```bash
+   docker --version
+   docker compose version
+   ```
+
+### 3. Setup Environment
 
 ```bash
 cp .env.example .env
 # Edit .env with your local configuration
 ```
 
-### 3. Start Services
+### 4. Start Services
+
+#### Option A: Windows Automated (Empfohlen)
+
+Doppelklicken Sie auf: **`test-docker.bat`**
+
+Das Script macht alles automatisch!
+
+#### Option B: Manual
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 4. Run Migrations

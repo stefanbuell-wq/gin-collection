@@ -8,12 +8,16 @@
 1. Download Docker Desktop: https://www.docker.com/products/docker-desktop
 2. Run installer
 3. Restart computer
-4. Open Docker Desktop
+4. **Start Docker Desktop** (wichtig!)
+   - Suchen Sie "Docker Desktop" im Windows-Startmenü
+   - Warten Sie, bis das Icon grün ist (30-60 Sekunden)
 5. Verify installation:
    ```bash
    docker --version
    docker compose version
    ```
+
+**⚠️ WICHTIG:** Docker Desktop muss laufen, bevor Sie Services starten können!
 
 **macOS:**
 ```bash
@@ -39,7 +43,24 @@ cd gin-collection-saas
 
 ## Local Deployment (5 Minutes)
 
-### Option 1: Automated Test Script
+### Option 1A: Windows Automated Script (Empfohlen)
+
+**Für Windows-Benutzer:**
+
+1. Stellen Sie sicher, dass Docker Desktop läuft (Icon ist grün)
+2. Öffnen Sie den Projektordner im Explorer
+3. Doppelklicken Sie auf: **`test-docker.bat`**
+
+Das Script macht automatisch:
+- ✅ Docker Installation Check
+- ✅ Docker Daemon Check
+- ✅ .env Datei erstellen
+- ✅ Services starten
+- ✅ Health Checks durchführen
+- ✅ API testen
+- ✅ Status anzeigen
+
+### Option 1B: Linux/Mac Automated Script
 
 ```bash
 # Make script executable
