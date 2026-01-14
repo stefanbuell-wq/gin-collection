@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: gin-collection-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-dev_root_password}
+      MYSQL_DATABASE: ${DB_NAME:-gin_collection}
+      MYSQL_USER: ${DB_USER:-gin_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-dev_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./internal/infrastructure/database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-dev_root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: gin-collection-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: gin-collection-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      # Database
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-gin_app}
+      DB_PASSWORD: ${DB_PASSWORD:-dev_password}
+      DB_NAME: ${DB_NAME:-gin_collection}
+
+      # Redis
+      REDIS_URL: redis:6379
+
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-24h}
+
+      # S3
+      S3_BUCKET: ${S3_BUCKET:-gin-collection-photos}
+      S3_REGION: ${S3_REGION:-eu-central-1}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+
+      # PayPal
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      PAYPAL_WEBHOOK_ID: ${PAYPAL_WEBHOOK_ID}
+
+      # App
+      APP_ENV: ${APP_ENV:-development}
+      APP_PORT: 8080
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+
+      # CORS
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: gin-collection-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      - api
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  gin-network:
+    driver: bridge

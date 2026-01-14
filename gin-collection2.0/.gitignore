@@ -1,0 +1,133 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.out
+coverage.html
+
+# Dependency directories
+vendor/
+node_modules/
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS files
+Thumbs.db
+*.log
+
+# Build artifacts
+gin-collection-saas/cmd/api/api
+gin-collection-saas/cmd/api/main
+api
+main
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker volumes and data
+mysql_data/
+redis_data/
+prometheus_data/
+grafana_data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+tmpclaude-*
+
+# Frontend build
+gin-collection-saas/frontend/dist/
+gin-collection-saas/frontend/build/
+gin-collection-saas/frontend/.vite/
+gin-collection-saas/frontend/coverage/
+gin-collection-saas/frontend/node_modules/
+
+# Backup files
+*.backup
+*.bak
+gin-collection-saas/backups/*.sql.gz
+gin-collection-saas/backups/*.rdb
+
+# Log files
+*.log
+logs/
+/var/log/
+
+# SSL/TLS certificates (don't commit private keys!)
+*.pem
+*.key
+*.crt
+ssl/
+
+# Test databases
+test_gin_collection_*
+
+# K6 results
+*.html
+summary.json
+
+# Claude temp files
+.claude/
+tmpclaude-*
+
+# Old PHP app (if you want to exclude it)
+# gin-collection-complete/
+
+# Zip files
+*.zip
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# Vim
+*.swp
+*.swo
+
+# Project specific
+gin-collection-saas/scripts/*.log
