@@ -39,11 +39,11 @@ go.work
 Thumbs.db
 *.log
 
-# Build artifacts
-gin-collection-saas/cmd/api/api
-gin-collection-saas/cmd/api/main
-api
-main
+# Build artifacts (compiled binaries only)
+/api
+/main
+gin-collection-saas/api
+gin-collection-saas/main
 
 # Database files
 *.db

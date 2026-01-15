@@ -1,0 +1,242 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/yourusername/gin-collection-saas/internal/delivery/http/handler"
+	adminHandler "github.com/yourusername/gin-collection-saas/internal/delivery/http/handler/admin"
+	"github.com/yourusername/gin-collection-saas/internal/delivery/http/middleware"
+	"github.com/yourusername/gin-collection-saas/internal/delivery/http/router"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/database"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/external"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/storage"
+	"github.com/yourusername/gin-collection-saas/internal/repository/mysql"
+	adminUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/admin"
+	"github.com/yourusername/gin-collection-saas/internal/usecase/auth"
+	botanicalUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/botanical"
+	cocktailUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/cocktail"
+	ginUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/gin"
+	photoUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/photo"
+	subscriptionUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/subscription"
+	userUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/user"
+	"github.com/yourusername/gin-collection-saas/pkg/config"
+	"github.com/yourusername/gin-collection-saas/pkg/logger"
+)
+
+func main() {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
+	// Initialize logger
+	logger.Init(cfg.App.LogLevel)
+	logger.Info("Starting Gin Collection SaaS API", "version", "1.0.0", "env", cfg.App.Env)
+
+	// Connect to MySQL
+	db, err := database.NewMySQL(
+		cfg.Database.DSN(),
+		cfg.Database.MaxConns,
+		cfg.Database.MaxIdle,
+	)
+	if err != nil {
+		logger.Error("Failed to connect to database", "error", err.Error())
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	logger.Info("Connected to MySQL database", "host", cfg.Database.Host, "database", cfg.Database.Name)
+
+	// Initialize Tenant Router (for hybrid multi-tenancy)
+	tenantRouter := database.NewTenantRouter(db)
+	defer tenantRouter.Close()
+
+	// Initialize repositories
+	tenantRepo := mysql.NewTenantRepository(db)
+	userRepo := mysql.NewUserRepository(db)
+	ginRepo := mysql.NewGinRepository(db)
+	usageMetricsRepo := mysql.NewUsageMetricsRepository(db)
+	subscriptionRepo := mysql.NewSubscriptionRepository(db)
+	botanicalRepo := mysql.NewBotanicalRepository(db)
+	cocktailRepo := mysql.NewCocktailRepository(db)
+	photoRepo := mysql.NewPhotoRepository(db)
+	auditLogRepo := mysql.NewAuditLogRepository(db)
+	platformAdminRepo := mysql.NewPlatformAdminRepository(db)
+
+	logger.Info("Repositories initialized")
+
+	// Initialize PayPal client
+	paypalClient := external.NewPayPalClient(&external.PayPalConfig{
+		ClientID:     cfg.PayPal.ClientID,
+		ClientSecret: cfg.PayPal.ClientSecret,
+		Mode:         cfg.PayPal.Mode,
+	})
+
+	// Initialize S3 client
+	s3Client, err := storage.NewS3Client(&storage.S3Config{
+		Bucket:          cfg.S3.Bucket,
+		Region:          cfg.S3.Region,
+		Endpoint:        cfg.S3.Endpoint,
+		AccessKeyID:     cfg.S3.AccessKeyID,
+		SecretAccessKey: cfg.S3.SecretAccessKey,
+	})
+	if err != nil {
+		logger.Error("Failed to initialize S3 client", "error", err.Error())
+		log.Fatalf("Failed to initialize S3 client: %v", err)
+	}
+
+	// Initialize Email client
+	emailClient := external.NewEmailClient(&external.EmailConfig{
+		Host:       cfg.SMTP.Host,
+		Port:       cfg.SMTP.Port,
+		Username:   cfg.SMTP.Username,
+		Password:   cfg.SMTP.Password,
+		FromEmail:  cfg.SMTP.FromEmail,
+		FromName:   cfg.SMTP.FromName,
+		TLS:        cfg.SMTP.TLS,
+		SkipVerify: cfg.SMTP.SkipVerify,
+	})
+	logger.Info("Email client initialized", "host", cfg.SMTP.Host, "from", cfg.SMTP.FromEmail)
+
+	// Initialize use cases
+	authService := auth.NewService(
+		userRepo,
+		tenantRepo,
+		cfg.JWT.Secret,
+		cfg.JWT.Expiration,
+	)
+
+	ginService := ginUsecase.NewService(
+		ginRepo,
+		usageMetricsRepo,
+	)
+
+	subscriptionService := subscriptionUsecase.NewService(
+		subscriptionRepo,
+		tenantRepo,
+		paypalClient,
+		cfg.App.BaseURL,
+	)
+
+	botanicalService := botanicalUsecase.NewService(
+		botanicalRepo,
+		ginRepo,
+	)
+
+	cocktailService := cocktailUsecase.NewService(
+		cocktailRepo,
+		ginRepo,
+	)
+
+	photoService := photoUsecase.NewService(
+		photoRepo,
+		ginRepo,
+		usageMetricsRepo,
+		tenantRepo,
+		s3Client,
+	)
+
+	userService := userUsecase.NewService(
+		userRepo,
+		tenantRepo,
+		auditLogRepo,
+		emailClient,
+		cfg.App.BaseURL,
+	)
+
+	// Initialize Platform Admin Service
+	adminService := adminUsecase.NewService(
+		platformAdminRepo,
+		db,
+		cfg.JWT.Secret,
+	)
+
+	logger.Info("Services initialized")
+
+	// Initialize HTTP handlers
+	authHandler := handler.NewAuthHandler(authService)
+	ginHandler := handler.NewGinHandler(ginService)
+	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)
+	webhookHandler := handler.NewWebhookHandler(subscriptionService)
+	botanicalHandler := handler.NewBotanicalHandler(botanicalService)
+	cocktailHandler := handler.NewCocktailHandler(cocktailService)
+	photoHandler := handler.NewPhotoHandler(photoService)
+	userHandler := handler.NewUserHandler(userService)
+	tenantHandler := handler.NewTenantHandler(tenantRepo, usageMetricsRepo)
+
+	// Initialize middleware
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret, userRepo)
+	tenantMiddleware := middleware.NewTenantMiddleware(tenantRepo)
+	tierEnforcement := middleware.NewTierEnforcementMiddleware(usageMetricsRepo)
+	platformAdminMiddleware := middleware.NewPlatformAdminMiddleware(adminService)
+
+	// Initialize Admin handlers
+	platformAdminHandler := adminHandler.NewHandler(adminService)
+
+	logger.Info("Handlers and middleware initialized")
+
+	// Setup router
+	routerCfg := &router.RouterConfig{
+		AuthHandler:         authHandler,
+		GinHandler:          ginHandler,
+		SubscriptionHandler: subscriptionHandler,
+		WebhookHandler:      webhookHandler,
+		BotanicalHandler:    botanicalHandler,
+		CocktailHandler:     cocktailHandler,
+		PhotoHandler:        photoHandler,
+		UserHandler:         userHandler,
+		TenantHandler:       tenantHandler,
+		AuthMiddleware:      authMiddleware,
+		TenantMiddleware:    tenantMiddleware,
+		TierEnforcement:     tierEnforcement,
+		AllowedOrigins:      cfg.App.AllowedOrigins,
+	}
+
+	r := router.Setup(routerCfg)
+
+	// Setup Admin routes
+	adminRouterCfg := &router.AdminRouterConfig{
+		AdminHandler:        platformAdminHandler,
+		PlatformAdminMiddle: platformAdminMiddleware,
+		AllowedOrigins:      cfg.App.AllowedOrigins,
+	}
+	router.SetupAdminRoutes(r, adminRouterCfg)
+
+	logger.Info("Admin routes initialized")
+
+	// Start server
+	addr := fmt.Sprintf(":%d", cfg.App.Port)
+	logger.Info("Starting HTTP server", "addr", addr, "env", cfg.App.Env)
+
+	fmt.Printf("\n")
+	fmt.Printf("╔═══════════════════════════════════════════════════════════════╗\n")
+	fmt.Printf("║                                                               ║\n")
+	fmt.Printf("║           🍸 Gin Collection SaaS API v1.0.0                   ║\n")
+	fmt.Printf("║                                                               ║\n")
+	fmt.Printf("╠═══════════════════════════════════════════════════════════════╣\n")
+	fmt.Printf("║  Server:    http://localhost%s                          ║\n", addr)
+	fmt.Printf("║  Health:    http://localhost%s/health                   ║\n", addr)
+	fmt.Printf("║  Admin:     http://localhost%s/admin/api/v1             ║\n", addr)
+	fmt.Printf("║  Env:       %-49s ║\n", cfg.App.Env)
+	fmt.Printf("║  Database:  %-49s ║\n", cfg.Database.Name)
+	fmt.Printf("╚═══════════════════════════════════════════════════════════════╝\n")
+	fmt.Printf("\n")
+
+	if err := r.Run(addr); err != nil {
+		logger.Error("Failed to start server", "error", err.Error())
+		log.Fatalf("Failed to start server: %v", err)
+	}
+}
+
+// init loads environment variables from .env file if present
+func init() {
+	// Try to load .env file (optional)
+	if _, err := os.Stat(".env"); err == nil {
+		// .env exists, load it
+		// Note: We're using simple env variables, no external lib needed
+		logger.Debug(".env file found")
+	}
+}
