@@ -1,0 +1,580 @@
+/* ============================================
+   Admin Tenants Page - Premium GinVault Design
+   ============================================ */
+
+.admin-tenants {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Loader */
+.admin-tenants-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+.admin-tenants-loader__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--gold);
+  animation: spin 1s linear infinite;
+}
+
+/* Header */
+.admin-tenants-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-tenants-header__content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-tenants-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-tenants-title svg {
+  width: 28px;
+  height: 28px;
+  color: var(--gold);
+}
+
+.admin-tenants-count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+}
+
+.admin-tenants-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-tenants-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-tenants-search:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 168, 87, 0.1);
+}
+
+.admin-tenants-search svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.admin-tenants-search__input {
+  width: 220px;
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.admin-tenants-search__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.admin-tenants-search__input::placeholder {
+  color: var(--text-muted);
+}
+
+.admin-tenants-refresh {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-tenants-refresh:hover {
+  background: var(--glass-hover);
+  border-color: var(--gold);
+  color: var(--text-primary);
+}
+
+.admin-tenants-refresh svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Error */
+.admin-tenants-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.admin-tenants-error svg {
+  width: 20px;
+  height: 20px;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.admin-tenants-error span {
+  font-size: 0.9rem;
+  color: #ef4444;
+}
+
+/* Table */
+.admin-tenants-table-wrapper {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.admin-tenants-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-tenants-table thead tr {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-tenants-table th {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-tenants-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  vertical-align: middle;
+}
+
+.admin-tenants-table tbody tr {
+  transition: background 0.2s var(--ease-smooth);
+}
+
+.admin-tenants-table tbody tr:hover {
+  background: rgba(212, 168, 87, 0.05);
+}
+
+.admin-tenants-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-tenants-row--loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Organization Cell */
+.admin-tenants-org {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-tenants-org__avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--gold-muted);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-tenants-org__avatar svg {
+  width: 22px;
+  height: 22px;
+  color: var(--gold);
+}
+
+.admin-tenants-org__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-tenants-org__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-tenants-org__subdomain {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Tier Select */
+.admin-tenants-tier-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+  min-width: 100px;
+}
+
+.admin-tenants-tier-select option {
+  background: var(--vault-dark);
+  color: var(--text-primary);
+}
+
+/* Badges */
+.admin-tenants-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-tenants-badge--free,
+.admin-tenants-tier-select.admin-tenants-badge--free {
+  background: rgba(107, 107, 99, 0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(107, 107, 99, 0.3);
+}
+
+.admin-tenants-badge--basic,
+.admin-tenants-tier-select.admin-tenants-badge--basic {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--mint);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.admin-tenants-badge--pro,
+.admin-tenants-tier-select.admin-tenants-badge--pro {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.admin-tenants-badge--enterprise,
+.admin-tenants-tier-select.admin-tenants-badge--enterprise {
+  background: var(--gold-muted);
+  color: var(--gold);
+  border: 1px solid rgba(212, 168, 87, 0.3);
+}
+
+.admin-tenants-badge--active {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--mint);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.admin-tenants-badge--suspended {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.admin-tenants-badge--cancelled {
+  background: rgba(107, 107, 99, 0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(107, 107, 99, 0.3);
+}
+
+/* Stats Cell */
+.admin-tenants-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-tenants-stats__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.admin-tenants-stats__item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+.admin-tenants-stats__divider {
+  color: var(--text-muted);
+}
+
+/* Date Cell */
+.admin-tenants-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.admin-tenants-date svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+
+/* Dropdown */
+.admin-tenants-dropdown {
+  position: relative;
+}
+
+.admin-tenants-dropdown__trigger {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-tenants-dropdown__trigger:hover {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  color: var(--text-primary);
+}
+
+.admin-tenants-dropdown__trigger svg {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-tenants-dropdown__spinner {
+  animation: spin 1s linear infinite;
+}
+
+.admin-tenants-dropdown__menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  min-width: 160px;
+  background: var(--vault-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+
+.admin-tenants-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.admin-tenants-dropdown__item:hover {
+  background: var(--glass-bg);
+}
+
+.admin-tenants-dropdown__item svg {
+  width: 18px;
+  height: 18px;
+}
+
+.admin-tenants-dropdown__item--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.admin-tenants-dropdown__item--success:hover {
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--mint);
+}
+
+/* Empty State */
+.admin-tenants-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.admin-tenants-empty svg {
+  width: 48px;
+  height: 48px;
+  color: var(--text-muted);
+}
+
+.admin-tenants-empty span {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* Pagination */
+.admin-tenants-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.admin-tenants-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-tenants-pagination__btn:hover:not(:disabled) {
+  background: var(--glass-hover);
+  border-color: var(--gold);
+  color: var(--text-primary);
+}
+
+.admin-tenants-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-tenants-pagination__btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.admin-tenants-pagination__info {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* Overlay */
+.admin-tenants-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .admin-tenants-search__input {
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-tenants-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-tenants-actions {
+    width: 100%;
+  }
+
+  .admin-tenants-search {
+    flex: 1;
+  }
+
+  .admin-tenants-search__input {
+    width: 100%;
+  }
+
+  .admin-tenants-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .admin-tenants-table {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-tenants-title {
+    font-size: 1.5rem;
+  }
+
+  .admin-tenants-title svg {
+    width: 24px;
+    height: 24px;
+  }
+}

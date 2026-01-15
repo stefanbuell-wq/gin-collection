@@ -1,0 +1,456 @@
+/* ============================================
+   Admin Dashboard - Premium GinVault Design
+   ============================================ */
+
+.admin-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Loader */
+.admin-dashboard-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+.admin-dashboard-loader__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--gold);
+  animation: spin 1s linear infinite;
+}
+
+/* Error State */
+.admin-dashboard-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+  text-align: center;
+}
+
+.admin-dashboard-error svg {
+  width: 48px;
+  height: 48px;
+  color: #ef4444;
+}
+
+.admin-dashboard-error span {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.admin-dashboard-error__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-dashboard-error__retry:hover {
+  background: var(--glass-hover);
+  border-color: var(--gold);
+}
+
+.admin-dashboard-error__retry svg {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+}
+
+/* Header */
+.admin-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.admin-dashboard-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+}
+
+.admin-dashboard-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-dashboard-refresh:hover {
+  background: var(--glass-hover);
+  border-color: var(--gold);
+  color: var(--text-primary);
+}
+
+.admin-dashboard-refresh svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Stats Grid */
+.admin-dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.admin-dashboard-stat {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.admin-dashboard-stat:hover {
+  border-color: var(--gold-muted);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.admin-dashboard-stat__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-dashboard-stat__icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Stat Color Variants */
+.admin-dashboard-stat--gold .admin-dashboard-stat__icon {
+  background: var(--gold-muted);
+}
+.admin-dashboard-stat--gold .admin-dashboard-stat__icon svg {
+  color: var(--gold);
+}
+
+.admin-dashboard-stat--mint .admin-dashboard-stat__icon {
+  background: rgba(78, 205, 196, 0.15);
+}
+.admin-dashboard-stat--mint .admin-dashboard-stat__icon svg {
+  color: var(--mint);
+}
+
+.admin-dashboard-stat--purple .admin-dashboard-stat__icon {
+  background: rgba(168, 85, 247, 0.15);
+}
+.admin-dashboard-stat--purple .admin-dashboard-stat__icon svg {
+  color: #a855f7;
+}
+
+.admin-dashboard-stat--copper .admin-dashboard-stat__icon {
+  background: rgba(184, 115, 51, 0.15);
+}
+.admin-dashboard-stat--copper .admin-dashboard-stat__icon svg {
+  color: var(--copper);
+}
+
+.admin-dashboard-stat--green .admin-dashboard-stat__icon {
+  background: rgba(34, 197, 94, 0.15);
+}
+.admin-dashboard-stat--green .admin-dashboard-stat__icon svg {
+  color: #22c55e;
+}
+
+.admin-dashboard-stat--red .admin-dashboard-stat__icon {
+  background: rgba(239, 68, 68, 0.15);
+}
+.admin-dashboard-stat--red .admin-dashboard-stat__icon svg {
+  color: #ef4444;
+}
+
+.admin-dashboard-stat__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-dashboard-stat__value {
+  font-family: var(--font-body);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.admin-dashboard-stat__label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.admin-dashboard-stat__desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Charts Row */
+.admin-dashboard-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.admin-dashboard-chart {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.admin-dashboard-chart--small {
+  min-width: 0;
+}
+
+.admin-dashboard-chart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-chart__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-dashboard-chart__legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-dashboard-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.admin-dashboard-chart__legend-item span:first-child {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.admin-dashboard-chart__legend-item--gold span:first-child {
+  background: var(--gold);
+}
+
+.admin-dashboard-chart__legend-item--mint span:first-child {
+  background: var(--mint);
+}
+
+.admin-dashboard-chart__container {
+  width: 100%;
+}
+
+.admin-dashboard-chart__container--pie {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Tier Legend */
+.admin-dashboard-tier-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.admin-dashboard-tier-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.admin-dashboard-tier-legend__color {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.admin-dashboard-tier-legend__name {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.admin-dashboard-tier-legend__value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Quick Stats */
+.admin-dashboard-quick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 28px 32px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-quick__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-dashboard-quick__icon {
+  width: 40px;
+  height: 40px;
+  color: var(--gold);
+}
+
+.admin-dashboard-quick__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-dashboard-quick__value {
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-dashboard-quick__label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.admin-dashboard-quick__divider {
+  width: 1px;
+  height: 50px;
+  background: var(--glass-border);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admin-dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-dashboard-title {
+    font-size: 1.75rem;
+  }
+
+  .admin-dashboard-stats {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .admin-dashboard-stat {
+    padding: 20px;
+  }
+
+  .admin-dashboard-stat__value {
+    font-size: 1.5rem;
+  }
+
+  .admin-dashboard-quick {
+    gap: 24px;
+  }
+
+  .admin-dashboard-quick__divider {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-dashboard-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-dashboard-stat {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .admin-dashboard-stat__icon {
+    margin: 0 auto;
+  }
+
+  .admin-dashboard-chart {
+    padding: 20px 16px;
+  }
+
+  .admin-dashboard-quick {
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+}
