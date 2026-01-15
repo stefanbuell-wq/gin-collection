@@ -18,6 +18,7 @@ type RouterConfig struct {
 	CocktailHandler     *handler.CocktailHandler
 	PhotoHandler        *handler.PhotoHandler
 	UserHandler         *handler.UserHandler
+	TenantHandler       *handler.TenantHandler
 	AuthMiddleware      *middleware.AuthMiddleware
 	TenantMiddleware    *middleware.TenantMiddleware
 	TierEnforcement     *middleware.TierEnforcementMiddleware
@@ -48,14 +49,24 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 		{
 			auth.POST("/register", cfg.AuthHandler.Register)
 
-			// Login requires tenant context
-			auth.POST("/login", cfg.TenantMiddleware.ExtractTenant(), cfg.AuthHandler.Login)
+			// Login with optional tenant (allows login via email only for localhost)
+			auth.POST("/login", cfg.TenantMiddleware.OptionalTenant(), cfg.AuthHandler.Login)
 
 			// Refresh token
 			auth.POST("/refresh", cfg.AuthHandler.RefreshToken)
 
 			// Logout (requires auth)
 			auth.POST("/logout", cfg.AuthMiddleware.RequireAuth(), cfg.AuthHandler.Logout)
+
+			// Protected auth routes (require tenant + auth)
+			authProtected := auth.Group("")
+			authProtected.Use(cfg.TenantMiddleware.ExtractTenant())
+			authProtected.Use(cfg.AuthMiddleware.RequireAuth())
+			{
+				authProtected.GET("/me", cfg.AuthHandler.GetMe)
+				authProtected.PUT("/profile", cfg.AuthHandler.UpdateProfile)
+				authProtected.POST("/change-password", cfg.AuthHandler.ChangePassword)
+			}
 		}
 
 		// Protected routes (require tenant + auth)
@@ -66,9 +77,9 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			// Tenants
 			tenants := protected.Group("/tenants")
 			{
-				tenants.GET("/current", placeholderHandler) // TODO: Implement
-				tenants.PUT("/current", placeholderHandler) // TODO: Implement
-				tenants.GET("/usage", placeholderHandler)   // TODO: Implement
+				tenants.GET("/current", cfg.TenantHandler.GetCurrent)
+				tenants.PUT("/current", cfg.TenantHandler.UpdateCurrent)
+				tenants.GET("/usage", cfg.TenantHandler.GetUsage)
 			}
 
 			// Subscriptions
@@ -96,19 +107,19 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				gins.GET("/:id/suggestions", cfg.TierEnforcement.RequireFeature("ai_suggestions"), cfg.GinHandler.Suggestions)
 
 				// Gin Botanicals (Pro+ feature)
-				gins.GET("/:gin_id/botanicals", cfg.TierEnforcement.RequireFeature("botanicals"), cfg.BotanicalHandler.GetGinBotanicals)
-				gins.PUT("/:gin_id/botanicals", cfg.TierEnforcement.RequireFeature("botanicals"), cfg.BotanicalHandler.UpdateGinBotanicals)
+				gins.GET("/:id/botanicals", cfg.TierEnforcement.RequireFeature("botanicals"), cfg.BotanicalHandler.GetGinBotanicals)
+				gins.PUT("/:id/botanicals", cfg.TierEnforcement.RequireFeature("botanicals"), cfg.BotanicalHandler.UpdateGinBotanicals)
 
 				// Gin Cocktails (Pro+ feature)
-				gins.GET("/:gin_id/cocktails", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.GetGinCocktails)
-				gins.POST("/:gin_id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.LinkCocktail)
-				gins.DELETE("/:gin_id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.UnlinkCocktail)
+				gins.GET("/:id/cocktails", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.GetGinCocktails)
+				gins.POST("/:id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.LinkCocktail)
+				gins.DELETE("/:id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.UnlinkCocktail)
 
 				// Gin Photos
-				gins.GET("/:gin_id/photos", cfg.PhotoHandler.GetPhotos)
-				gins.POST("/:gin_id/photos", cfg.PhotoHandler.Upload)
-				gins.DELETE("/:gin_id/photos/:photo_id", cfg.PhotoHandler.Delete)
-				gins.PUT("/:gin_id/photos/:photo_id/primary", cfg.PhotoHandler.SetPrimary)
+				gins.GET("/:id/photos", cfg.PhotoHandler.GetPhotos)
+				gins.POST("/:id/photos", cfg.PhotoHandler.Upload)
+				gins.DELETE("/:id/photos/:photo_id", cfg.PhotoHandler.Delete)
+				gins.PUT("/:id/photos/:photo_id/primary", cfg.PhotoHandler.SetPrimary)
 			}
 
 			// Botanicals (reference data, available to all)

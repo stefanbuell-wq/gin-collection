@@ -1,0 +1,592 @@
+/* ============================================
+   GinVault Login Page - Premium 2026 Design
+   Dark Green & Gold Glassmorphism Theme
+   ============================================ */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(
+    165deg,
+    var(--vault-deep) 0%,
+    var(--vault-dark) 40%,
+    #0D3528 100%
+  );
+  font-family: var(--font-body);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================
+   Ambient Background
+   ============================================ */
+.login-page__ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.login-ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.5;
+  animation: loginFloat 25s ease-in-out infinite;
+}
+
+.login-ambient-orb--1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+  top: -300px;
+  right: -200px;
+  animation-delay: 0s;
+}
+
+.login-ambient-orb--2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--mint) 0%, transparent 70%);
+  bottom: -200px;
+  left: -200px;
+  animation-delay: -8s;
+  opacity: 0.3;
+}
+
+.login-ambient-orb--3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--copper) 0%, transparent 70%);
+  top: 40%;
+  left: 10%;
+  animation-delay: -16s;
+  opacity: 0.25;
+}
+
+@keyframes loginFloat {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  25% { transform: translate(40px, -40px) scale(1.1) rotate(5deg); }
+  50% { transform: translate(-20px, 30px) scale(0.95) rotate(-3deg); }
+  75% { transform: translate(30px, 20px) scale(1.05) rotate(2deg); }
+}
+
+/* ============================================
+   Decorative Elements
+   ============================================ */
+.login-page__decor {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.decor-line {
+  position: absolute;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--gold) 50%,
+    transparent 100%
+  );
+  opacity: 0.1;
+}
+
+.decor-line--1 {
+  width: 100%;
+  height: 1px;
+  top: 20%;
+  animation: shimmer 8s ease-in-out infinite;
+}
+
+.decor-line--2 {
+  width: 1px;
+  height: 100%;
+  left: 15%;
+  animation: shimmerVertical 10s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.decor-line--3 {
+  width: 100%;
+  height: 1px;
+  bottom: 25%;
+  animation: shimmer 8s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+.decor-line--4 {
+  width: 1px;
+  height: 100%;
+  right: 20%;
+  animation: shimmerVertical 10s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.05; transform: scaleX(0.8); }
+  50% { opacity: 0.15; transform: scaleX(1); }
+}
+
+@keyframes shimmerVertical {
+  0%, 100% { opacity: 0.05; transform: scaleY(0.8); }
+  50% { opacity: 0.15; transform: scaleY(1); }
+}
+
+/* ============================================
+   Login Card
+   ============================================ */
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 48px 40px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 80px rgba(212, 168, 87, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  z-index: 1;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+   Logo & Header
+   ============================================ */
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 24px rgba(212, 168, 87, 0.3),
+    0 0 40px rgba(212, 168, 87, 0.2);
+  position: relative;
+}
+
+.login-logo::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(8px);
+}
+
+.login-logo svg {
+  color: var(--vault-deep);
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Error Message
+   ============================================ */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  color: #FCA5A5;
+  font-size: 0.875rem;
+}
+
+.login-error svg {
+  flex-shrink: 0;
+  color: #F87171;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.form-input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px 20px;
+  padding-left: 48px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:focus {
+  border-color: var(--gold);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(212, 168, 87, 0.1),
+    0 0 20px rgba(212, 168, 87, 0.1);
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  transition: color 0.3s var(--ease-smooth);
+  pointer-events: none;
+}
+
+.form-input:focus + .form-input-icon,
+.form-input:not(:placeholder-shown) + .form-input-icon {
+  color: var(--gold);
+}
+
+/* Password Toggle Button */
+.password-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s var(--ease-smooth);
+}
+
+.password-toggle:hover {
+  color: var(--gold);
+}
+
+/* ============================================
+   Forgot Password Link
+   ============================================ */
+.forgot-password {
+  display: block;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.3s var(--ease-smooth);
+  margin-top: -8px;
+}
+
+.forgot-password:hover {
+  color: var(--gold);
+}
+
+/* ============================================
+   Submit Button
+   ============================================ */
+.login-submit {
+  position: relative;
+  width: 100%;
+  padding: 18px 24px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vault-deep);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.login-submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s var(--ease-smooth);
+}
+
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(212, 168, 87, 0.4),
+    0 0 40px rgba(212, 168, 87, 0.2);
+}
+
+.login-submit:hover:not(:disabled)::before {
+  transform: translateX(100%);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-submit__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading Spinner */
+.login-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(15, 61, 46, 0.3);
+  border-top-color: var(--vault-deep);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.login-divider__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--glass-border) 50%,
+    transparent 100%
+  );
+}
+
+.login-divider__text {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   Register Link
+   ============================================ */
+.login-footer {
+  text-align: center;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.login-footer__text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.login-footer__link {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.login-footer__link:hover {
+  color: var(--gold-light);
+  text-shadow: 0 0 20px rgba(212, 168, 87, 0.5);
+}
+
+/* ============================================
+   Demo Accounts Info
+   ============================================ */
+.demo-accounts {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(126, 205, 160, 0.1);
+  border: 1px solid rgba(126, 205, 160, 0.2);
+  border-radius: 12px;
+}
+
+.demo-accounts__title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--mint);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-accounts__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.demo-account:hover {
+  background: rgba(0, 0, 0, 0.3);
+  transform: translateX(4px);
+}
+
+.demo-account__email {
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.demo-account__tier {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+
+  .login-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+  }
+
+  .login-title {
+    font-size: 1.75rem;
+  }
+
+  .form-input {
+    padding: 14px 16px;
+    padding-left: 44px;
+  }
+
+  .login-submit {
+    padding: 16px 20px;
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .login-ambient-orb,
+  .decor-line,
+  .login-submit::before {
+    animation: none;
+    transition: none;
+  }
+}

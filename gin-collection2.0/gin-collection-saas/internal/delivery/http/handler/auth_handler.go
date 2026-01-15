@@ -56,16 +56,20 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Get tenant from context (set by tenant middleware)
+	var authResp *models.AuthResponse
+	var err error
+
+	// Try to get tenant from context (set by tenant middleware)
 	tenantID, ok := middleware.GetTenantID(c)
-	if !ok {
-		logger.Error("Tenant ID not found in context")
-		c.JSON(400, gin.H{"error": "Tenant not found"})
-		return
+	if ok {
+		// Login with known tenant
+		authResp, err = h.authService.Login(c.Request.Context(), &req, tenantID)
+	} else {
+		// Fallback: Login by email only (for localhost or no subdomain)
+		logger.Debug("No tenant in context, trying login by email only")
+		authResp, err = h.authService.LoginByEmail(c.Request.Context(), &req)
 	}
 
-	// Login user
-	authResp, err := h.authService.Login(c.Request.Context(), &req, tenantID)
 	if err != nil {
 		logger.Error("Login failed", "error", err.Error())
 		response.Error(c, err)
@@ -107,5 +111,92 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// For now, just return success
 	response.Success(c, gin.H{
 		"message": "Logged out successfully",
+	})
+}
+
+// GetMe handles GET /api/v1/auth/me
+func (h *AuthHandler) GetMe(c *gin.Context) {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.ValidationError(c, map[string]string{
+			"error": "User not found in context",
+		})
+		return
+	}
+
+	user, err := h.authService.GetCurrentUser(c.Request.Context(), userID)
+	if err != nil {
+		logger.Error("Failed to get current user", "error", err.Error())
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, user)
+}
+
+// UpdateProfile handles PUT /api/v1/auth/profile
+func (h *AuthHandler) UpdateProfile(c *gin.Context) {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.ValidationError(c, map[string]string{
+			"error": "User not found in context",
+		})
+		return
+	}
+
+	var req struct {
+		FirstName *string `json:"first_name"`
+		LastName  *string `json:"last_name"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Debug("Invalid profile update request", "error", err.Error())
+		response.ValidationError(c, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := h.authService.UpdateProfile(c.Request.Context(), userID, req.FirstName, req.LastName)
+	if err != nil {
+		logger.Error("Profile update failed", "error", err.Error())
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, user)
+}
+
+// ChangePassword handles POST /api/v1/auth/change-password
+func (h *AuthHandler) ChangePassword(c *gin.Context) {
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		response.ValidationError(c, map[string]string{
+			"error": "User not found in context",
+		})
+		return
+	}
+
+	var req struct {
+		CurrentPassword string `json:"current_password" binding:"required"`
+		NewPassword     string `json:"new_password" binding:"required,min=8"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Debug("Invalid password change request", "error", err.Error())
+		response.ValidationError(c, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := h.authService.ChangePassword(c.Request.Context(), userID, req.CurrentPassword, req.NewPassword); err != nil {
+		logger.Error("Password change failed", "error", err.Error())
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{
+		"message": "Password changed successfully",
 	})
 }

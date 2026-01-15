@@ -1,0 +1,541 @@
+/* ============================================
+   Subscription Status Pages - Premium GinVault
+   (Success & Cancel)
+   ============================================ */
+
+.subscription-status-page {
+  min-height: 100vh;
+  background: var(--vault-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient Background Orbs */
+.subscription-status-ambient {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.subscription-status-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: subscriptionStatusOrbFloat 20s ease-in-out infinite;
+}
+
+.subscription-status-orb--gold {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(212, 168, 87, 0.3) 0%, transparent 70%);
+  top: -150px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.subscription-status-orb--mint {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(78, 205, 196, 0.25) 0%, transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  animation-delay: -7s;
+}
+
+.subscription-status-orb--green {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(15, 61, 46, 0.5) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -14s;
+}
+
+@keyframes subscriptionStatusOrbFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(-30px, -20px) scale(1.02);
+  }
+}
+
+/* Main Card */
+.subscription-status-card {
+  position: relative;
+  z-index: 1;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  max-width: 480px;
+  width: 100%;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Icon Container */
+.subscription-status-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.subscription-status-icon::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  filter: blur(15px);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.subscription-status-icon--activating {
+  background: linear-gradient(135deg, rgba(212, 168, 87, 0.2) 0%, rgba(212, 168, 87, 0.1) 100%);
+  border: 2px solid rgba(212, 168, 87, 0.3);
+}
+
+.subscription-status-icon--success {
+  background: linear-gradient(135deg, rgba(78, 205, 196, 0.2) 0%, rgba(78, 205, 196, 0.1) 100%);
+  border: 2px solid rgba(78, 205, 196, 0.3);
+}
+
+.subscription-status-icon--error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.subscription-status-icon--cancel {
+  background: linear-gradient(135deg, rgba(212, 168, 87, 0.2) 0%, rgba(212, 168, 87, 0.1) 100%);
+  border: 2px solid rgba(212, 168, 87, 0.3);
+}
+
+.subscription-status-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.subscription-status-icon--activating svg {
+  color: var(--gold);
+}
+
+.subscription-status-icon--success svg {
+  color: var(--mint);
+}
+
+.subscription-status-icon--error svg {
+  color: #ef4444;
+}
+
+.subscription-status-icon--cancel svg {
+  color: var(--gold);
+}
+
+/* Spinner Animation */
+.subscription-status-spinner {
+  animation: subscriptionStatusSpin 1s linear infinite;
+}
+
+@keyframes subscriptionStatusSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Title */
+.subscription-status-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+/* Description */
+.subscription-status-description {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+/* Buttons */
+.subscription-status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subscription-status-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+  text-decoration: none;
+}
+
+.subscription-status-btn--primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  border: none;
+  color: var(--vault-dark);
+  box-shadow: 0 4px 20px rgba(212, 168, 87, 0.3);
+}
+
+.subscription-status-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212, 168, 87, 0.4);
+}
+
+.subscription-status-btn--primary:active {
+  transform: translateY(0);
+}
+
+.subscription-status-btn--secondary {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+.subscription-status-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.subscription-status-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Divider */
+.subscription-status-divider {
+  margin: 24px 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
+/* Support Link */
+.subscription-status-support {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.subscription-status-support__text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.subscription-status-support__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--gold);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.subscription-status-support__link:hover {
+  color: var(--gold-light);
+}
+
+.subscription-status-support__link svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Success Confetti Effect */
+.subscription-status-confetti {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.subscription-status-confetti__particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Success Badge */
+.subscription-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(78, 205, 196, 0.15);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.subscription-status-badge__dot {
+  width: 8px;
+  height: 8px;
+  background: var(--mint);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+.subscription-status-badge__text {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mint);
+}
+
+/* Feature List (for success page) */
+.subscription-status-features {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.subscription-status-features__title {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 16px 0;
+}
+
+.subscription-status-features__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subscription-status-features__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.subscription-status-features__item svg {
+  width: 18px;
+  height: 18px;
+  color: var(--mint);
+  flex-shrink: 0;
+}
+
+/* Pulse Animation for Icon */
+.subscription-status-pulse {
+  animation: subscriptionStatusPulse 2s ease-in-out infinite;
+}
+
+@keyframes subscriptionStatusPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(78, 205, 196, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px 10px rgba(78, 205, 196, 0.2);
+  }
+}
+
+/* Cancel Warning Box */
+.subscription-status-warning {
+  background: rgba(212, 168, 87, 0.1);
+  border: 1px solid rgba(212, 168, 87, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.subscription-status-warning__text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--gold);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subscription-status-warning__text svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Logo */
+.subscription-status-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.subscription-status-logo__icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subscription-status-logo__icon svg {
+  width: 22px;
+  height: 22px;
+  color: var(--vault-dark);
+}
+
+.subscription-status-logo__text {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .subscription-status-page {
+    padding: 16px;
+  }
+
+  .subscription-status-card {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+
+  .subscription-status-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .subscription-status-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .subscription-status-title {
+    font-size: 1.5rem;
+  }
+
+  .subscription-status-btn {
+    padding: 14px 24px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Checkmark Animation */
+.subscription-status-checkmark {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: subscriptionStatusCheckmark 0.6s ease-out 0.3s forwards;
+}
+
+@keyframes subscriptionStatusCheckmark {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Loading Dots */
+.subscription-status-dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.subscription-status-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: subscriptionStatusDotBounce 1.4s ease-in-out infinite;
+}
+
+.subscription-status-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.subscription-status-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.subscription-status-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes subscriptionStatusDotBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}

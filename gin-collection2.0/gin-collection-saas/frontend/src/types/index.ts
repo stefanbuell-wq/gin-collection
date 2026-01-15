@@ -58,20 +58,27 @@ export interface Gin {
   name: string;
   brand?: string;
   country?: string;
+  region?: string;
   gin_type?: string;
   abv?: number;
-  fill_level?: string;
+  bottle_size?: number;
+  fill_level?: number;
   price?: number;
+  current_market_value?: number;
   barcode?: string;
   purchase_date?: string;
   purchase_location?: string;
   rating?: number;
   nose_notes?: string;
-  taste_notes?: string;
+  palate_notes?: string;
   finish_notes?: string;
-  overall_notes?: string;
-  serving_suggestion?: string;
+  general_notes?: string;
+  description?: string;
+  recommended_tonic?: string;
+  recommended_garnish?: string;
+  photo_url?: string;
   primary_photo_url?: string;
+  is_finished: boolean;
   is_favorite: boolean;
   is_available: boolean;
   created_at: string;
@@ -82,10 +89,25 @@ export interface GinCreateRequest {
   name: string;
   brand?: string;
   country?: string;
+  region?: string;
   gin_type?: string;
   abv?: number;
+  bottle_size?: number;
+  fill_level?: number;
   price?: number;
+  current_market_value?: number;
   barcode?: string;
+  purchase_date?: string;
+  purchase_location?: string;
+  rating?: number;
+  nose_notes?: string;
+  palate_notes?: string;
+  finish_notes?: string;
+  general_notes?: string;
+  description?: string;
+  recommended_tonic?: string;
+  recommended_garnish?: string;
+  is_finished?: boolean;
 }
 
 export interface GinListResponse {

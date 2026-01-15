@@ -38,7 +38,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const response = await authAPI.login(email, password);
-          const { token, refresh_token, user, tenant } = response.data;
+          // API returns { success: true, data: { token, user, tenant, ... } }
+          const apiResponse = response.data as unknown as { success: boolean; data: { token: string; refresh_token?: string; user: User; tenant: Tenant } };
+          const { token, refresh_token, user, tenant } = apiResponse.data;
 
           // Store tokens
           localStorage.setItem('auth_token', token);
@@ -82,7 +84,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const response = await authAPI.register(data);
-          const { token, refresh_token, user, tenant } = response.data;
+          // API returns { success: true, data: { token, user, tenant, ... } }
+          const apiResponse = response.data as unknown as { success: boolean; data: { token: string; refresh_token?: string; user: User; tenant: Tenant } };
+          const { token, refresh_token, user, tenant } = apiResponse.data;
 
           // Store tokens
           localStorage.setItem('auth_token', token);
@@ -108,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialise: (state) => ({
+      partialize: (state) => ({
         user: state.user,
         tenant: state.tenant,
         isAuthenticated: state.isAuthenticated,

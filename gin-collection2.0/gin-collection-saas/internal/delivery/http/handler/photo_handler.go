@@ -32,7 +32,7 @@ func (h *PhotoHandler) GetPhotos(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})
@@ -59,7 +59,7 @@ func (h *PhotoHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})
@@ -165,7 +165,7 @@ func (h *PhotoHandler) SetPrimary(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})

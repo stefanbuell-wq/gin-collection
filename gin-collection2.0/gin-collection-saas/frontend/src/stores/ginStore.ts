@@ -1,6 +1,12 @@
 import { create } from 'zustand';
-import type { Gin, GinStats, SearchParams } from '../types';
+import type { Gin, GinStats, GinListResponse, SearchParams } from '../types';
 import { ginAPI } from '../api/services';
+
+// Helper to unwrap API response
+function unwrap<T>(response: { data: unknown }): T {
+  const apiResponse = response.data as { success: boolean; data: T };
+  return apiResponse.data;
+}
 
 interface GinState {
   gins: Gin[];
@@ -24,7 +30,7 @@ interface GinState {
   clearError: () => void;
 }
 
-export const useGinStore = create<GinState>((set, get) => ({
+export const useGinStore = create<GinState>((set) => ({
   gins: [],
   currentGin: null,
   stats: null,
@@ -38,17 +44,19 @@ export const useGinStore = create<GinState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await ginAPI.list(params);
-      const { gins, total, page, limit } = response.data;
+      const data = unwrap<GinListResponse>(response);
+      const { gins, total, page, limit } = data;
 
       set({
-        gins,
-        total,
-        page,
-        limit,
+        gins: gins || [],
+        total: total || 0,
+        page: page || 1,
+        limit: limit || 20,
         isLoading: false,
       });
     } catch (error) {
       set({
+        gins: [],
         error: error instanceof Error ? error.message : 'Failed to fetch gins',
         isLoading: false,
       });
@@ -60,8 +68,9 @@ export const useGinStore = create<GinState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await ginAPI.get(id);
+      const gin = unwrap<Gin>(response);
       set({
-        currentGin: response.data,
+        currentGin: gin,
         isLoading: false,
       });
     } catch (error) {
@@ -76,9 +85,11 @@ export const useGinStore = create<GinState>((set, get) => ({
   fetchStats: async () => {
     try {
       const response = await ginAPI.stats();
-      set({ stats: response.data });
+      const stats = unwrap<GinStats>(response);
+      set({ stats });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+      set({ stats: null });
     }
   },
 
@@ -86,7 +97,7 @@ export const useGinStore = create<GinState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await ginAPI.create(data as any);
-      const newGin = response.data;
+      const newGin = unwrap<Gin>(response);
 
       set((state) => ({
         gins: [newGin, ...state.gins],
@@ -108,7 +119,7 @@ export const useGinStore = create<GinState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await ginAPI.update(id, data);
-      const updatedGin = response.data;
+      const updatedGin = unwrap<Gin>(response);
 
       set((state) => ({
         gins: state.gins.map((g) => (g.id === id ? updatedGin : g)),
@@ -148,11 +159,12 @@ export const useGinStore = create<GinState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await ginAPI.search(query);
-      const { gins, total } = response.data;
+      const data = unwrap<GinListResponse>(response);
+      const { gins, total } = data;
 
       set({
-        gins,
-        total,
+        gins: gins || [],
+        total: total || 0,
         isLoading: false,
       });
     } catch (error) {

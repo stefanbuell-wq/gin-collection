@@ -1,396 +1,221 @@
-# ✅ Phase 1-3 ABGESCHLOSSEN! Nächste Schritte
+# Gin Collection SaaS - Projektstatus
 
-## 🎉 Was wurde implementiert (Phase 1-3)
+## Projekt-Fortschritt
 
-### Phase 1: Foundation ✅
-- [x] Go-Projekt initialisiert
-- [x] Komplette Clean Architecture Struktur
-- [x] Docker Compose Setup (MySQL + Redis)
-- [x] MySQL Schema mit Multi-Tenancy (13 Tabellen)
-- [x] Config Management (Environment Variables)
-- [x] Tenant Router (Hybrid Multi-Tenancy)
+| Phase | Status | Beschreibung |
+|-------|--------|--------------|
+| 1. Foundation | ✅ 100% | Go-Projekt, Clean Architecture, Docker Setup |
+| 2. Domain Models | ✅ 100% | Tenant, User, Gin, Subscription Models |
+| 3. Auth & Middleware | ✅ 100% | JWT, RBAC, Tenant-Isolation |
+| 4. Core Gin API | ✅ 100% | CRUD, Search, Stats, Photo Upload |
+| 5. Subscriptions | ✅ 100% | PayPal Integration, Tier-Enforcement |
+| 6. Advanced Features | ✅ 100% | Botanicals, Cocktails, Export/Import |
+| 7. Enterprise | ✅ 100% | Multi-User, Audit-Log, Team Features |
+| 8. Frontend | ✅ 100% | React SPA, Dashboard, Settings |
+| 9. Admin Panel | ✅ 100% | Super-Admin, Tenant-Management |
+| 10. Deployment | ✅ 100% | Docker, CI/CD, Monitoring |
 
-### Phase 2: Domain Models ✅
-- [x] Tenant Model (4 Tiers: Free, Basic, Pro, Enterprise)
-- [x] User Model (RBAC: owner, admin, member, viewer)
-- [x] Gin Model (23 Felder)
-- [x] Subscription Model mit PayPal
-- [x] PlanLimits für Feature-Gating
-- [x] Domain Errors
-- [x] Repository Interfaces
-
-### Phase 3: Authentication & Middleware ✅
-- [x] JWT Utilities (Token Generation & Validation)
-- [x] Password Hashing (BCrypt)
-- [x] Structured Logger
-- [x] Auth Middleware (JWT Validation, RBAC)
-- [x] Tenant Middleware (Subdomain Extraction)
-- [x] CORS Middleware
-- [x] Auth Service (Login, Registration, Refresh)
-- [x] Auth Handler (HTTP Endpoints)
-- [x] Router Setup (API v1)
-- [x] Main Entry Point (cmd/api/main.go)
-- [x] MySQL Repositories (Tenant, User)
-
-### Statistik
-- **Dateien erstellt:** 35+
-- **Code-Zeilen:** ~5.000+
-- **Go Dependencies:** 50+ Pakete
-- **Kompilierung:** ✅ Erfolgreich
-- **Binary:** `bin/gin-api.exe`
+**Gesamt-Fortschritt: 100% - PRODUCTION READY**
 
 ---
 
-## 🚀 Sofort starten (Lokale Entwicklung)
+## Aktuelle Erweiterungen (2026-01-15)
 
-### Voraussetzungen
-✅ Go 1.25.5 (installiert)
-⚠️ Docker Desktop (noch benötigt)
-⚠️ MySQL Client (optional, für DB-Zugriff)
+### Frontend Integration
+- ✅ User Management mit echten API-Calls
+- ✅ Subscription/Payment Flow mit PayPal
+- ✅ PayPal Success/Cancel Callback-Seiten
 
-### Option 1: Mit Docker (Empfohlen)
+### Enterprise Features
+- ✅ SMTP Email-System für Einladungen
+- ✅ Database Migration CLI Tool
+- ✅ Invite Tokens & Password Reset Tokens
 
-1. **Docker Desktop installieren:**
-   - Download: https://www.docker.com/products/docker-desktop/
-   - Installation ausführen
-   - Docker Desktop starten
-
-2. **MySQL + Redis starten:**
-   ```bash
-   cd gin-collection-saas
-   docker-compose -f docker/docker-compose.yml up -d
-   ```
-
-3. **Datenbank initialisieren:**
-   ```bash
-   # Migrations ausführen
-   docker exec -i gin-mysql mysql -ugin_app -pgin_password gin_collection < internal/infrastructure/database/migrations/001_initial_schema.up.sql
-   ```
-
-4. **API Server starten:**
-   ```bash
-   go run cmd/api/main.go
-   ```
-
-5. **API testen:**
-   ```bash
-   # Health Check
-   curl http://localhost:8080/health
-
-   # Register (neuer Tenant)
-   curl -X POST http://localhost:8080/api/v1/auth/register \
-     -H "Content-Type: application/json" \
-     -d '{
-       "tenant_name": "My Gin Collection",
-       "subdomain": "mycollection",
-       "email": "owner@example.com",
-       "password": "securepassword123",
-       "first_name": "John",
-       "last_name": "Doe"
-     }'
-   ```
-
-### Option 2: Ohne Docker (Lokale MySQL-Installation)
-
-1. **MySQL 8.0 installieren:**
-   - Download: https://dev.mysql.com/downloads/mysql/
-   - Installation durchführen
-
-2. **Datenbank erstellen:**
-   ```sql
-   CREATE DATABASE gin_collection;
-   CREATE USER 'gin_app'@'localhost' IDENTIFIED BY 'gin_password';
-   GRANT ALL PRIVILEGES ON gin_collection.* TO 'gin_app'@'localhost';
-   FLUSH PRIVILEGES;
-   ```
-
-3. **Schema laden:**
-   ```bash
-   mysql -ugin_app -pgin_password gin_collection < internal/infrastructure/database/migrations/001_initial_schema.up.sql
-   ```
-
-4. **Redis installieren (optional):**
-   - Download: https://github.com/microsoftarchive/redis/releases
-   - Oder später via Docker
-
-5. **Server starten:**
-   ```bash
-   go run cmd/api/main.go
-   ```
+### Testdaten
+- ✅ Tenants für alle Tier-Levels erstellt
+- ✅ Benutzer mit verschiedenen Rollen
+- ✅ Gin-Daten für jeden Tenant
 
 ---
 
-## 📡 API Endpoints (Aktuell verfügbar)
+## Schnellstart
 
-### Authentication ✅
-```
-POST   /api/v1/auth/register         # Register new tenant + user
-POST   /api/v1/auth/login            # Login (requires tenant context)
-POST   /api/v1/auth/refresh          # Refresh JWT token
-POST   /api/v1/auth/logout           # Logout
-```
-
-### Health Checks ✅
-```
-GET    /health                        # Liveness check
-GET    /ready                         # Readiness check
-```
-
-### Noch nicht implementiert (Placeholder)
-```
-GET    /api/v1/tenants/current       # Get current tenant
-PUT    /api/v1/tenants/current       # Update tenant settings
-GET    /api/v1/tenants/usage         # Usage metrics
-
-GET    /api/v1/subscriptions/current # Current subscription
-GET    /api/v1/subscriptions/plans   # Available plans
-POST   /api/v1/subscriptions/upgrade # Upgrade tier
-
-GET    /api/v1/gins                  # List gins
-POST   /api/v1/gins                  # Create gin
-# ... und 20+ weitere Gin-Endpoints
-```
-
----
-
-## 🧪 Testing
-
-### Registrierung testen
-
+### 1. Docker Services starten
 ```bash
-curl -X POST http://localhost:8080/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "tenant_name": "Test Collection",
-    "subdomain": "test",
-    "email": "test@example.com",
-    "password": "password123",
-    "first_name": "Test",
-    "last_name": "User"
-  }'
+cd gin-collection-saas
+docker-compose up -d
 ```
 
-**Erwartete Antwort:**
-```json
-{
-  "success": true,
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": 1,
-      "tenant_id": 1,
-      "email": "test@example.com",
-      "role": "owner",
-      ...
-    },
-    "tenant": {
-      "id": 1,
-      "name": "Test Collection",
-      "subdomain": "test",
-      "tier": "free",
-      ...
-    }
-  }
-}
-```
-
-### Login testen
-
-**Wichtig:** Login benötigt Tenant-Context (via Subdomain)
-
+### 2. API Server starten
 ```bash
-# Option 1: Via Subdomain (wenn DNS konfiguriert)
-curl -X POST http://test.localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "password123"
-  }'
-
-# Option 2: Via JWT Token (wenn bereits registriert)
-# Nach Register hat man bereits einen Token
-```
-
----
-
-## 🔜 Phase 4: Core Gin API (Nächste Schritte)
-
-### Was noch implementiert werden muss:
-
-1. **Gin Repository** (`internal/repository/mysql/gin_repository.go`)
-   - CRUD Operationen für Gins
-   - Search & Filter
-   - Tenant-Scoping
-
-2. **Gin Service** (`internal/usecase/gin/service.go`)
-   - Business Logic
-   - Validation
-   - Usage Tracking (für Tier-Limits)
-
-3. **Gin Handler** (`internal/delivery/http/handler/gin_handler.go`)
-   - List, Create, Get, Update, Delete
-   - Search, Stats
-   - Export/Import
-
-4. **Tier Enforcement Middleware** (`internal/delivery/http/middleware/tier_enforcement.go`)
-   - Feature-Gating
-   - Limit-Checks (Max Gins, Photos, etc.)
-
-5. **Photo Upload** (`internal/infrastructure/storage/s3.go`)
-   - S3 Integration
-   - Local Storage Fallback
-
-### Geschätzter Aufwand:
-- Gin CRUD: 2-3 Stunden
-- Search & Stats: 1-2 Stunden
-- Tier Enforcement: 1 Stunde
-- Photo Upload: 2 Stunden
-
-**Total: ~6-8 Stunden für vollständige Gin-API**
-
----
-
-## 📊 Projekt-Status
-
-| Phase | Status | Fortschritt |
-|-------|--------|-------------|
-| 1. Foundation | ✅ Completed | 100% |
-| 2. Domain Models | ✅ Completed | 100% |
-| 3. Auth & Middleware | ✅ Completed | 100% |
-| 4. Core Gin API | ⏳ Pending | 0% |
-| 5. Subscriptions | ⏳ Pending | 0% |
-| 6. Advanced Features | ⏳ Pending | 0% |
-| 7. Enterprise | ⏳ Pending | 0% |
-| 8. Frontend | ⏳ Pending | 0% |
-
-**Gesamt-Fortschritt:** 37.5% (3 von 8 Phasen)
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: "Failed to connect to database"
-**Lösung:**
-1. Prüfen Sie ob MySQL läuft: `docker ps` oder `mysql --version`
-2. Prüfen Sie `.env` Datei (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
-3. Testen Sie MySQL-Verbindung: `mysql -h localhost -u gin_app -p gin_collection`
-
-### Problem: "Tenant not found"
-**Lösung:**
-1. Login benötigt Tenant-Context via Subdomain
-2. Für lokale Entwicklung: Registrieren Sie zuerst einen Tenant
-3. Oder verwenden Sie JWT-Token (set tenant_id im Token)
-
-### Problem: "Invalid or expired token"
-**Lösung:**
-1. Token läuft nach 24h ab
-2. Verwenden Sie `/api/v1/auth/refresh` mit refresh_token
-3. Oder melden Sie sich neu an
-
-### Problem: Port 8080 bereits belegt
-**Lösung:**
-```bash
-# Ändern Sie APP_PORT in .env Datei
-APP_PORT=8081
-
-# Oder finden Sie den blockierenden Prozess
-netstat -ano | findstr :8080
-taskkill /PID <PID> /F
-```
-
----
-
-## 📚 Nützliche Befehle
-
-### Build & Run
-```bash
-# Build
-go build -o bin/gin-api.exe cmd/api/main.go
-
-# Run
 go run cmd/api/main.go
+```
 
-# Mit Hot Reload (air installieren)
-go install github.com/cosmtrek/air@latest
-air
+### 3. Frontend starten
+```bash
+cd frontend
+npm run dev
+```
+
+### 4. Im Browser öffnen
+- **Frontend:** http://localhost:5173
+- **API:** http://localhost:8080
+- **Admin:** http://localhost:3001
+
+---
+
+## Test-Accounts
+
+Alle Passwörter: `Test123456`
+
+| Tier | Email | Subdomain |
+|------|-------|-----------|
+| Free | test@test.com | test123 |
+| Basic | basic@demo.local | basic-demo |
+| Pro | pro@demo.local | pro-demo |
+| Enterprise | enterprise@demo.local | enterprise-demo |
+
+### Enterprise mit mehreren Rollen:
+- `enterprise@demo.local` (owner)
+- `admin@enterprise.local` (admin)
+- `member@enterprise.local` (member)
+- `viewer@enterprise.local` (viewer)
+
+---
+
+## API Endpoints
+
+### Authentication
+```
+POST   /api/v1/auth/register
+POST   /api/v1/auth/login
+POST   /api/v1/auth/refresh
+POST   /api/v1/auth/logout
+```
+
+### Gins
+```
+GET    /api/v1/gins
+POST   /api/v1/gins
+GET    /api/v1/gins/:id
+PUT    /api/v1/gins/:id
+DELETE /api/v1/gins/:id
+GET    /api/v1/gins/stats
+GET    /api/v1/gins/search
+POST   /api/v1/gins/export
+POST   /api/v1/gins/import
+```
+
+### Users
+```
+GET    /api/v1/users
+POST   /api/v1/users/invite
+GET    /api/v1/users/:id
+PUT    /api/v1/users/:id
+DELETE /api/v1/users/:id
+```
+
+### Subscriptions
+```
+GET    /api/v1/subscriptions/current
+GET    /api/v1/subscriptions/plans
+POST   /api/v1/subscriptions/create
+POST   /api/v1/subscriptions/activate
+POST   /api/v1/subscriptions/cancel
+```
+
+### Tenant
+```
+GET    /api/v1/tenants/current
+PUT    /api/v1/tenants/current
+GET    /api/v1/tenants/usage
+```
+
+### Admin (Super-Admin)
+```
+POST   /admin/api/v1/auth/login
+GET    /admin/api/v1/tenants
+GET    /admin/api/v1/tenants/:id
+PUT    /admin/api/v1/tenants/:id
+POST   /admin/api/v1/tenants/:id/suspend
+POST   /admin/api/v1/tenants/:id/activate
+GET    /admin/api/v1/stats/overview
+```
+
+---
+
+## Nützliche Befehle
+
+### Database Migrations
+```bash
+# Status anzeigen
+go run cmd/migrate/main.go -command=status
+
+# Migrations ausführen
+go run cmd/migrate/main.go -command=up
+
+# Rollback
+go run cmd/migrate/main.go -command=down -steps=1
+
+# Neue Migration erstellen
+go run cmd/migrate/main.go -command=create -name="add_feature_x"
 ```
 
 ### Docker
 ```bash
-# Start all services
-docker-compose -f docker/docker-compose.yml up -d
+# Alle Services starten
+docker-compose up -d
 
-# Stop all services
-docker-compose -f docker/docker-compose.yml down
+# Logs anzeigen
+docker-compose logs -f api
 
-# View logs
-docker-compose -f docker/docker-compose.yml logs -f api
+# MySQL Shell
+docker exec -it gin-collection-mysql mysql -u root -p gin_collection
 
-# MySQL shell
-docker exec -it gin-mysql mysql -ugin_app -pgin_password gin_collection
-
-# Redis CLI
-docker exec -it gin-redis redis-cli
+# Services stoppen
+docker-compose down
 ```
 
-### Database
+### Build
 ```bash
-# Run migrations
-make migrate-up
+# API Binary bauen
+go build -o bin/gin-api.exe cmd/api/main.go
 
-# Rollback migrations
-make migrate-down
-
-# Connect to MySQL
-mysql -h localhost -u gin_app -p gin_collection
-
-# Export data
-mysqldump -u gin_app -p gin_collection > backup.sql
-```
-
-### Testing
-```bash
-# Run all tests
-go test ./...
-
-# Run with coverage
-go test -cover ./...
-
-# Run specific test
-go test -v ./internal/usecase/auth/...
+# Frontend bauen
+cd frontend && npm run build
 ```
 
 ---
 
-## 🎯 Empfohlener nächster Schritt
+## Dokumentation
 
-**Option 1: Weiter mit Phase 4 (Core Gin API)**
-```
-Implementierung von:
-- Gin CRUD Operations
-- Search & Filter
-- Statistics
-- Tier Enforcement
-```
-
-**Option 2: Erste Tests durchführen**
-```
-- Docker starten
-- Datenbank initialisieren
-- Server starten
-- API mit Postman/cURL testen
-```
-
-**Option 3: Frontend vorbereiten**
-```
-- React/Vue/Svelte Setup
-- API Client konfigurieren
-- Login/Register UI
-```
+- **Changelog:** [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- **Deployment:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- **Security Audit:** [docs/SECURITY_AUDIT.md](docs/SECURITY_AUDIT.md)
+- **Phase 10 Summary:** [docs/PHASE_10_SUMMARY.md](docs/PHASE_10_SUMMARY.md)
 
 ---
 
-**Welchen Weg möchten Sie einschlagen?**
+## Nächste Schritte (Optional)
 
-Ich kann Ihnen bei jedem dieser Schritte helfen! 🚀
+### Produktiv-Deployment
+1. SMTP-Server konfigurieren
+2. PayPal Live-Credentials einrichten
+3. S3-Bucket für Fotos konfigurieren
+4. SSL-Zertifikat einrichten
+5. Domain konfigurieren
+
+### Erweiterungen
+- [ ] Mobile App (React Native)
+- [ ] Social Features (Gin teilen)
+- [ ] Barcode-Scanner Integration
+- [ ] AI-basierte Gin-Empfehlungen
+- [ ] Marketplace für Gin-Tausch
+
+---
+
+## Support
+
+Bei Fragen oder Problemen:
+- GitHub Issues: https://github.com/yourusername/gin-collection-saas/issues
+- Email: support@gin-collection.local

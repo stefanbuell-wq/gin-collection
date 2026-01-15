@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/yourusername/gin-collection-saas/internal/domain/errors"
 	"github.com/yourusername/gin-collection-saas/internal/domain/models"
 	"github.com/yourusername/gin-collection-saas/internal/domain/repositories"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/external"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
 )
 
@@ -18,6 +21,8 @@ type Service struct {
 	userRepo      repositories.UserRepository
 	tenantRepo    repositories.TenantRepository
 	auditLogRepo  repositories.AuditLogRepository
+	emailClient   *external.EmailClient
+	baseURL       string
 }
 
 // NewService creates a new user management service
@@ -25,11 +30,15 @@ func NewService(
 	userRepo repositories.UserRepository,
 	tenantRepo repositories.TenantRepository,
 	auditLogRepo repositories.AuditLogRepository,
+	emailClient *external.EmailClient,
+	baseURL string,
 ) *Service {
 	return &Service{
 		userRepo:     userRepo,
 		tenantRepo:   tenantRepo,
 		auditLogRepo: auditLogRepo,
+		emailClient:  emailClient,
+		baseURL:      baseURL,
 	}
 }
 
@@ -119,9 +128,48 @@ func (s *Service) InviteUser(ctx context.Context, tenantID, inviterUserID int64,
 
 	logger.Info("User invited successfully", "user_id", user.ID, "tenant_id", tenantID)
 
-	// TODO: Send invitation email with temp password
-	// For now, return the temp password in response (in production, send via email)
-	logger.Warn("Temporary password generated (should be sent via email)", "user_id", user.ID, "temp_password", tempPassword)
+	// Get inviter info for email
+	inviter, _ := s.userRepo.GetByID(ctx, inviterUserID)
+	inviterName := "Ein Administrator"
+	if inviter != nil {
+		if inviter.FirstName != nil && inviter.LastName != nil {
+			inviterName = fmt.Sprintf("%s %s", *inviter.FirstName, *inviter.LastName)
+		} else {
+			inviterName = inviter.Email
+		}
+	}
+
+	// Send invitation email
+	recipientName := ""
+	if firstName != "" {
+		recipientName = firstName
+	}
+
+	roleLabels := map[models.UserRole]string{
+		models.RoleOwner:  "Inhaber",
+		models.RoleAdmin:  "Administrator",
+		models.RoleMember: "Mitglied",
+		models.RoleViewer: "Betrachter",
+	}
+
+	inviteLink := fmt.Sprintf("%s/login?email=%s&invite=true", s.baseURL, email)
+
+	if s.emailClient != nil {
+		emailData := &external.UserInvitationData{
+			RecipientName:  recipientName,
+			RecipientEmail: email,
+			InviterName:    inviterName,
+			TenantName:     tenant.Name,
+			Role:           roleLabels[role],
+			InviteLink:     inviteLink,
+			ExpiresIn:      "7 Tage",
+		}
+
+		if err := s.emailClient.SendUserInvitation(emailData); err != nil {
+			// Log error but don't fail the invitation
+			logger.Error("Failed to send invitation email", "error", err.Error(), "email", email)
+		}
+	}
 
 	return user, nil
 }
@@ -350,9 +398,12 @@ func (s *Service) RevokeAPIKey(ctx context.Context, tenantID, requesterUserID, t
 	return nil
 }
 
-// generateTempPassword generates a temporary password for new users
+// generateTempPassword generates a secure temporary password for new users
 func generateTempPassword() string {
-	// In production, generate a secure random password
-	// For now, return a simple temp password (should be replaced with crypto/rand)
-	return "TempPass123!"
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		// Fallback to a default password if random generation fails
+		return "TempPass123!"
+	}
+	return base64.URLEncoding.EncodeToString(bytes)[:16]
 }

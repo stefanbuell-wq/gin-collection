@@ -128,6 +128,45 @@ func (r *UserRepository) GetByEmail(ctx context.Context, tenantID int64, email s
 	return user, nil
 }
 
+// GetByEmailGlobal retrieves a user by email across all tenants (for login without subdomain)
+func (r *UserRepository) GetByEmailGlobal(ctx context.Context, email string) (*models.User, error) {
+	query := `
+		SELECT id, tenant_id, uuid, email, password_hash, first_name, last_name,
+		       role, api_key, is_active, email_verified_at, last_login_at,
+		       created_at, updated_at
+		FROM users
+		WHERE email = ?
+		LIMIT 1
+	`
+
+	user := &models.User{}
+	err := r.db.QueryRowContext(ctx, query, email).Scan(
+		&user.ID,
+		&user.TenantID,
+		&user.UUID,
+		&user.Email,
+		&user.PasswordHash,
+		&user.FirstName,
+		&user.LastName,
+		&user.Role,
+		&user.APIKey,
+		&user.IsActive,
+		&user.EmailVerifiedAt,
+		&user.LastLoginAt,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by email globally: %w", err)
+	}
+
+	return user, nil
+}
+
 // GetByAPIKey retrieves a user by API key
 func (r *UserRepository) GetByAPIKey(ctx context.Context, apiKey string) (*models.User, error) {
 	query := `

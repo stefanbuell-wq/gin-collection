@@ -162,9 +162,15 @@ Expected response:
 
 ## Access the Application
 
-### Frontend
+### Frontend (User)
 - **URL:** http://localhost:3000
 - **Login:** Use the email/password from registration
+
+### Admin Panel (Platform Admin)
+- **URL:** http://localhost:3001
+- **Email:** `admin@gin-collection.local`
+- **Passwort:** `admin123`
+- **Funktionen:** Tenant-Management, User-Übersicht, Statistiken
 
 ### API
 - **URL:** http://localhost:8080
@@ -173,7 +179,7 @@ Expected response:
 
 ### Monitoring
 - **Prometheus:** http://localhost:9090
-- **Grafana:** http://localhost:3001
+- **Grafana:** http://localhost:3002 (wenn konfiguriert)
   - Default login: `admin` / `admin`
 
 ## Testing the Application

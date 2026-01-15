@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -106,10 +107,18 @@ func toString(v interface{}) string {
 	switch val := v.(type) {
 	case string:
 		return val
-	case int, int64:
-		return toString(val)
+	case int:
+		return fmt.Sprintf("%d", val)
+	case int64:
+		return fmt.Sprintf("%d", val)
+	case float64:
+		return fmt.Sprintf("%.2f", val)
+	case bool:
+		return fmt.Sprintf("%t", val)
+	case error:
+		return val.Error()
 	default:
-		return ""
+		return fmt.Sprintf("%v", val)
 	}
 }
 

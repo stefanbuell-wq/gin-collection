@@ -63,7 +63,7 @@ func (h *CocktailHandler) GetGinCocktails(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})
@@ -90,7 +90,7 @@ func (h *CocktailHandler) LinkCocktail(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})
@@ -124,7 +124,7 @@ func (h *CocktailHandler) UnlinkCocktail(c *gin.Context) {
 		return
 	}
 
-	ginIDStr := c.Param("gin_id")
+	ginIDStr := c.Param("id")
 	ginID, err := strconv.ParseInt(ginIDStr, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid gin ID"})

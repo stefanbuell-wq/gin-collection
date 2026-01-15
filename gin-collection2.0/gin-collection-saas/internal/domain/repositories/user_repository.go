@@ -16,6 +16,9 @@ type UserRepository interface {
 	// GetByEmail retrieves a user by email within a tenant
 	GetByEmail(ctx context.Context, tenantID int64, email string) (*models.User, error)
 
+	// GetByEmailGlobal retrieves a user by email across all tenants (for login without subdomain)
+	GetByEmailGlobal(ctx context.Context, email string) (*models.User, error)
+
 	// GetByAPIKey retrieves a user by API key
 	GetByAPIKey(ctx context.Context, apiKey string) (*models.User, error)
 

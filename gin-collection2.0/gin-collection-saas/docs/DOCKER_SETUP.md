@@ -226,7 +226,8 @@ kill -9 <PID>
 **Oder:** Ändern Sie die Ports in `.env`:
 ```env
 API_PORT=8081
-FRONTEND_PORT=3001
+FRONTEND_PORT=3002
+ADMIN_PORT=3003
 DB_PORT=3307
 ```
 
@@ -336,6 +337,7 @@ Docker Desktop → Settings → Resources:
 - Redis benötigt ca. 100-500 MB RAM
 - API benötigt ca. 200-500 MB RAM
 - Frontend (Nginx) benötigt ca. 50 MB RAM
+- Admin-Frontend (Nginx) benötigt ca. 50 MB RAM
 - **Gesamt:** Ca. 2-3 GB RAM
 
 ### File Sharing (Windows/macOS)

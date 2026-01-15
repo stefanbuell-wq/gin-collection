@@ -1,7 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
-import { Wine, Star, Plus, Search } from 'lucide-react';
+import {
+  Wine,
+  Star,
+  Plus,
+  Search,
+  Heart,
+  Droplets,
+  TrendingUp,
+  Award,
+  Package
+} from 'lucide-react';
+import './GinList.css';
 
 const GinList = () => {
   const { gins, total, fetchGins, isLoading } = useGinStore();
@@ -16,118 +28,335 @@ const GinList = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       fetchGins({ q: searchQuery, limit: 50 });
+    } else {
+      fetchGins({ filter, limit: 50 });
     }
   };
 
+  // Calculate collection stats
+  const stats = useMemo(() => {
+    const totalValue = gins.reduce((sum, gin) => sum + (gin.price || 0), 0);
+    const avgRating = gins.length > 0
+      ? gins.reduce((sum, gin) => sum + (gin.rating || 0), 0) / gins.filter(g => g.rating).length
+      : 0;
+    const availableCount = gins.filter(g => (g.fill_level || 0) > 0).length;
+    const favoriteCount = gins.filter(g => g.is_favorite).length;
+
+    return { totalValue, avgRating, availableCount, favoriteCount };
+  }, [gins]);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+        damping: 15
+      }
+    }
+  };
+
+  const statVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+        damping: 12
+      }
+    }
+  };
+
+  // Render star rating
+  const renderStars = (rating: number | undefined) => {
+    const stars = [];
+    const ratingValue = rating || 0;
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          className={`gin-list-card__star ${i <= ratingValue ? 'gin-list-card__star--filled' : ''}`}
+        />
+      );
+    }
+    return stars;
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Gins</h1>
-          <p className="text-gray-600 mt-1">{total} gins in collection</p>
-        </div>
-        <Link to="/gins/new" className="btn btn-primary flex items-center gap-2">
-          <Plus className="w-5 h-5" />
-          Add Gin
-        </Link>
+    <div className="gin-list-page">
+      {/* Ambient Background */}
+      <div className="gin-list-ambient">
+        <div className="gin-list-orb gin-list-orb--gold" />
+        <div className="gin-list-orb gin-list-orb--mint" />
+        <div className="gin-list-orb gin-list-orb--green" />
       </div>
 
-      {/* Search & Filters */}
-      <div className="card">
-        <div className="flex flex-col md:flex-row gap-4">
-          <form onSubmit={handleSearch} className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <div className="gin-list-content">
+        {/* Header */}
+        <motion.div
+          className="gin-list-header"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="gin-list-header__info">
+            <h1 className="gin-list-header__title">
+              <div className="gin-list-header__icon">
+                <Wine />
+              </div>
+              Meine Sammlung
+            </h1>
+            <p className="gin-list-header__subtitle">
+              <span className="gin-list-header__count">{total}</span> Gins in deinem Tresor
+            </p>
+          </div>
+
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Link to="/gins/new" className="gin-list-add-btn">
+              <Plus />
+              Gin hinzufügen
+            </Link>
+          </motion.div>
+        </motion.div>
+
+        {/* Stats Bar */}
+        {gins.length > 0 && (
+          <motion.div
+            className="gin-list-stats"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+          >
+            <motion.div className="gin-list-stat" variants={statVariants}>
+              <div className="gin-list-stat__icon">
+                <Package />
+              </div>
+              <div className="gin-list-stat__info">
+                <span className="gin-list-stat__value">{total}</span>
+                <span className="gin-list-stat__label">Flaschen</span>
+              </div>
+            </motion.div>
+
+            <motion.div className="gin-list-stat" variants={statVariants}>
+              <div className="gin-list-stat__icon">
+                <TrendingUp />
+              </div>
+              <div className="gin-list-stat__info">
+                <span className="gin-list-stat__value">{stats.totalValue.toFixed(0)}€</span>
+                <span className="gin-list-stat__label">Gesamtwert</span>
+              </div>
+            </motion.div>
+
+            <motion.div className="gin-list-stat" variants={statVariants}>
+              <div className="gin-list-stat__icon gin-list-stat__icon--mint">
+                <Droplets />
+              </div>
+              <div className="gin-list-stat__info">
+                <span className="gin-list-stat__value">{stats.availableCount}</span>
+                <span className="gin-list-stat__label">Verfügbar</span>
+              </div>
+            </motion.div>
+
+            <motion.div className="gin-list-stat" variants={statVariants}>
+              <div className="gin-list-stat__icon">
+                <Award />
+              </div>
+              <div className="gin-list-stat__info">
+                <span className="gin-list-stat__value">{stats.avgRating ? stats.avgRating.toFixed(1) : '-'}</span>
+                <span className="gin-list-stat__label">Ø Bewertung</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Search & Filters */}
+        <motion.div
+          className="gin-list-filters"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <div className="gin-list-filters__row">
+            <form onSubmit={handleSearch} className="gin-list-search">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search gins..."
-                className="input pl-10"
+                placeholder="Gins durchsuchen..."
+                className="gin-list-search__input"
               />
-            </div>
-          </form>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilter('available')}
-              className={`btn ${filter === 'available' ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              Available
-            </button>
-            <button
-              onClick={() => setFilter('favorite')}
-              className={`btn ${filter === 'favorite' ? 'btn-primary' : 'btn-secondary'}`}
-            >
-              Favorites
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Gin Grid */}
-      {isLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading gins...</p>
-        </div>
-      ) : gins.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gins.map((gin) => (
-            <Link
-              key={gin.id}
-              to={`/gins/${gin.id}`}
-              className="card hover:shadow-md transition-shadow"
-            >
-              {gin.primary_photo_url ? (
-                <img
-                  src={gin.primary_photo_url}
-                  alt={gin.name}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-              ) : (
-                <div className="w-full h-48 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                  <Wine className="w-16 h-16 text-gray-400" />
-                </div>
-              )}
-
-              <h3 className="font-bold text-lg text-gray-900">{gin.name}</h3>
-              <p className="text-gray-600 text-sm mt-1">
-                {gin.brand} • {gin.country || 'Unknown'}
-              </p>
-
-              <div className="flex items-center justify-between mt-4">
-                {gin.rating && (
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm font-medium">{gin.rating}/5</span>
-                  </div>
-                )}
-                {gin.price && (
-                  <span className="text-sm font-medium text-gray-900">${gin.price}</span>
-                )}
+              <div className="gin-list-search__icon">
+                <Search />
               </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <Wine className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No gins found</h3>
-          <p className="text-gray-600 mb-4">Start building your collection</p>
-          <Link to="/gins/new" className="btn btn-primary inline-flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add Your First Gin
-          </Link>
-        </div>
-      )}
+            </form>
+
+            <div className="gin-list-filter-buttons">
+              <button
+                onClick={() => setFilter('all')}
+                className={`gin-list-filter-btn ${filter === 'all' ? 'gin-list-filter-btn--active' : ''}`}
+              >
+                Alle
+              </button>
+              <button
+                onClick={() => setFilter('available')}
+                className={`gin-list-filter-btn ${filter === 'available' ? 'gin-list-filter-btn--active' : ''}`}
+              >
+                Verfügbar
+              </button>
+              <button
+                onClick={() => setFilter('favorite')}
+                className={`gin-list-filter-btn ${filter === 'favorite' ? 'gin-list-filter-btn--active' : ''}`}
+              >
+                Favoriten
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Gin Grid */}
+        {isLoading ? (
+          <div className="gin-list-loading">
+            <div className="gin-list-loading__spinner" />
+            <p className="gin-list-loading__text">Lade deine Sammlung...</p>
+          </div>
+        ) : gins.length > 0 ? (
+          <>
+            <p className="gin-list-results">
+              <span className="gin-list-results__count">{gins.length}</span> Ergebnisse
+            </p>
+            <motion.div
+              className="gin-list-grid"
+              initial="hidden"
+              animate="visible"
+              variants={containerVariants}
+            >
+              <AnimatePresence mode="popLayout">
+                {gins.map((gin, index) => (
+                  <motion.div
+                    key={gin.id}
+                    variants={cardVariants}
+                    layout
+                    whileHover={{ y: -8 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  >
+                    <Link to={`/gins/${gin.id}`} className="gin-list-card">
+                      <div className="gin-list-card__image-container">
+                        {gin.primary_photo_url ? (
+                          <img
+                            src={gin.primary_photo_url}
+                            alt={gin.name}
+                            className="gin-list-card__image"
+                          />
+                        ) : (
+                          <div className="gin-list-card__placeholder">
+                            <Wine />
+                          </div>
+                        )}
+
+                        {/* Fill Level Badge */}
+                        {gin.fill_level !== undefined && gin.fill_level > 0 && (
+                          <div className="gin-list-card__fill-badge">
+                            <Droplets />
+                            {gin.fill_level}%
+                          </div>
+                        )}
+
+                        {/* Favorite Badge */}
+                        {gin.is_favorite && (
+                          <div className="gin-list-card__favorite-badge">
+                            <Heart />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="gin-list-card__content">
+                        <h3 className="gin-list-card__name">{gin.name}</h3>
+                        <p className="gin-list-card__brand">
+                          {gin.brand}
+                          {gin.country && (
+                            <>
+                              <span className="gin-list-card__brand-separator" />
+                              {gin.country}
+                            </>
+                          )}
+                        </p>
+
+                        <div className="gin-list-card__footer">
+                          <div className="gin-list-card__rating">
+                            {gin.rating ? (
+                              <>
+                                <div className="gin-list-card__stars">
+                                  {renderStars(gin.rating)}
+                                </div>
+                                <span className="gin-list-card__rating-value">{gin.rating}/5</span>
+                              </>
+                            ) : (
+                              <span className="gin-list-card__rating-value" style={{ color: 'var(--text-muted)' }}>
+                                Keine Bewertung
+                              </span>
+                            )}
+                          </div>
+
+                          {gin.abv && (
+                            <span className="gin-list-card__abv">{gin.abv}%</span>
+                          )}
+
+                          {!gin.abv && gin.price && (
+                            <span className="gin-list-card__price">{gin.price}€</span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </>
+        ) : (
+          <motion.div
+            className="gin-list-empty"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="gin-list-empty__icon">
+              <Wine />
+            </div>
+            <h3 className="gin-list-empty__title">Noch keine Gins</h3>
+            <p className="gin-list-empty__text">
+              Starte deine Sammlung und füge deinen ersten Gin hinzu
+            </p>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Link to="/gins/new" className="gin-list-empty__btn">
+                <Plus />
+                Ersten Gin hinzufügen
+              </Link>
+            </motion.div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 };

@@ -14,7 +14,20 @@ type Config struct {
 	JWT      JWTConfig
 	S3       S3Config
 	PayPal   PayPalConfig
+	SMTP     SMTPConfig
 	App      AppConfig
+}
+
+// SMTPConfig holds SMTP email configuration
+type SMTPConfig struct {
+	Host       string
+	Port       int
+	Username   string
+	Password   string
+	FromEmail  string
+	FromName   string
+	TLS        bool
+	SkipVerify bool
 }
 
 // DatabaseConfig holds database configuration
@@ -90,6 +103,14 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid REDIS_DB: %w", err)
 	}
 
+	smtpPort, err := strconv.Atoi(getEnv("SMTP_PORT", "587"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid SMTP_PORT: %w", err)
+	}
+
+	smtpTLS := getEnv("SMTP_TLS", "true") == "true"
+	smtpSkipVerify := getEnv("SMTP_SKIP_VERIFY", "false") == "true"
+
 	cfg := &Config{
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
@@ -121,6 +142,16 @@ func Load() (*Config, error) {
 			ClientSecret: getEnv("PAYPAL_CLIENT_SECRET", ""),
 			Mode:         getEnv("PAYPAL_MODE", "sandbox"),
 			WebhookID:    getEnv("PAYPAL_WEBHOOK_ID", ""),
+		},
+		SMTP: SMTPConfig{
+			Host:       getEnv("SMTP_HOST", "localhost"),
+			Port:       smtpPort,
+			Username:   getEnv("SMTP_USERNAME", ""),
+			Password:   getEnv("SMTP_PASSWORD", ""),
+			FromEmail:  getEnv("SMTP_FROM_EMAIL", "noreply@gin-collection.local"),
+			FromName:   getEnv("SMTP_FROM_NAME", "Gin Collection"),
+			TLS:        smtpTLS,
+			SkipVerify: smtpSkipVerify,
 		},
 		App: AppConfig{
 			Env:            getEnv("APP_ENV", "development"),

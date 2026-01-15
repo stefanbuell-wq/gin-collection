@@ -29,14 +29,24 @@ func (tm *TenantMiddleware) ExtractTenant() gin.HandlerFunc {
 		var tenant *models.Tenant
 		var err error
 
-		// 1. Try to extract from subdomain
-		host := c.Request.Host
-		subdomain := extractSubdomain(host)
-
-		if subdomain != "" && subdomain != "www" && subdomain != "api" {
-			tenant, err = tm.tenantRepo.GetBySubdomain(c.Request.Context(), subdomain)
+		// 1. Try to extract from X-Tenant-Subdomain header (for localhost development)
+		if headerSubdomain := c.GetHeader("X-Tenant-Subdomain"); headerSubdomain != "" {
+			tenant, err = tm.tenantRepo.GetBySubdomain(c.Request.Context(), headerSubdomain)
 			if err != nil {
-				logger.Debug("Tenant not found by subdomain", "subdomain", subdomain, "error", err.Error())
+				logger.Debug("Tenant not found by header subdomain", "subdomain", headerSubdomain, "error", err.Error())
+			}
+		}
+
+		// 2. Try to extract from subdomain
+		if tenant == nil {
+			host := c.Request.Host
+			subdomain := extractSubdomain(host)
+
+			if subdomain != "" && subdomain != "www" && subdomain != "api" {
+				tenant, err = tm.tenantRepo.GetBySubdomain(c.Request.Context(), subdomain)
+				if err != nil {
+					logger.Debug("Tenant not found by subdomain", "subdomain", subdomain, "error", err.Error())
+				}
 			}
 		}
 
@@ -112,6 +122,63 @@ func extractSubdomain(host string) string {
 
 	// Return first part as subdomain
 	return parts[0]
+}
+
+// OptionalTenant middleware tries to extract tenant but doesn't abort if not found
+// This is useful for routes like login where we can fallback to email-only lookup
+func (tm *TenantMiddleware) OptionalTenant() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var tenant *models.Tenant
+		var err error
+
+		// 1. Try to extract from X-Tenant-Subdomain header (for localhost development)
+		if headerSubdomain := c.GetHeader("X-Tenant-Subdomain"); headerSubdomain != "" {
+			tenant, err = tm.tenantRepo.GetBySubdomain(c.Request.Context(), headerSubdomain)
+			if err != nil {
+				logger.Debug("Tenant not found by header subdomain", "subdomain", headerSubdomain, "error", err.Error())
+			}
+		}
+
+		// 2. Try to extract from subdomain
+		if tenant == nil {
+			host := c.Request.Host
+			subdomain := extractSubdomain(host)
+
+			if subdomain != "" && subdomain != "www" && subdomain != "api" {
+				tenant, err = tm.tenantRepo.GetBySubdomain(c.Request.Context(), subdomain)
+				if err != nil {
+					logger.Debug("Tenant not found by subdomain", "subdomain", subdomain, "error", err.Error())
+				}
+			}
+		}
+
+		// 3. If tenant found, store in context
+		if tenant != nil {
+			// Validate tenant status
+			if tenant.Status != models.TenantStatusActive {
+				statusMsg := "Tenant account is suspended"
+				if tenant.Status == models.TenantStatusCancelled {
+					statusMsg = "Tenant account is cancelled"
+				}
+				c.JSON(http.StatusForbidden, gin.H{
+					"error": statusMsg,
+				})
+				c.Abort()
+				return
+			}
+
+			ctx := context.WithValue(c.Request.Context(), "tenant", tenant)
+			c.Request = c.Request.WithContext(ctx)
+			c.Set("tenant", tenant)
+			c.Set("tenant_id", tenant.ID)
+
+			logger.Debug("Tenant extracted (optional)", "tenant_id", tenant.ID, "subdomain", tenant.Subdomain)
+		} else {
+			logger.Debug("No tenant found, proceeding without (optional mode)")
+		}
+
+		c.Next()
+	}
 }
 
 // GetTenant helper to retrieve tenant from context

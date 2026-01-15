@@ -12,6 +12,8 @@ const GinList = lazy(() => import('../pages/GinList'));
 const GinDetail = lazy(() => import('../pages/GinDetail'));
 const GinCreate = lazy(() => import('../pages/GinCreate'));
 const Subscription = lazy(() => import('../pages/Subscription'));
+const SubscriptionSuccess = lazy(() => import('../pages/SubscriptionSuccess'));
+const SubscriptionCancel = lazy(() => import('../pages/SubscriptionCancel'));
 const Settings = lazy(() => import('../pages/Settings'));
 const Users = lazy(() => import('../pages/Users'));
 
@@ -42,6 +44,26 @@ export const router = createBrowserRouter([
       <LazyPage>
         <Register />
       </LazyPage>
+    ),
+  },
+  {
+    path: '/subscription/success',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <SubscriptionSuccess />
+        </LazyPage>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/subscription/cancel',
+    element: (
+      <ProtectedRoute>
+        <LazyPage>
+          <SubscriptionCancel />
+        </LazyPage>
+      </ProtectedRoute>
     ),
   },
   {
