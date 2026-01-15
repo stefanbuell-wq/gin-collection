@@ -1,0 +1,17 @@
+[Unit]
+Description=Gin Collection SaaS Platform
+Documentation=https://github.com/stefanbuell-wq/gin-collection
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/gin-collection/gin-collection2.0/gin-collection-saas
+ExecStart=/usr/bin/docker compose -f deployment/hostinger/docker-compose.prod.yml up -d
+ExecStop=/usr/bin/docker compose -f deployment/hostinger/docker-compose.prod.yml down
+ExecReload=/usr/bin/docker compose -f deployment/hostinger/docker-compose.prod.yml restart
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

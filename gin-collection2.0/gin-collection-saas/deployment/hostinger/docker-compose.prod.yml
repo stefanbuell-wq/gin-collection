@@ -1,0 +1,194 @@
+version: '3.8'
+
+#===============================================================================
+# Gin Collection - Production Docker Compose für Hostinger VPS
+#===============================================================================
+
+services:
+  #-----------------------------------------------------------------------------
+  # MySQL Database
+  #-----------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: gin-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-gin_collection}
+      MYSQL_USER: ${DB_USER:-gin_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../internal/infrastructure/database/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  #-----------------------------------------------------------------------------
+  # Redis Cache
+  #-----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: gin-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  #-----------------------------------------------------------------------------
+  # Go Backend API
+  #-----------------------------------------------------------------------------
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile.api
+    container_name: gin-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - APP_PORT=8080
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=${DB_USER:-gin_app}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-gin_collection}
+      - REDIS_URL=redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-24h}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=${S3_REGION}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  #-----------------------------------------------------------------------------
+  # Frontend (User Application)
+  #-----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.frontend
+    container_name: gin-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  #-----------------------------------------------------------------------------
+  # Admin Frontend
+  #-----------------------------------------------------------------------------
+  admin:
+    build:
+      context: ..
+      dockerfile: Dockerfile.admin-frontend
+    container_name: gin-admin
+    restart: unless-stopped
+    ports:
+      - "3001:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - gin-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+#-------------------------------------------------------------------------------
+# Networks
+#-------------------------------------------------------------------------------
+networks:
+  gin-network:
+    driver: bridge
+
+#-------------------------------------------------------------------------------
+# Volumes
+#-------------------------------------------------------------------------------
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
