@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Shield,
   Menu,
-  X
+  X,
+  Server
 } from 'lucide-react';
 import './Layout.css';
 
@@ -36,6 +37,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/tenants', label: 'Tenants', icon: Building2 },
     { path: '/users', label: 'Users', icon: Users },
+    { path: '/server', label: 'Server', icon: Server },
   ];
 
   const sidebarVariants = {

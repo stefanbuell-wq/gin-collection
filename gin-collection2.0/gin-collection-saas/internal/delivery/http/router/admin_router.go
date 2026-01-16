@@ -10,6 +10,7 @@ import (
 // AdminRouterConfig holds admin router configuration
 type AdminRouterConfig struct {
 	AdminHandler        *adminHandler.Handler
+	ServerHandler       *adminHandler.ServerHandler
 	PlatformAdminMiddle *middleware.PlatformAdminMiddleware
 	AllowedOrigins      []string
 }
@@ -54,6 +55,21 @@ func SetupAdminRoutes(r *gin.Engine, cfg *AdminRouterConfig) {
 
 			// Health
 			protected.GET("/health", cfg.AdminHandler.GetHealth)
+
+			// Server Management (only if ServerHandler is configured)
+			if cfg.ServerHandler != nil {
+				server := protected.Group("/server")
+				{
+					server.GET("/status", cfg.ServerHandler.GetStatus)
+					server.GET("/actions", cfg.ServerHandler.GetQuickActions)
+					server.POST("/actions/:action", cfg.ServerHandler.ExecuteAction)
+					server.POST("/deploy", cfg.ServerHandler.Deploy)
+					server.POST("/restart/:service", cfg.ServerHandler.RestartService)
+					server.GET("/logs/:service", cfg.ServerHandler.GetLogs)
+					server.GET("/logs/:service/stream", cfg.ServerHandler.StreamLogs)
+					server.POST("/nginx/reload", cfg.ServerHandler.NginxReload)
+				}
+			}
 		}
 	}
 

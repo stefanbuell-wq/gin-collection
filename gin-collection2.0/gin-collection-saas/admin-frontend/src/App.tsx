@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Tenants from './pages/Tenants';
 import Users from './pages/Users';
+import ServerManagement from './pages/ServerManagement';
 import Layout from './components/Layout';
 import { Loader2 } from 'lucide-react';
 
@@ -69,6 +70,18 @@ function App() {
             isAuthenticated ? (
               <Layout>
                 <Users />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/server"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <ServerManagement />
               </Layout>
             ) : (
               <Navigate to="/login" replace />

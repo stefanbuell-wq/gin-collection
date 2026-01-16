@@ -47,6 +47,26 @@ export const adminApi = {
     api.get(`/users?page=${page}&limit=${limit}`),
 
   getHealth: () => api.get('/health'),
+
+  // Server Management
+  getServerStatus: () => api.get('/server/status'),
+
+  getQuickActions: () => api.get('/server/actions'),
+
+  executeAction: (actionId: string) =>
+    api.post(`/server/actions/${actionId}`),
+
+  deploy: (services: string[], pull = true, noCache = false) =>
+    api.post('/server/deploy', { services, pull, no_cache: noCache }),
+
+  restartService: (service: string) =>
+    api.post(`/server/restart/${service}`),
+
+  getServiceLogs: (service: string, lines = 100) =>
+    api.get(`/server/logs/${service}?lines=${lines}`),
+
+  reloadNginx: () =>
+    api.post('/server/nginx/reload'),
 };
 
 export default api;

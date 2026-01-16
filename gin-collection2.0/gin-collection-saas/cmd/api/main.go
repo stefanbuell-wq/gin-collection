@@ -198,6 +198,14 @@ func main() {
 	// Initialize Admin handlers
 	platformAdminHandler := adminHandler.NewHandler(adminService)
 
+	// Initialize Server handler for deployment management
+	// Only enable in production when PROJECT_PATH is set
+	var serverHandler *adminHandler.ServerHandler
+	if projectPath := os.Getenv("PROJECT_PATH"); projectPath != "" {
+		serverHandler = adminHandler.NewServerHandler(projectPath)
+		logger.Info("Server management enabled", "project_path", projectPath)
+	}
+
 	logger.Info("Handlers and middleware initialized")
 
 	// Setup router
@@ -229,6 +237,7 @@ func main() {
 	// Setup Admin routes
 	adminRouterCfg := &router.AdminRouterConfig{
 		AdminHandler:        platformAdminHandler,
+		ServerHandler:       serverHandler,
 		PlatformAdminMiddle: platformAdminMiddleware,
 		AllowedOrigins:      cfg.App.AllowedOrigins,
 	}
