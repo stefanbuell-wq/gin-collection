@@ -65,8 +65,8 @@ type PlanLimits struct {
 // PlanLimitsMap defines limits for each tier
 var PlanLimitsMap = map[SubscriptionTier]PlanLimits{
 	TierFree: {
-		MaxGins:          intPtr(10),
-		MaxPhotosPerGin:  1,
+		MaxGins:          intPtr(25),
+		MaxPhotosPerGin:  3,
 		HasBotanicals:    false,
 		HasCocktails:     false,
 		HasAISuggestions: false,
@@ -78,34 +78,34 @@ var PlanLimitsMap = map[SubscriptionTier]PlanLimits{
 		StorageLimitMB:   intPtr(100),
 	},
 	TierBasic: {
-		MaxGins:          intPtr(50),
-		MaxPhotosPerGin:  3,
+		MaxGins:          intPtr(100),
+		MaxPhotosPerGin:  10,
 		HasBotanicals:    false,
 		HasCocktails:     false,
 		HasAISuggestions: false,
-		HasExport:        false,
+		HasExport:        true,
 		HasImport:        false,
 		HasMultiUser:     false,
 		HasAPIAccess:     false,
 		APIRateLimit:     500,
-		StorageLimitMB:   intPtr(500),
+		StorageLimitMB:   intPtr(1000),
 	},
 	TierPro: {
-		MaxGins:          nil, // unlimited
-		MaxPhotosPerGin:  10,
+		MaxGins:          intPtr(500),
+		MaxPhotosPerGin:  25,
 		HasBotanicals:    true,
 		HasCocktails:     true,
 		HasAISuggestions: true,
 		HasExport:        true,
 		HasImport:        true,
 		HasMultiUser:     false,
-		HasAPIAccess:     false,
-		APIRateLimit:     2000,
+		HasAPIAccess:     true,
+		APIRateLimit:     5000,
 		StorageLimitMB:   intPtr(5000),
 	},
 	TierEnterprise: {
 		MaxGins:          nil, // unlimited
-		MaxPhotosPerGin:  50,
+		MaxPhotosPerGin:  -1,  // unlimited (use -1 for unlimited photos)
 		HasBotanicals:    true,
 		HasCocktails:     true,
 		HasAISuggestions: true,

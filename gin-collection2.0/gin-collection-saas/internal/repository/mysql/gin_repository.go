@@ -77,13 +77,15 @@ func (r *GinRepository) Create(ctx context.Context, gin *models.Gin) error {
 // GetByID retrieves a gin by ID with tenant scoping
 func (r *GinRepository) GetByID(ctx context.Context, tenantID, id int64) (*models.Gin, error) {
 	query := `
-		SELECT id, tenant_id, uuid, name, brand, country, region, gin_type, abv,
-		       bottle_size, fill_level, price, current_market_value, purchase_date,
-		       purchase_location, barcode, rating, nose_notes, palate_notes,
-		       finish_notes, general_notes, description, photo_url, is_finished,
-		       recommended_tonic, recommended_garnish, created_at, updated_at
-		FROM gins
-		WHERE tenant_id = ? AND id = ?
+		SELECT g.id, g.tenant_id, g.uuid, g.name, g.brand, g.country, g.region, g.gin_type, g.abv,
+		       g.bottle_size, g.fill_level, g.price, g.current_market_value, g.purchase_date,
+		       g.purchase_location, g.barcode, g.rating, g.nose_notes, g.palate_notes,
+		       g.finish_notes, g.general_notes, g.description, g.photo_url, g.is_finished,
+		       g.recommended_tonic, g.recommended_garnish, g.created_at, g.updated_at,
+		       p.photo_url as primary_photo_url
+		FROM gins g
+		LEFT JOIN gin_photos p ON p.gin_id = g.id AND p.tenant_id = g.tenant_id AND p.is_primary = 1
+		WHERE g.tenant_id = ? AND g.id = ?
 	`
 
 	gin := &models.Gin{}
@@ -116,6 +118,7 @@ func (r *GinRepository) GetByID(ctx context.Context, tenantID, id int64) (*model
 		&gin.RecommendedGarnish,
 		&gin.CreatedAt,
 		&gin.UpdatedAt,
+		&gin.PrimaryPhotoURL,
 	)
 
 	if err == sql.ErrNoRows {
@@ -131,13 +134,15 @@ func (r *GinRepository) GetByID(ctx context.Context, tenantID, id int64) (*model
 // GetByUUID retrieves a gin by UUID with tenant scoping
 func (r *GinRepository) GetByUUID(ctx context.Context, tenantID int64, uuidStr string) (*models.Gin, error) {
 	query := `
-		SELECT id, tenant_id, uuid, name, brand, country, region, gin_type, abv,
-		       bottle_size, fill_level, price, current_market_value, purchase_date,
-		       purchase_location, barcode, rating, nose_notes, palate_notes,
-		       finish_notes, general_notes, description, photo_url, is_finished,
-		       recommended_tonic, recommended_garnish, created_at, updated_at
-		FROM gins
-		WHERE tenant_id = ? AND uuid = ?
+		SELECT g.id, g.tenant_id, g.uuid, g.name, g.brand, g.country, g.region, g.gin_type, g.abv,
+		       g.bottle_size, g.fill_level, g.price, g.current_market_value, g.purchase_date,
+		       g.purchase_location, g.barcode, g.rating, g.nose_notes, g.palate_notes,
+		       g.finish_notes, g.general_notes, g.description, g.photo_url, g.is_finished,
+		       g.recommended_tonic, g.recommended_garnish, g.created_at, g.updated_at,
+		       p.photo_url as primary_photo_url
+		FROM gins g
+		LEFT JOIN gin_photos p ON p.gin_id = g.id AND p.tenant_id = g.tenant_id AND p.is_primary = 1
+		WHERE g.tenant_id = ? AND g.uuid = ?
 	`
 
 	gin := &models.Gin{}
@@ -170,6 +175,7 @@ func (r *GinRepository) GetByUUID(ctx context.Context, tenantID int64, uuidStr s
 		&gin.RecommendedGarnish,
 		&gin.CreatedAt,
 		&gin.UpdatedAt,
+		&gin.PrimaryPhotoURL,
 	)
 
 	if err == sql.ErrNoRows {
@@ -185,40 +191,42 @@ func (r *GinRepository) GetByUUID(ctx context.Context, tenantID int64, uuidStr s
 // List retrieves gins with filtering and pagination
 func (r *GinRepository) List(ctx context.Context, filter *models.GinFilter) ([]*models.Gin, error) {
 	query := `
-		SELECT id, tenant_id, uuid, name, brand, country, region, gin_type, abv,
-		       bottle_size, fill_level, price, current_market_value, purchase_date,
-		       purchase_location, barcode, rating, nose_notes, palate_notes,
-		       finish_notes, general_notes, description, photo_url, is_finished,
-		       recommended_tonic, recommended_garnish, created_at, updated_at
-		FROM gins
-		WHERE tenant_id = ?
+		SELECT g.id, g.tenant_id, g.uuid, g.name, g.brand, g.country, g.region, g.gin_type, g.abv,
+		       g.bottle_size, g.fill_level, g.price, g.current_market_value, g.purchase_date,
+		       g.purchase_location, g.barcode, g.rating, g.nose_notes, g.palate_notes,
+		       g.finish_notes, g.general_notes, g.description, g.photo_url, g.is_finished,
+		       g.recommended_tonic, g.recommended_garnish, g.created_at, g.updated_at,
+		       p.photo_url as primary_photo_url
+		FROM gins g
+		LEFT JOIN gin_photos p ON p.gin_id = g.id AND p.tenant_id = g.tenant_id AND p.is_primary = 1
+		WHERE g.tenant_id = ?
 	`
 
 	args := []interface{}{filter.TenantID}
 
 	// Apply filters
 	if filter.IsFinished != nil {
-		query += " AND is_finished = ?"
+		query += " AND g.is_finished = ?"
 		args = append(args, *filter.IsFinished)
 	}
 
 	if filter.GinType != nil && *filter.GinType != "" {
-		query += " AND gin_type = ?"
+		query += " AND g.gin_type = ?"
 		args = append(args, *filter.GinType)
 	}
 
 	if filter.Country != nil && *filter.Country != "" {
-		query += " AND country = ?"
+		query += " AND g.country = ?"
 		args = append(args, *filter.Country)
 	}
 
 	if filter.MinRating != nil {
-		query += " AND rating >= ?"
+		query += " AND g.rating >= ?"
 		args = append(args, *filter.MinRating)
 	}
 
 	if filter.MaxRating != nil {
-		query += " AND rating <= ?"
+		query += " AND g.rating <= ?"
 		args = append(args, *filter.MaxRating)
 	}
 
@@ -233,7 +241,7 @@ func (r *GinRepository) List(ctx context.Context, filter *models.GinFilter) ([]*
 		sortOrder = "desc"
 	}
 
-	query += fmt.Sprintf(" ORDER BY %s %s", sortBy, strings.ToUpper(sortOrder))
+	query += fmt.Sprintf(" ORDER BY g.%s %s", sortBy, strings.ToUpper(sortOrder))
 
 	// Pagination
 	if filter.Limit > 0 {
@@ -284,6 +292,7 @@ func (r *GinRepository) List(ctx context.Context, filter *models.GinFilter) ([]*
 			&gin.RecommendedGarnish,
 			&gin.CreatedAt,
 			&gin.UpdatedAt,
+			&gin.PrimaryPhotoURL,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan gin: %w", err)
@@ -394,23 +403,25 @@ func (r *GinRepository) Count(ctx context.Context, tenantID int64, isFinished *b
 // Search searches gins by query string (full-text search)
 func (r *GinRepository) Search(ctx context.Context, tenantID int64, query string, limit, offset int) ([]*models.Gin, error) {
 	searchQuery := `
-		SELECT id, tenant_id, uuid, name, brand, country, region, gin_type, abv,
-		       bottle_size, fill_level, price, current_market_value, purchase_date,
-		       purchase_location, barcode, rating, nose_notes, palate_notes,
-		       finish_notes, general_notes, description, photo_url, is_finished,
-		       recommended_tonic, recommended_garnish, created_at, updated_at
-		FROM gins
-		WHERE tenant_id = ?
+		SELECT g.id, g.tenant_id, g.uuid, g.name, g.brand, g.country, g.region, g.gin_type, g.abv,
+		       g.bottle_size, g.fill_level, g.price, g.current_market_value, g.purchase_date,
+		       g.purchase_location, g.barcode, g.rating, g.nose_notes, g.palate_notes,
+		       g.finish_notes, g.general_notes, g.description, g.photo_url, g.is_finished,
+		       g.recommended_tonic, g.recommended_garnish, g.created_at, g.updated_at,
+		       p.photo_url as primary_photo_url
+		FROM gins g
+		LEFT JOIN gin_photos p ON p.gin_id = g.id AND p.tenant_id = g.tenant_id AND p.is_primary = 1
+		WHERE g.tenant_id = ?
 		AND (
-			name LIKE ? OR
-			brand LIKE ? OR
-			country LIKE ? OR
-			nose_notes LIKE ? OR
-			palate_notes LIKE ? OR
-			finish_notes LIKE ? OR
-			general_notes LIKE ?
+			g.name LIKE ? OR
+			g.brand LIKE ? OR
+			g.country LIKE ? OR
+			g.nose_notes LIKE ? OR
+			g.palate_notes LIKE ? OR
+			g.finish_notes LIKE ? OR
+			g.general_notes LIKE ?
 		)
-		ORDER BY created_at DESC
+		ORDER BY g.created_at DESC
 		LIMIT ? OFFSET ?
 	`
 
@@ -458,6 +469,7 @@ func (r *GinRepository) Search(ctx context.Context, tenantID int64, query string
 			&gin.RecommendedGarnish,
 			&gin.CreatedAt,
 			&gin.UpdatedAt,
+			&gin.PrimaryPhotoURL,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan gin: %w", err)

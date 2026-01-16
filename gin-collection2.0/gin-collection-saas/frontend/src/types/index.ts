@@ -247,3 +247,33 @@ export interface GinReferenceFilters {
   gin_types: string[];
   brands: string[];
 }
+
+// Tasting Session Types
+export interface TastingSession {
+  id: number;
+  tenant_id: number;
+  gin_id: number;
+  user_id?: number;
+  date: string;
+  notes?: string;
+  rating?: number;
+  created_at: string;
+  user_name?: string;
+}
+
+export interface TastingSessionWithGin extends TastingSession {
+  gin_name: string;
+  gin_brand?: string;
+}
+
+export interface TastingSessionCreateRequest {
+  date?: string;
+  notes?: string;
+  rating?: number;
+}
+
+export interface TastingSessionUpdateRequest {
+  date?: string;
+  notes?: string;
+  rating?: number;
+}

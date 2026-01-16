@@ -183,6 +183,41 @@
   font-family: var(--font-body);
   font-size: 0.9rem;
   color: #fca5a5;
+  flex: 1;
+}
+
+.gin-create-error__close {
+  background: none;
+  border: none;
+  color: #fca5a5;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.gin-create-error__close:hover {
+  opacity: 1;
+}
+
+/* AI Error Variant */
+.gin-create-error--ai {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.gin-create-error--ai .gin-create-error__icon {
+  color: #A78BFA;
+}
+
+.gin-create-error--ai .gin-create-error__text {
+  color: #C4B5FD;
+}
+
+.gin-create-error--ai .gin-create-error__close {
+  color: #C4B5FD;
 }
 
 /* Form Card */
@@ -848,6 +883,54 @@
   margin-left: auto;
 }
 
+/* AI Button - Purple/Violet Gradient */
+.gin-create-ai-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.35) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border: 1px solid rgba(167, 139, 250, 0.6) !important;
+  border-radius: 12px;
+  color: #C4B5FD !important;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+  outline: none !important;
+  box-shadow: none;
+}
+
+.gin-create-ai-btn:focus,
+.gin-create-ai-btn:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4) !important;
+}
+
+.gin-create-ai-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.5) 0%, rgba(168, 85, 247, 0.3) 100%) !important;
+  border-color: #C4B5FD !important;
+  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.4) !important;
+  color: #E9D5FF !important;
+  outline: none !important;
+}
+
+.gin-create-ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gin-create-ai-btn svg {
+  width: 18px;
+  height: 18px;
+  color: inherit !important;
+}
+
+.gin-create-ai-btn .gin-create-spinner {
+  animation: spin 1s linear infinite;
+}
+
 .gin-create-scan-btn {
   display: flex;
   align-items: center;
@@ -927,6 +1010,7 @@
     flex-direction: row;
   }
 
+  .gin-create-ai-btn,
   .gin-create-scan-btn,
   .gin-create-catalog-btn {
     flex: 1;

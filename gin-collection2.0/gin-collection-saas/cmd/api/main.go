@@ -9,6 +9,7 @@ import (
 	adminHandler "github.com/yourusername/gin-collection-saas/internal/delivery/http/handler/admin"
 	"github.com/yourusername/gin-collection-saas/internal/delivery/http/middleware"
 	"github.com/yourusername/gin-collection-saas/internal/delivery/http/router"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/cache"
 	"github.com/yourusername/gin-collection-saas/internal/infrastructure/database"
 	"github.com/yourusername/gin-collection-saas/internal/infrastructure/external"
 	"github.com/yourusername/gin-collection-saas/internal/infrastructure/storage"
@@ -20,6 +21,7 @@ import (
 	ginUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/gin"
 	photoUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/photo"
 	subscriptionUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/subscription"
+	tastingUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/tasting"
 	userUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/user"
 	"github.com/yourusername/gin-collection-saas/pkg/config"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
@@ -50,6 +52,20 @@ func main() {
 
 	logger.Info("Connected to MySQL database", "host", cfg.Database.Host, "database", cfg.Database.Name)
 
+	// Connect to Redis
+	redisClient, err := cache.NewRedisClient(&cache.RedisConfig{
+		URL:      cfg.Redis.URL,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+	if err != nil {
+		logger.Warn("Failed to connect to Redis - rate limiting disabled", "error", err.Error())
+		redisClient = nil
+	} else {
+		defer redisClient.Close()
+		logger.Info("Connected to Redis", "url", cfg.Redis.URL)
+	}
+
 	// Initialize Tenant Router (for hybrid multi-tenancy)
 	tenantRouter := database.NewTenantRouter(db)
 	defer tenantRouter.Close()
@@ -66,6 +82,7 @@ func main() {
 	photoRepo := mysql.NewPhotoRepository(db)
 	auditLogRepo := mysql.NewAuditLogRepository(db)
 	platformAdminRepo := mysql.NewPlatformAdminRepository(db)
+	tastingRepo := mysql.NewTastingSessionRepository(db)
 
 	logger.Info("Repositories initialized")
 
@@ -122,6 +139,20 @@ func main() {
 	})
 	logger.Info("Email client initialized", "host", cfg.SMTP.Host, "from", cfg.SMTP.FromEmail)
 
+	// Initialize AI client (Ollama or Anthropic)
+	aiClient := external.NewAIClient(&external.AIClientConfig{
+		Provider:        cfg.AI.Provider,
+		OllamaURL:       cfg.AI.OllamaURL,
+		Model:           cfg.AI.Model,
+		AnthropicAPIKey: cfg.AI.AnthropicAPIKey,
+		Enabled:         cfg.AI.Enabled,
+	})
+	if aiClient.IsEnabled() {
+		logger.Info("AI client initialized", "provider", cfg.AI.Provider, "model", cfg.AI.Model)
+	} else {
+		logger.Info("AI client disabled")
+	}
+
 	// Initialize use cases
 	authService := auth.NewService(
 		userRepo,
@@ -168,6 +199,11 @@ func main() {
 		cfg.App.BaseURL,
 	)
 
+	tastingService := tastingUsecase.NewService(
+		tastingRepo,
+		ginRepo,
+	)
+
 	// Initialize Platform Admin Service
 	adminService := adminUsecase.NewService(
 		platformAdminRepo,
@@ -188,12 +224,23 @@ func main() {
 	photoHandler := handler.NewPhotoHandler(photoService)
 	userHandler := handler.NewUserHandler(userService)
 	tenantHandler := handler.NewTenantHandler(tenantRepo, usageMetricsRepo)
+	aiHandler := handler.NewAIHandler(aiClient)
+	tastingHandler := handler.NewTastingHandler(tastingService)
 
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret, userRepo)
 	tenantMiddleware := middleware.NewTenantMiddleware(tenantRepo)
 	tierEnforcement := middleware.NewTierEnforcementMiddleware(usageMetricsRepo)
 	platformAdminMiddleware := middleware.NewPlatformAdminMiddleware(adminService)
+
+	// Initialize rate limiting middleware (optional - requires Redis)
+	var rateLimitMiddleware *middleware.RateLimitMiddleware
+	if redisClient != nil {
+		rateLimitMiddleware = middleware.NewRateLimitMiddleware(redisClient)
+		logger.Info("Rate limiting enabled")
+	} else {
+		logger.Warn("Rate limiting disabled - Redis not available")
+	}
 
 	// Initialize Admin handlers
 	platformAdminHandler := adminHandler.NewHandler(adminService)
@@ -220,9 +267,12 @@ func main() {
 		PhotoHandler:        photoHandler,
 		UserHandler:         userHandler,
 		TenantHandler:       tenantHandler,
+		AIHandler:           aiHandler,
+		TastingHandler:      tastingHandler,
 		AuthMiddleware:      authMiddleware,
 		TenantMiddleware:    tenantMiddleware,
 		TierEnforcement:     tierEnforcement,
+		RateLimitMiddleware: rateLimitMiddleware,
 		AllowedOrigins:      cfg.App.AllowedOrigins,
 	}
 

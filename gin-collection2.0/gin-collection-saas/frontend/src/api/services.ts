@@ -16,6 +16,10 @@ import type {
   SearchParams,
   GinReference,
   GinReferenceFilters,
+  TastingSession,
+  TastingSessionWithGin,
+  TastingSessionCreateRequest,
+  TastingSessionUpdateRequest,
 } from '../types';
 
 // ============================================================================
@@ -250,4 +254,62 @@ export const ginReferenceAPI = {
 
   searchByBarcode: (barcode: string) =>
     apiClient.get<{ data: GinReference }>(`/gin-references/barcode/${barcode}`),
+};
+
+// ============================================================================
+// AI API
+// ============================================================================
+
+export interface GinSuggestion {
+  description: string;
+  nose_notes: string;
+  palate_notes: string;
+  finish_notes: string;
+  recommended_tonics: string[];
+  recommended_garnish: string[];
+  country: string;
+  region: string;
+  gin_type: string;
+  estimated_price: number;
+  abv: number;
+}
+
+export const aiAPI = {
+  status: () =>
+    apiClient.get<{ enabled: boolean }>('/ai/status'),
+
+  suggestGin: (name: string, brand?: string) =>
+    apiClient.post<{ suggestion: GinSuggestion }>('/ai/suggest-gin', { name, brand }),
+};
+
+// ============================================================================
+// Tasting Session API
+// ============================================================================
+
+export const tastingAPI = {
+  // Get all tasting sessions for a gin
+  getSessions: (ginId: number) =>
+    apiClient.get<{ sessions: TastingSession[]; count: number }>(`/gins/${ginId}/tastings`),
+
+  // Create a new tasting session
+  createSession: (ginId: number, data: TastingSessionCreateRequest) =>
+    apiClient.post<TastingSession>(`/gins/${ginId}/tastings`, data),
+
+  // Get a specific tasting session
+  getSession: (ginId: number, sessionId: number) =>
+    apiClient.get<TastingSession>(`/gins/${ginId}/tastings/${sessionId}`),
+
+  // Update a tasting session
+  updateSession: (ginId: number, sessionId: number, data: TastingSessionUpdateRequest) =>
+    apiClient.put<TastingSession>(`/gins/${ginId}/tastings/${sessionId}`, data),
+
+  // Delete a tasting session
+  deleteSession: (ginId: number, sessionId: number) =>
+    apiClient.delete(`/gins/${ginId}/tastings/${sessionId}`),
+
+  // Get recent tasting sessions across all gins
+  getRecentSessions: (limit = 10) =>
+    apiClient.get<{ sessions: TastingSessionWithGin[]; count: number }>('/tastings/recent', {
+      params: { limit },
+    }),
 };

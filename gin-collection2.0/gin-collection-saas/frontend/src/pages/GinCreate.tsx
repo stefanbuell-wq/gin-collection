@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
@@ -22,11 +22,13 @@ import {
   ShoppingBag,
   Sparkles,
   Cherry,
-  BookOpen
+  BookOpen,
+  Wand2
 } from 'lucide-react';
 import type { GinCreateRequest, GinReference } from '../types';
 import { GinReferenceSearch } from '../components/GinReferenceSearch';
 import { BarcodeScanner } from '../components/BarcodeScanner';
+import { aiAPI } from '../api/services';
 import './GinCreate.css';
 
 // Common gin types for dropdown
@@ -93,6 +95,60 @@ const GinCreate = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [showCatalog, setShowCatalog] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  // Check AI availability on mount
+  useEffect(() => {
+    const checkAI = async () => {
+      try {
+        const response = await aiAPI.status();
+        setAiEnabled(response.data?.data?.enabled ?? false);
+      } catch {
+        setAiEnabled(false);
+      }
+    };
+    checkAI();
+  }, []);
+
+  // Handle AI suggestion
+  const handleAISuggest = async () => {
+    if (!formData.name?.trim()) {
+      setAiError('Bitte zuerst einen Namen eingeben');
+      return;
+    }
+
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const response = await aiAPI.suggestGin(formData.name, formData.brand || undefined);
+      const suggestion = response.data?.data?.suggestion;
+
+      if (suggestion) {
+        setFormData(prev => ({
+          ...prev,
+          description: suggestion.description || prev.description,
+          nose_notes: suggestion.nose_notes || prev.nose_notes,
+          palate_notes: suggestion.palate_notes || prev.palate_notes,
+          finish_notes: suggestion.finish_notes || prev.finish_notes,
+          recommended_tonic: suggestion.recommended_tonics?.join(', ') || prev.recommended_tonic,
+          recommended_garnish: suggestion.recommended_garnish?.join(', ') || prev.recommended_garnish,
+          country: suggestion.country || prev.country,
+          region: suggestion.region || prev.region,
+          gin_type: suggestion.gin_type || prev.gin_type,
+          price: suggestion.estimated_price || prev.price,
+          abv: suggestion.abv || prev.abv,
+        }));
+      }
+    } catch (err: any) {
+      console.error('AI suggestion failed:', err);
+      setAiError(err.response?.data?.error || 'AI-Vorschlag fehlgeschlagen');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // Handle selection from gin catalog
   const handleCatalogSelect = (gin: GinReference) => {
@@ -267,6 +323,24 @@ const GinCreate = () => {
           </div>
 
           <div className="gin-create-header__actions">
+            {aiEnabled && (
+              <motion.button
+                type="button"
+                onClick={handleAISuggest}
+                disabled={aiLoading || !formData.name?.trim()}
+                className="gin-create-ai-btn"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                title={!formData.name?.trim() ? 'Zuerst Name eingeben' : 'KI-Vorschläge generieren'}
+              >
+                {aiLoading ? (
+                  <Loader2 className="gin-create-spinner" />
+                ) : (
+                  <Wand2 />
+                )}
+                KI ausfüllen
+              </motion.button>
+            )}
             <motion.button
               type="button"
               onClick={() => setShowScanner(true)}
@@ -334,6 +408,25 @@ const GinCreate = () => {
           >
             <AlertCircle className="gin-create-error__icon" />
             <span className="gin-create-error__text">{error}</span>
+          </motion.div>
+        )}
+
+        {/* AI Error Display */}
+        {aiError && (
+          <motion.div
+            className="gin-create-error gin-create-error--ai"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Wand2 className="gin-create-error__icon" />
+            <span className="gin-create-error__text">{aiError}</span>
+            <button
+              type="button"
+              onClick={() => setAiError(null)}
+              className="gin-create-error__close"
+            >
+              ×
+            </button>
           </motion.div>
         )}
 

@@ -17,6 +17,17 @@ type Config struct {
 	PayPal   PayPalConfig
 	SMTP     SMTPConfig
 	App      AppConfig
+	AI       AIConfig
+}
+
+// AIConfig holds AI service configuration
+type AIConfig struct {
+	Provider string // "ollama" or "anthropic"
+	OllamaURL string
+	Model    string
+	Enabled  bool
+	// Anthropic (optional, if you want to use cloud API later)
+	AnthropicAPIKey string
 }
 
 // StorageConfig holds local storage configuration (fallback for S3)
@@ -170,6 +181,13 @@ func Load() (*Config, error) {
 			BaseURL:        getEnv("APP_BASE_URL", "http://localhost:8080"),
 			LogLevel:       getEnv("LOG_LEVEL", "info"),
 			AllowedOrigins: parseCSV(getEnv("ALLOWED_ORIGINS", "http://localhost:3000")),
+		},
+		AI: AIConfig{
+			Provider:        getEnv("AI_PROVIDER", "ollama"),
+			OllamaURL:       getEnv("OLLAMA_URL", "http://localhost:11434"),
+			Model:           getEnv("AI_MODEL", "llama3.2"),
+			Enabled:         getEnv("AI_ENABLED", "true") == "true",
+			AnthropicAPIKey: getEnv("ANTHROPIC_API_KEY", ""),
 		},
 	}
 

@@ -76,11 +76,11 @@ func (m *APIKeyAuthMiddleware) Authenticate() gin.HandlerFunc {
 			return
 		}
 
-		// Verify tenant has Enterprise tier (API access)
-		if tenant.Tier != "enterprise" {
-			logger.Warn("Non-Enterprise tenant attempted API access", "tenant_id", user.TenantID, "tier", tenant.Tier)
+		// Verify tenant has Pro or Enterprise tier (API access)
+		if tenant.Tier != "enterprise" && tenant.Tier != "pro" {
+			logger.Warn("Non-Pro/Enterprise tenant attempted API access", "tenant_id", user.TenantID, "tier", tenant.Tier)
 			c.JSON(403, gin.H{
-				"error":            "API access requires Enterprise tier",
+				"error":            "API access requires Pro or Enterprise subscription",
 				"upgrade_required": true,
 			})
 			c.Abort()

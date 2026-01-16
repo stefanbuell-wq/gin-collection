@@ -20,9 +20,12 @@ type RouterConfig struct {
 	PhotoHandler         *handler.PhotoHandler
 	UserHandler          *handler.UserHandler
 	TenantHandler        *handler.TenantHandler
+	AIHandler            *handler.AIHandler
+	TastingHandler       *handler.TastingHandler
 	AuthMiddleware       *middleware.AuthMiddleware
 	TenantMiddleware     *middleware.TenantMiddleware
 	TierEnforcement      *middleware.TierEnforcementMiddleware
+	RateLimitMiddleware  *middleware.RateLimitMiddleware
 	AllowedOrigins       []string
 }
 
@@ -51,7 +54,12 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			auth.POST("/register", cfg.AuthHandler.Register)
 
 			// Login with optional tenant (allows login via email only for localhost)
-			auth.POST("/login", cfg.TenantMiddleware.OptionalTenant(), cfg.AuthHandler.Login)
+			// Apply login rate limiting if available
+			loginMiddleware := []gin.HandlerFunc{cfg.TenantMiddleware.OptionalTenant()}
+			if cfg.RateLimitMiddleware != nil {
+				loginMiddleware = append([]gin.HandlerFunc{cfg.RateLimitMiddleware.RateLimitLogin()}, loginMiddleware...)
+			}
+			auth.POST("/login", append(loginMiddleware, cfg.AuthHandler.Login)...)
 
 			// Refresh token
 			auth.POST("/refresh", cfg.AuthHandler.RefreshToken)
@@ -70,10 +78,14 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			}
 		}
 
-		// Protected routes (require tenant + auth)
+		// Protected routes (require tenant + auth + rate limiting)
 		protected := v1.Group("")
 		protected.Use(cfg.TenantMiddleware.ExtractTenant())
 		protected.Use(cfg.AuthMiddleware.RequireAuth())
+		// Apply rate limiting if available
+		if cfg.RateLimitMiddleware != nil {
+			protected.Use(cfg.RateLimitMiddleware.RateLimitByTenant())
+		}
 		{
 			// Tenants
 			tenants := protected.Group("/tenants")
@@ -121,6 +133,13 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				gins.POST("/:id/photos", cfg.PhotoHandler.Upload)
 				gins.DELETE("/:id/photos/:photo_id", cfg.PhotoHandler.Delete)
 				gins.PUT("/:id/photos/:photo_id/primary", cfg.PhotoHandler.SetPrimary)
+
+				// Gin Tasting Sessions
+				gins.GET("/:id/tastings", cfg.TastingHandler.GetSessions)
+				gins.POST("/:id/tastings", cfg.TastingHandler.CreateSession)
+				gins.GET("/:id/tastings/:session_id", cfg.TastingHandler.GetSession)
+				gins.PUT("/:id/tastings/:session_id", cfg.TastingHandler.UpdateSession)
+				gins.DELETE("/:id/tastings/:session_id", cfg.TastingHandler.DeleteSession)
 			}
 
 			// Botanicals (reference data, available to all)
@@ -136,6 +155,12 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				cocktails.GET("/:id", cfg.CocktailHandler.GetByID)
 			}
 
+			// Tasting Sessions (recent across all gins)
+			tastings := protected.Group("/tastings")
+			{
+				tastings.GET("/recent", cfg.TastingHandler.GetRecentSessions)
+			}
+
 			// Users (Enterprise only)
 			users := protected.Group("/users")
 			users.Use(middleware.RequireRole(models.RoleOwner, models.RoleAdmin))
@@ -146,6 +171,13 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				users.DELETE("/:id", cfg.UserHandler.Delete)
 				users.POST("/:id/api-key", cfg.UserHandler.GenerateAPIKey)
 				users.DELETE("/:id/api-key", cfg.UserHandler.RevokeAPIKey)
+			}
+
+			// AI routes (requires auth)
+			ai := protected.Group("/ai")
+			{
+				ai.GET("/status", cfg.AIHandler.Status)
+				ai.POST("/suggest-gin", cfg.AIHandler.SuggestGinInfo)
 			}
 		}
 

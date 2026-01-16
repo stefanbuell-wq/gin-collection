@@ -33,6 +33,9 @@ type Gin struct {
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 
+	// Primary photo URL (from photos table, set by repository)
+	PrimaryPhotoURL *string `json:"primary_photo_url,omitempty"`
+
 	// Related data (loaded separately)
 	Botanicals []*GinBotanical `json:"botanicals,omitempty"`
 	Photos     []*GinPhoto     `json:"photos,omitempty"`
@@ -151,6 +154,16 @@ type TastingSession struct {
 	Notes     *string    `json:"notes,omitempty"`
 	Rating    *int       `json:"rating,omitempty"`
 	CreatedAt time.Time  `json:"created_at"`
+
+	// Loaded user info
+	UserName *string `json:"user_name,omitempty"`
+}
+
+// TastingSessionWithGin includes gin information for list views
+type TastingSessionWithGin struct {
+	TastingSession
+	GinName  string  `json:"gin_name"`
+	GinBrand *string `json:"gin_brand,omitempty"`
 }
 
 // GinStats represents statistics about a gin collection

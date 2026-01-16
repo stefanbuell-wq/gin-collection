@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import type { GinCreateRequest } from '../types';
 import { PhotoGallery } from '../components/PhotoGallery';
+import { TastingSessions } from '../components/TastingSessions';
 import './GinDetail.css';
 
 const GIN_TYPES = [
@@ -835,6 +836,16 @@ const GinDetail = () => {
               )}
             </div>
           )}
+        </motion.div>
+
+        {/* Tasting Sessions */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={cardVariants}
+          transition={{ duration: 0.4, delay: 0.38 }}
+        >
+          <TastingSessions ginId={currentGin.id} ginName={currentGin.name} />
         </motion.div>
 
         {/* Serving Suggestions */}

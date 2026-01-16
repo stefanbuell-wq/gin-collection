@@ -45,8 +45,16 @@
 }
 
 @layer base {
+  html, body, #root {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    background: var(--vault-deep);
+    color: var(--text-primary);
+    font-family: var(--font-body);
   }
 
   /* Apply GinVault theme fonts when using .ginvault class */

@@ -78,3 +78,27 @@ func ValidationError(c *gin.Context, errs map[string]string) {
 		"errors":  errs,
 	})
 }
+
+// BadRequest sends a bad request error response
+func BadRequest(c *gin.Context, message string) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"success": false,
+		"error":   message,
+	})
+}
+
+// InternalError sends an internal server error response
+func InternalError(c *gin.Context, message string) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"success": false,
+		"error":   message,
+	})
+}
+
+// ServiceUnavailable sends a service unavailable response
+func ServiceUnavailable(c *gin.Context, message string) {
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"success": false,
+		"error":   message,
+	})
+}

@@ -51,8 +51,8 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
   const loadLimits = async () => {
     try {
       const response = await tenantAPI.getUsage();
-      if (response.data?.data?.limits?.max_photos_per_gin) {
-        setPhotoLimit(response.data.data.limits.max_photos_per_gin);
+      if (response.data?.data?.usage?.photos?.per_gin_limit) {
+        setPhotoLimit(response.data.data.usage.photos.per_gin_limit);
       }
     } catch (err) {
       console.error('Failed to load limits:', err);
@@ -268,7 +268,7 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
             onClick={() => setSelectedPhoto(null)}
           >
             <motion.img
-              src={selectedPhoto.url}
+              src={selectedPhoto.photo_url}
               alt={selectedPhoto.caption || 'Gin Foto'}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

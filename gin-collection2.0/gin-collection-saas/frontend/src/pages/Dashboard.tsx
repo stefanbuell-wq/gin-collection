@@ -126,7 +126,7 @@ const GinCard = ({ gin, index }: { gin: GinCardData; index: number }) => {
         ease: [0.22, 1, 0.36, 1]
       }}
       whileHover={{ y: -8, transition: { duration: 0.3 } }}
-      onClick={() => navigate(`/gins/${gin.uuid || gin.id}`)}
+      onClick={() => navigate(`/gins/${gin.id}`)}
     >
       <div className="gin-card__image">
         {gin.primary_photo_url ? (

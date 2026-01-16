@@ -37,18 +37,35 @@ export const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'var(--vault-deep)' }}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header
+        className="shadow-lg border-b"
+        style={{
+          background: 'var(--vault-dark)',
+          borderColor: 'var(--glass-border)'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo & Tenant Name */}
             <div className="flex items-center gap-3">
               <div className="text-2xl">🍸</div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Gin Collection</h1>
+                <h1
+                  className="text-xl font-bold"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    color: 'var(--gold)'
+                  }}
+                >
+                  GinVault
+                </h1>
                 {tenant && (
-                  <p className="text-xs text-gray-500">
+                  <p
+                    className="text-xs"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {tenant.name} • {tenant.tier.toUpperCase()}
                   </p>
                 )}
@@ -56,7 +73,7 @@ export const Layout = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -64,12 +81,13 @@ export const Layout = () => {
                     key={item.to}
                     to={item.to}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-primary-50 text-primary-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`
+                      `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200`
                     }
+                    style={({ isActive }) => ({
+                      background: isActive ? 'var(--glass-bg)' : 'transparent',
+                      color: isActive ? 'var(--gold)' : 'var(--text-secondary)',
+                      border: isActive ? '1px solid var(--glass-border-hover)' : '1px solid transparent',
+                    })}
                   >
                     <Icon className="w-4 h-4" />
                     {item.name}
@@ -81,12 +99,34 @@ export const Layout = () => {
             {/* User Menu */}
             <div className="flex items-center gap-4">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  {user?.email}
+                </p>
+                <p
+                  className="text-xs capitalize"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {user?.role}
+                </p>
               </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                style={{
+                  color: 'var(--text-secondary)',
+                  background: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--glass-bg)';
+                  e.currentTarget.style.color = 'var(--copper)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden md:inline">Logout</span>
@@ -95,7 +135,8 @@ export const Layout = () => {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+                className="md:hidden p-2 rounded-lg transition-colors"
+                style={{ color: 'var(--text-primary)' }}
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -109,7 +150,13 @@ export const Layout = () => {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
+          <div
+            className="md:hidden border-t"
+            style={{
+              background: 'var(--vault-dark)',
+              borderColor: 'var(--glass-border)'
+            }}
+          >
             <nav className="px-4 py-4 space-y-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -118,13 +165,11 @@ export const Layout = () => {
                     key={item.to}
                     to={item.to}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${
-                        isActive
-                          ? 'bg-primary-50 text-primary-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`
-                    }
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                    style={({ isActive }) => ({
+                      background: isActive ? 'var(--glass-bg)' : 'transparent',
+                      color: isActive ? 'var(--gold)' : 'var(--text-secondary)',
+                    })}
                   >
                     <Icon className="w-5 h-5" />
                     {item.name}
