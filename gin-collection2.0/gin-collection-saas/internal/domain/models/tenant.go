@@ -65,7 +65,7 @@ type PlanLimits struct {
 // PlanLimitsMap defines limits for each tier
 var PlanLimitsMap = map[SubscriptionTier]PlanLimits{
 	TierFree: {
-		MaxGins:          intPtr(25),
+		MaxGins:          intPtr(5),
 		MaxPhotosPerGin:  3,
 		HasBotanicals:    false,
 		HasCocktails:     false,
@@ -78,7 +78,7 @@ var PlanLimitsMap = map[SubscriptionTier]PlanLimits{
 		StorageLimitMB:   intPtr(100),
 	},
 	TierBasic: {
-		MaxGins:          intPtr(100),
+		MaxGins:          intPtr(15),
 		MaxPhotosPerGin:  10,
 		HasBotanicals:    false,
 		HasCocktails:     false,
@@ -91,7 +91,7 @@ var PlanLimitsMap = map[SubscriptionTier]PlanLimits{
 		StorageLimitMB:   intPtr(1000),
 	},
 	TierPro: {
-		MaxGins:          intPtr(500),
+		MaxGins:          intPtr(100),
 		MaxPhotosPerGin:  25,
 		HasBotanicals:    true,
 		HasCocktails:     true,
