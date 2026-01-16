@@ -221,3 +221,29 @@ export interface SearchParams {
   page?: number;
   limit?: number;
 }
+
+// Gin Reference Types (catalog for quick add)
+export interface GinReference {
+  id: number;
+  name: string;
+  brand?: string;
+  country?: string;
+  region?: string;
+  gin_type?: string;
+  abv?: number;
+  bottle_size?: number;
+  description?: string;
+  nose_notes?: string;
+  palate_notes?: string;
+  finish_notes?: string;
+  recommended_tonic?: string;
+  recommended_garnish?: string;
+  image_url?: string;
+  barcode?: string;
+}
+
+export interface GinReferenceFilters {
+  countries: string[];
+  gin_types: string[];
+  brands: string[];
+}

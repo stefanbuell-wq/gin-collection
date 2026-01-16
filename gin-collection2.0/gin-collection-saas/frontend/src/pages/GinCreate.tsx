@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
 import {
   Wine,
@@ -21,9 +21,11 @@ import {
   Beaker,
   ShoppingBag,
   Sparkles,
-  Cherry
+  Cherry,
+  BookOpen
 } from 'lucide-react';
-import type { GinCreateRequest } from '../types';
+import type { GinCreateRequest, GinReference } from '../types';
+import { GinReferenceSearch } from '../components/GinReferenceSearch';
 import './GinCreate.css';
 
 // Common gin types for dropdown
@@ -88,6 +90,29 @@ const GinCreate = () => {
   });
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [showCatalog, setShowCatalog] = useState(false);
+
+  // Handle selection from gin catalog
+  const handleCatalogSelect = (gin: GinReference) => {
+    setFormData(prev => ({
+      ...prev,
+      name: gin.name,
+      brand: gin.brand || '',
+      country: gin.country || '',
+      region: gin.region || '',
+      gin_type: gin.gin_type || '',
+      abv: gin.abv,
+      bottle_size: gin.bottle_size || 700,
+      description: gin.description || '',
+      nose_notes: gin.nose_notes || '',
+      palate_notes: gin.palate_notes || '',
+      finish_notes: gin.finish_notes || '',
+      recommended_tonic: gin.recommended_tonic || '',
+      recommended_garnish: gin.recommended_garnish || '',
+      barcode: gin.barcode || '',
+    }));
+    setShowCatalog(false);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -238,7 +263,46 @@ const GinCreate = () => {
               Füge eine neue Flasche zu deinem Tresor hinzu
             </p>
           </div>
+
+          <motion.button
+            type="button"
+            onClick={() => setShowCatalog(true)}
+            className="gin-create-catalog-btn"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <BookOpen />
+            Aus Katalog wählen
+          </motion.button>
         </motion.div>
+
+        {/* Gin Catalog Modal */}
+        <AnimatePresence>
+          {showCatalog && (
+            <motion.div
+              className="gin-reference-modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setShowCatalog(false);
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25 }}
+              >
+                <GinReferenceSearch
+                  onSelect={handleCatalogSelect}
+                  onClose={() => setShowCatalog(false)}
+                  isOpen={true}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Error Display */}
         {error && (

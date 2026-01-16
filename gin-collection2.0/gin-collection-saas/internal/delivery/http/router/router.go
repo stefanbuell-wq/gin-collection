@@ -10,19 +10,20 @@ import (
 
 // RouterConfig holds router configuration
 type RouterConfig struct {
-	AuthHandler         *handler.AuthHandler
-	GinHandler          *handler.GinHandler
-	SubscriptionHandler *handler.SubscriptionHandler
-	WebhookHandler      *handler.WebhookHandler
-	BotanicalHandler    *handler.BotanicalHandler
-	CocktailHandler     *handler.CocktailHandler
-	PhotoHandler        *handler.PhotoHandler
-	UserHandler         *handler.UserHandler
-	TenantHandler       *handler.TenantHandler
-	AuthMiddleware      *middleware.AuthMiddleware
-	TenantMiddleware    *middleware.TenantMiddleware
-	TierEnforcement     *middleware.TierEnforcementMiddleware
-	AllowedOrigins      []string
+	AuthHandler          *handler.AuthHandler
+	GinHandler           *handler.GinHandler
+	GinReferenceHandler  *handler.GinReferenceHandler
+	SubscriptionHandler  *handler.SubscriptionHandler
+	WebhookHandler       *handler.WebhookHandler
+	BotanicalHandler     *handler.BotanicalHandler
+	CocktailHandler      *handler.CocktailHandler
+	PhotoHandler         *handler.PhotoHandler
+	UserHandler          *handler.UserHandler
+	TenantHandler        *handler.TenantHandler
+	AuthMiddleware       *middleware.AuthMiddleware
+	TenantMiddleware     *middleware.TenantMiddleware
+	TierEnforcement      *middleware.TierEnforcementMiddleware
+	AllowedOrigins       []string
 }
 
 // Setup configures all routes
@@ -146,6 +147,15 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				users.POST("/:id/api-key", cfg.UserHandler.GenerateAPIKey)
 				users.DELETE("/:id/api-key", cfg.UserHandler.RevokeAPIKey)
 			}
+		}
+
+		// Gin References (public catalog, requires auth but no tenant)
+		ginRefs := v1.Group("/gin-references")
+		ginRefs.Use(cfg.AuthMiddleware.RequireAuth())
+		{
+			ginRefs.GET("", cfg.GinReferenceHandler.Search)
+			ginRefs.GET("/filters", cfg.GinReferenceHandler.GetFilters)
+			ginRefs.GET("/:id", cfg.GinReferenceHandler.GetByID)
 		}
 
 		// Webhooks (no auth, validated by signature)

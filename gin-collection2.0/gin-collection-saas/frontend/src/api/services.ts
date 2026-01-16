@@ -14,6 +14,8 @@ import type {
   GinBotanical,
   Cocktail,
   SearchParams,
+  GinReference,
+  GinReferenceFilters,
 } from '../types';
 
 // ============================================================================
@@ -227,4 +229,22 @@ export const userAPI = {
     apiClient.post<{ api_key: string; message: string }>(`/users/${id}/api-key`),
 
   revokeAPIKey: (id: number) => apiClient.delete(`/users/${id}/api-key`),
+};
+
+// ============================================================================
+// Gin Reference API (catalog for quick add)
+// ============================================================================
+
+export const ginReferenceAPI = {
+  search: (params?: { q?: string; country?: string; type?: string; limit?: number; offset?: number }) =>
+    apiClient.get<{ data: { gins: GinReference[]; total: number; limit: number; offset: number } }>(
+      '/gin-references',
+      { params }
+    ),
+
+  getById: (id: number) =>
+    apiClient.get<{ data: GinReference }>(`/gin-references/${id}`),
+
+  getFilters: () =>
+    apiClient.get<{ data: GinReferenceFilters }>('/gin-references/filters'),
 };

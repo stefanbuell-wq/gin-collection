@@ -58,6 +58,7 @@ func main() {
 	tenantRepo := mysql.NewTenantRepository(db)
 	userRepo := mysql.NewUserRepository(db)
 	ginRepo := mysql.NewGinRepository(db)
+	ginReferenceRepo := mysql.NewGinReferenceRepository(db)
 	usageMetricsRepo := mysql.NewUsageMetricsRepository(db)
 	subscriptionRepo := mysql.NewSubscriptionRepository(db)
 	botanicalRepo := mysql.NewBotanicalRepository(db)
@@ -159,6 +160,7 @@ func main() {
 	// Initialize HTTP handlers
 	authHandler := handler.NewAuthHandler(authService)
 	ginHandler := handler.NewGinHandler(ginService)
+	ginReferenceHandler := handler.NewGinReferenceHandler(ginReferenceRepo)
 	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)
 	webhookHandler := handler.NewWebhookHandler(subscriptionService)
 	botanicalHandler := handler.NewBotanicalHandler(botanicalService)
@@ -182,6 +184,7 @@ func main() {
 	routerCfg := &router.RouterConfig{
 		AuthHandler:         authHandler,
 		GinHandler:          ginHandler,
+		GinReferenceHandler: ginReferenceHandler,
 		SubscriptionHandler: subscriptionHandler,
 		WebhookHandler:      webhookHandler,
 		BotanicalHandler:    botanicalHandler,
