@@ -22,8 +22,8 @@ func NewTastingSessionRepository(db *sql.DB) *TastingSessionRepository {
 // Create creates a new tasting session
 func (r *TastingSessionRepository) Create(ctx context.Context, session *models.TastingSession) error {
 	query := `
-		INSERT INTO tasting_sessions (tenant_id, gin_id, user_id, date, notes, rating)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT INTO tasting_sessions (tenant_id, gin_id, user_id, date, notes, rating, tonic, botanicals)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	result, err := r.db.ExecContext(ctx, query,
@@ -33,6 +33,8 @@ func (r *TastingSessionRepository) Create(ctx context.Context, session *models.T
 		session.Date,
 		session.Notes,
 		session.Rating,
+		session.Tonic,
+		session.Botanicals,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create tasting session: %w", err)
@@ -52,7 +54,7 @@ func (r *TastingSessionRepository) Create(ctx context.Context, session *models.T
 // GetByID retrieves a tasting session by ID
 func (r *TastingSessionRepository) GetByID(ctx context.Context, tenantID, id int64) (*models.TastingSession, error) {
 	query := `
-		SELECT id, tenant_id, gin_id, user_id, date, notes, rating, created_at
+		SELECT id, tenant_id, gin_id, user_id, date, notes, rating, tonic, botanicals, created_at
 		FROM tasting_sessions
 		WHERE tenant_id = ? AND id = ?
 	`
@@ -66,6 +68,8 @@ func (r *TastingSessionRepository) GetByID(ctx context.Context, tenantID, id int
 		&session.Date,
 		&session.Notes,
 		&session.Rating,
+		&session.Tonic,
+		&session.Botanicals,
 		&session.CreatedAt,
 	)
 	if err == sql.ErrNoRows {
@@ -81,7 +85,7 @@ func (r *TastingSessionRepository) GetByID(ctx context.Context, tenantID, id int
 // GetByGinID retrieves all tasting sessions for a specific gin
 func (r *TastingSessionRepository) GetByGinID(ctx context.Context, tenantID, ginID int64) ([]*models.TastingSession, error) {
 	query := `
-		SELECT ts.id, ts.tenant_id, ts.gin_id, ts.user_id, ts.date, ts.notes, ts.rating, ts.created_at,
+		SELECT ts.id, ts.tenant_id, ts.gin_id, ts.user_id, ts.date, ts.notes, ts.rating, ts.tonic, ts.botanicals, ts.created_at,
 		       u.first_name, u.last_name
 		FROM tasting_sessions ts
 		LEFT JOIN users u ON ts.user_id = u.id
@@ -108,6 +112,8 @@ func (r *TastingSessionRepository) GetByGinID(ctx context.Context, tenantID, gin
 			&session.Date,
 			&session.Notes,
 			&session.Rating,
+			&session.Tonic,
+			&session.Botanicals,
 			&session.CreatedAt,
 			&firstName,
 			&lastName,
@@ -141,7 +147,7 @@ func (r *TastingSessionRepository) GetByGinID(ctx context.Context, tenantID, gin
 func (r *TastingSessionRepository) Update(ctx context.Context, session *models.TastingSession) error {
 	query := `
 		UPDATE tasting_sessions
-		SET date = ?, notes = ?, rating = ?
+		SET date = ?, notes = ?, rating = ?, tonic = ?, botanicals = ?
 		WHERE tenant_id = ? AND id = ?
 	`
 
@@ -149,6 +155,8 @@ func (r *TastingSessionRepository) Update(ctx context.Context, session *models.T
 		session.Date,
 		session.Notes,
 		session.Rating,
+		session.Tonic,
+		session.Botanicals,
 		session.TenantID,
 		session.ID,
 	)
@@ -192,7 +200,7 @@ func (r *TastingSessionRepository) Delete(ctx context.Context, tenantID, id int6
 // GetRecentByTenant retrieves recent tasting sessions for a tenant
 func (r *TastingSessionRepository) GetRecentByTenant(ctx context.Context, tenantID int64, limit int) ([]*models.TastingSessionWithGin, error) {
 	query := `
-		SELECT ts.id, ts.tenant_id, ts.gin_id, ts.user_id, ts.date, ts.notes, ts.rating, ts.created_at,
+		SELECT ts.id, ts.tenant_id, ts.gin_id, ts.user_id, ts.date, ts.notes, ts.rating, ts.tonic, ts.botanicals, ts.created_at,
 		       g.name as gin_name, g.brand as gin_brand,
 		       u.first_name, u.last_name
 		FROM tasting_sessions ts
@@ -222,6 +230,8 @@ func (r *TastingSessionRepository) GetRecentByTenant(ctx context.Context, tenant
 			&session.Date,
 			&session.Notes,
 			&session.Rating,
+			&session.Tonic,
+			&session.Botanicals,
 			&session.CreatedAt,
 			&session.GinName,
 			&ginBrand,

@@ -10,7 +10,9 @@ import {
   Save,
   X,
   User,
-  FileText
+  FileText,
+  Droplets,
+  Leaf
 } from 'lucide-react';
 import { tastingAPI } from '../api/services';
 import type { TastingSession, TastingSessionCreateRequest } from '../types';
@@ -20,6 +22,59 @@ interface TastingSessionsProps {
   ginId: number;
   ginName: string;
 }
+
+// Etablierte Tonic Water Marken
+const ESTABLISHED_TONICS = [
+  'Fever-Tree Indian Tonic',
+  'Fever-Tree Mediterranean',
+  'Fever-Tree Elderflower',
+  'Fever-Tree Aromatic',
+  'Fever-Tree Light',
+  'Schweppes Indian Tonic',
+  'Schweppes Dry Tonic',
+  'Thomas Henry Tonic Water',
+  'Thomas Henry Elderflower',
+  'Fentimans Tonic Water',
+  'Fentimans Light Tonic',
+  '1724 Tonic Water',
+  'Goldberg Tonic',
+  'Aqua Monaco Tonic',
+  'Three Cents Tonic',
+  'East Imperial Tonic',
+  'Q Tonic',
+  'Indi Tonic',
+  'Nordic Mist Tonic',
+  'Sonstiges'
+];
+
+// Typische Gin-Botanicals
+const COMMON_BOTANICALS = [
+  'Wacholder',
+  'Koriander',
+  'Angelikawurzel',
+  'Zitronenschale',
+  'Orangenschale',
+  'Kardamom',
+  'Kubebenpfeffer',
+  'Lavendel',
+  'Rose',
+  'Hibiskus',
+  'Gurke',
+  'Ingwer',
+  'Zimt',
+  'Süßholz',
+  'Mandel',
+  'Rosmarin',
+  'Thymian',
+  'Basilikum',
+  'Pfefferminze',
+  'Grüner Tee',
+  'Earl Grey',
+  'Veilchen',
+  'Enzian',
+  'Hopfen',
+  'Grapefruit'
+];
 
 export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
   const [sessions, setSessions] = useState<TastingSession[]>([]);
@@ -32,8 +87,13 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
   const [formData, setFormData] = useState<TastingSessionCreateRequest>({
     date: new Date().toISOString().split('T')[0],
     notes: '',
-    rating: undefined
+    rating: undefined,
+    tonic: '',
+    botanicals: ''
   });
+
+  // Selected botanicals as array for multi-select
+  const [selectedBotanicals, setSelectedBotanicals] = useState<string[]>([]);
 
   useEffect(() => {
     loadSessions();
@@ -57,13 +117,20 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
 
   const handleCreateSession = async () => {
     try {
-      await tastingAPI.createSession(ginId, formData);
+      const dataToSend = {
+        ...formData,
+        botanicals: selectedBotanicals.length > 0 ? selectedBotanicals.join(', ') : undefined
+      };
+      await tastingAPI.createSession(ginId, dataToSend);
       setIsCreating(false);
       setFormData({
         date: new Date().toISOString().split('T')[0],
         notes: '',
-        rating: undefined
+        rating: undefined,
+        tonic: '',
+        botanicals: ''
       });
+      setSelectedBotanicals([]);
       loadSessions();
     } catch (err) {
       console.error('Failed to create tasting session:', err);
@@ -73,13 +140,20 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
 
   const handleUpdateSession = async (sessionId: number) => {
     try {
-      await tastingAPI.updateSession(ginId, sessionId, formData);
+      const dataToSend = {
+        ...formData,
+        botanicals: selectedBotanicals.length > 0 ? selectedBotanicals.join(', ') : undefined
+      };
+      await tastingAPI.updateSession(ginId, sessionId, dataToSend);
       setEditingId(null);
       setFormData({
         date: new Date().toISOString().split('T')[0],
         notes: '',
-        rating: undefined
+        rating: undefined,
+        tonic: '',
+        botanicals: ''
       });
+      setSelectedBotanicals([]);
       loadSessions();
     } catch (err) {
       console.error('Failed to update tasting session:', err);
@@ -104,8 +178,16 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
     setFormData({
       date: session.date.split('T')[0],
       notes: session.notes || '',
-      rating: session.rating
+      rating: session.rating,
+      tonic: session.tonic || '',
+      botanicals: session.botanicals || ''
     });
+    // Parse botanicals string into array
+    if (session.botanicals) {
+      setSelectedBotanicals(session.botanicals.split(',').map(b => b.trim()));
+    } else {
+      setSelectedBotanicals([]);
+    }
     setIsCreating(false);
   };
 
@@ -115,8 +197,19 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
     setFormData({
       date: new Date().toISOString().split('T')[0],
       notes: '',
-      rating: undefined
+      rating: undefined,
+      tonic: '',
+      botanicals: ''
     });
+    setSelectedBotanicals([]);
+  };
+
+  const toggleBotanical = (botanical: string) => {
+    setSelectedBotanicals(prev =>
+      prev.includes(botanical)
+        ? prev.filter(b => b !== botanical)
+        : [...prev, botanical]
+    );
   };
 
   const renderStars = (rating: number | undefined, interactive = false) => {
@@ -171,6 +264,47 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
             Bewertung
           </label>
           {renderStars(formData.rating, true)}
+        </div>
+
+        <div className="tasting-form__field">
+          <label>
+            <Droplets size={14} />
+            Tonic Water
+          </label>
+          <select
+            value={formData.tonic || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, tonic: e.target.value }))}
+            className="tasting-select"
+          >
+            <option value="">-- Tonic auswählen --</option>
+            {ESTABLISHED_TONICS.map(tonic => (
+              <option key={tonic} value={tonic}>{tonic}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="tasting-form__field tasting-form__field--full">
+          <label>
+            <Leaf size={14} />
+            Wahrgenommene Botanicals
+          </label>
+          <div className="tasting-botanicals-grid">
+            {COMMON_BOTANICALS.map(botanical => (
+              <button
+                key={botanical}
+                type="button"
+                onClick={() => toggleBotanical(botanical)}
+                className={`tasting-botanical-tag ${selectedBotanicals.includes(botanical) ? 'tasting-botanical-tag--selected' : ''}`}
+              >
+                {botanical}
+              </button>
+            ))}
+          </div>
+          {selectedBotanicals.length > 0 && (
+            <div className="tasting-selected-botanicals">
+              Ausgewählt: {selectedBotanicals.join(', ')}
+            </div>
+          )}
         </div>
 
         <div className="tasting-form__field tasting-form__field--full">
@@ -295,6 +429,23 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
                         </div>
                       )}
                     </div>
+
+                    {(session.tonic || session.botanicals) && (
+                      <div className="tasting-item__details">
+                        {session.tonic && (
+                          <div className="tasting-item__tonic">
+                            <Droplets size={12} />
+                            <span>{session.tonic}</span>
+                          </div>
+                        )}
+                        {session.botanicals && (
+                          <div className="tasting-item__botanicals">
+                            <Leaf size={12} />
+                            <span>{session.botanicals}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {session.notes && (
                       <div className="tasting-item__notes">

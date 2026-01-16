@@ -79,6 +79,7 @@ _Aktuell keine offenen Aufgaben_
 - [ ] Multi-Language Support (EN, FR)
 - [ ] Gin-Vergleichs-Feature
 - [ ] Wunschliste für Gins
+- [ ] Tasting Themen Basic nur Pdf, Pro Pdf + Digitale unterstützung, Enterprise wie Pro + Komplette plattform für gastronomie
 
 ### Technische Schulden
 - [ ] Unit Tests erweitern (Coverage > 80%)

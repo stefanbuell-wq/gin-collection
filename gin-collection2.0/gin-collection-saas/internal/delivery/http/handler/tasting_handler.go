@@ -26,16 +26,20 @@ func NewTastingHandler(tastingService *tasting.Service) *TastingHandler {
 
 // CreateSessionRequest represents the request to create a tasting session
 type CreateSessionRequest struct {
-	Date   string  `json:"date"`
-	Notes  *string `json:"notes"`
-	Rating *int    `json:"rating"`
+	Date       string  `json:"date"`
+	Notes      *string `json:"notes"`
+	Rating     *int    `json:"rating"`
+	Tonic      *string `json:"tonic"`
+	Botanicals *string `json:"botanicals"`
 }
 
 // UpdateSessionRequest represents the request to update a tasting session
 type UpdateSessionRequest struct {
-	Date   string  `json:"date"`
-	Notes  *string `json:"notes"`
-	Rating *int    `json:"rating"`
+	Date       string  `json:"date"`
+	Notes      *string `json:"notes"`
+	Rating     *int    `json:"rating"`
+	Tonic      *string `json:"tonic"`
+	Botanicals *string `json:"botanicals"`
 }
 
 // GetSessions handles GET /api/v1/gins/:id/tastings
@@ -106,12 +110,14 @@ func (h *TastingHandler) CreateSession(c *gin.Context) {
 	}
 
 	session := &models.TastingSession{
-		TenantID: tenantID,
-		GinID:    ginID,
-		UserID:   &userID,
-		Date:     date,
-		Notes:    req.Notes,
-		Rating:   req.Rating,
+		TenantID:   tenantID,
+		GinID:      ginID,
+		UserID:     &userID,
+		Date:       date,
+		Notes:      req.Notes,
+		Rating:     req.Rating,
+		Tonic:      req.Tonic,
+		Botanicals: req.Botanicals,
 	}
 
 	if err := h.tastingService.CreateSession(c.Request.Context(), session); err != nil {
@@ -189,11 +195,13 @@ func (h *TastingHandler) UpdateSession(c *gin.Context) {
 	}
 
 	session := &models.TastingSession{
-		ID:       sessionID,
-		TenantID: tenantID,
-		Date:     date,
-		Notes:    req.Notes,
-		Rating:   req.Rating,
+		ID:         sessionID,
+		TenantID:   tenantID,
+		Date:       date,
+		Notes:      req.Notes,
+		Rating:     req.Rating,
+		Tonic:      req.Tonic,
+		Botanicals: req.Botanicals,
 	}
 
 	if err := h.tastingService.UpdateSession(c.Request.Context(), session); err != nil {

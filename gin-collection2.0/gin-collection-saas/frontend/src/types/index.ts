@@ -257,6 +257,8 @@ export interface TastingSession {
   date: string;
   notes?: string;
   rating?: number;
+  tonic?: string;
+  botanicals?: string; // Comma-separated list
   created_at: string;
   user_name?: string;
 }
@@ -270,10 +272,14 @@ export interface TastingSessionCreateRequest {
   date?: string;
   notes?: string;
   rating?: number;
+  tonic?: string;
+  botanicals?: string;
 }
 
 export interface TastingSessionUpdateRequest {
   date?: string;
   notes?: string;
   rating?: number;
+  tonic?: string;
+  botanicals?: string;
 }

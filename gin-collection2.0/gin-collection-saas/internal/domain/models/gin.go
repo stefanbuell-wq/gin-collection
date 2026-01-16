@@ -153,6 +153,8 @@ type TastingSession struct {
 	Date      time.Time  `json:"date"`
 	Notes     *string    `json:"notes,omitempty"`
 	Rating    *int       `json:"rating,omitempty"`
+	Tonic     *string    `json:"tonic,omitempty"`
+	Botanicals *string   `json:"botanicals,omitempty"` // Comma-separated list
 	CreatedAt time.Time  `json:"created_at"`
 
 	// Loaded user info
