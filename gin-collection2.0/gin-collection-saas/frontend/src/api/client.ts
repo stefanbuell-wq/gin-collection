@@ -35,16 +35,24 @@ apiClient.interceptors.request.use(
 
     // Add tenant subdomain header
     const hostname = window.location.hostname;
-    const hostnameSubdomain = hostname.split('.')[0];
+    const hostnameParts = hostname.split('.');
 
-    // For production: extract from hostname subdomain
-    if (hostnameSubdomain && hostnameSubdomain !== 'localhost' && hostnameSubdomain !== '127' && config.headers) {
-      config.headers['X-Tenant-Subdomain'] = hostnameSubdomain;
-    } else if (config.headers) {
-      // For localhost: get subdomain from persisted auth storage
+    // Check if we're on a tenant subdomain (e.g., basic.ginvault.cloud has 3+ parts)
+    // Main domain (ginvault.cloud, www.ginvault.cloud) should use stored subdomain
+    const isMainDomain = hostnameParts.length <= 2 ||
+                         hostnameParts[0] === 'www' ||
+                         hostnameParts[0] === 'ginvault' ||
+                         hostnameParts[0] === 'localhost' ||
+                         hostnameParts[0] === '127';
+
+    if (config.headers) {
+      // Always prefer stored subdomain from auth (set after login)
       const storedSubdomain = getTenantSubdomain();
       if (storedSubdomain) {
         config.headers['X-Tenant-Subdomain'] = storedSubdomain;
+      } else if (!isMainDomain && hostnameParts[0]) {
+        // Fallback: extract from hostname subdomain (e.g., basic.ginvault.cloud)
+        config.headers['X-Tenant-Subdomain'] = hostnameParts[0];
       }
     }
 
