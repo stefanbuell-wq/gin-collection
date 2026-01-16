@@ -123,6 +123,179 @@ _Aktuell keine offenen Aufgaben_
 
 ---
 
+## Vision / Roadmap - Langfristige Features
+
+### 1. Automatische Etikettenerkennung (Label Recognition)
+**Priorität:** Hoch
+**Beschreibung:** Ein Foto der Flasche macht GinVault zum intelligenten Erkennungssystem:
+- Marke automatisch erkennen
+- Botanicals identifizieren
+- Alkoholgehalt auslesen
+- Herkunft bestimmen
+- Preisrange schätzen
+
+**USP:** Massiver UX-Boost und starker Differentiator gegenüber allen existierenden Gin-Apps.
+
+---
+
+### 2. KI-gestützte Aromenanalyse ("Aroma-Coach")
+**Priorität:** Hoch
+**Beschreibung:** GinVault als intelligenter Geschmacks-Berater:
+- Nutzer geben Lieblingsgins ein
+- KI erkennt Muster (z.B. "floral + citrus")
+- GinVault schlägt neue Gins vor, die exakt ins Profil passen
+
+**Vision:** Wie Spotify-Discover - nur für Gin.
+
+---
+
+### 3. Händler- und Brennerei-Dashboards (B2B-Modul)
+**Priorität:** Mittel
+**Beschreibung:** Ein B2B-Modul für Hersteller mit Analytics:
+- Welche Gins werden am häufigsten gesammelt
+- Welche Aromen im Trend sind
+- Welche Zielgruppen welche Gins bevorzugen
+
+**Potenzial:** Macht GinVault für die Industrie extrem wertvoll.
+
+---
+
+### 4. Limited Editions exklusiv für GinVault
+**Priorität:** Mittel
+**Beschreibung:** Kooperationen mit Brennereien:
+- "GinVault Edition No. 1"
+- Exklusive Batch-Releases
+- Nur für Premium-Mitglieder
+
+**Potenzial:** Schafft Begehrlichkeit und wiederkehrende Umsätze.
+
+---
+
+### 5. Gamification & Achievements
+**Priorität:** Mittel
+**Beschreibung:** Sammler lieben Status. Beispiele:
+- "10 Tastings abgeschlossen"
+- "Botanical-Master: 50 Aromen erkannt"
+- "Rare Bottle Collector"
+- Badges und Level-System
+
+**Potenzial:** Erhöht Retention und Community-Dynamik massiv.
+
+---
+
+### 6. Social Features mit echtem Mehrwert
+**Priorität:** Mittel
+**Beschreibung:** Nicht nur Likes, sondern:
+- Tasting-Vergleiche mit Freunden
+- Gemeinsame Tasting-Sessions
+- "Flavor Match Score" zwischen Nutzern
+- Challenges ("Taste 5 Mediterranean Gins this month")
+
+**Vision:** Das macht GinVault lebendig und community-driven.
+
+---
+
+### 7. Integration mit Bars & Events
+**Priorität:** Mittel
+**Beschreibung:** GinVault als digitaler Begleiter für reale Erlebnisse:
+- Bars integrieren ihre Gin-Karte
+- Nutzer scannen Gin im Restaurant
+- Tasting wird automatisch gespeichert
+- Events über GinVault buchen
+
+**Vision:** Verbindet Online und Offline nahtlos.
+
+---
+
+### 8. Erweiterte Abo-Modelle mit echtem Mehrwert
+**Priorität:** Hoch
+**Beschreibung:** Premium-Features die sich "lohnen":
+- Unbegrenzte Sammlung
+- Exklusive Gins
+- Deep-Analytics
+- KI-Empfehlungen
+- Early Access zu Limited Editions
+- Rabattcodes bei Partnern
+
+---
+
+### 9. GinVault als Geschenkprodukt
+**Priorität:** Niedrig
+**Beschreibung:** GinVault in Geschenkboxen integrieren:
+- 3 Gins + Premium-Abo für 3 Monate
+- QR-Code führt direkt zum Tasting-Erlebnis
+
+**Potenzial:** Perfektes Weihnachts- und Geburtstagsprodukt.
+
+---
+
+### 10. API für Shops & Hersteller
+**Priorität:** Mittel
+**Beschreibung:** Shops können:
+- GinVault-Bewertungen anzeigen
+- Aromenprofile integrieren
+- "Passt zu deinem Geschmack"-Empfehlungen nutzen
+
+**Vision:** GinVault wird zur Infrastruktur des Gin-Markts.
+
+---
+
+### 11. Community-Ranking & Awards
+**Priorität:** Niedrig
+**Beschreibung:** Jährlicher "GinVault Community Award":
+- Beste Gins
+- Beste Newcomer
+- Beste Brennerei
+
+**Potenzial:** Schafft Reichweite und Presse-Aufmerksamkeit.
+
+---
+
+### 12. GinVault für Firmen (Corporate Tasting)
+**Priorität:** Mittel
+**Beschreibung:** Firmen lieben Tasting-Events:
+- Digitale Tasting-Boxen
+- Moderierte Sessions
+- Firmenprofile
+- Mitarbeiter-Challenges
+
+**Potenzial:** Extrem lukrativer B2B-Markt.
+
+---
+
+### 13. Erweiterte Cocktail-Features
+**Priorität:** Mittel
+**Beschreibung:** Viele Gin-Fans sind auch Cocktail-Fans:
+- Cocktail-Rezepte basierend auf eigener Sammlung
+- "Was kann ich mit meinen Gins mixen?"
+- KI-Mixing-Assistent
+
+**Potenzial:** Erweitert die Zielgruppe enorm.
+
+---
+
+### 14. Sammler-Wertentwicklung & Rare-Bottle-Tracking
+**Priorität:** Niedrig
+**Beschreibung:** Für Premium-Sammler:
+- Preisentwicklung tracken
+- Seltenheitsindex
+- Marktwert der eigenen Sammlung
+
+**Vision:** GinVault als "Gin-Portfolio-Tracker".
+
+---
+
+### 15. Tasting-Box-Ökosystem
+**Priorität:** Mittel
+**Beschreibung:** Boxen nicht nur verkaufen, sondern:
+- Boxen mit Partnern co-branden
+- Boxen als Abo anbieten
+- Boxen als Onboarding-Tool für neue Nutzer
+
+**Potenzial:** Verstärkt das Flywheel und schafft wiederkehrende Umsätze.
+
+---
+
 ## Notizen
 
 _Platz für allgemeine Notizen und Ideen_
