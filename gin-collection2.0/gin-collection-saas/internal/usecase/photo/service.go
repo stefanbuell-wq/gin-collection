@@ -17,7 +17,7 @@ type Service struct {
 	ginRepo          repositories.GinRepository
 	usageMetricsRepo repositories.UsageMetricsRepository
 	tenantRepo       repositories.TenantRepository
-	s3Client         *storage.S3Client
+	storage          storage.Storage
 }
 
 // NewService creates a new photo service
@@ -26,14 +26,14 @@ func NewService(
 	ginRepo repositories.GinRepository,
 	usageMetricsRepo repositories.UsageMetricsRepository,
 	tenantRepo repositories.TenantRepository,
-	s3Client *storage.S3Client,
+	storageClient storage.Storage,
 ) *Service {
 	return &Service{
 		photoRepo:        photoRepo,
 		ginRepo:          ginRepo,
 		usageMetricsRepo: usageMetricsRepo,
 		tenantRepo:       tenantRepo,
-		s3Client:         s3Client,
+		storage:          storageClient,
 	}
 }
 
@@ -90,7 +90,7 @@ func (s *Service) UploadPhoto(ctx context.Context, tenantID, ginID int64, filena
 	}
 
 	// Upload to S3
-	uploadResult, err := s.s3Client.UploadPhoto(ctx, tenantID, ginID, filename, data, contentType)
+	uploadResult, err := s.storage.UploadPhoto(ctx, tenantID, ginID, filename, data, contentType)
 	if err != nil {
 		logger.Error("Failed to upload to S3", "error", err.Error())
 		return nil, fmt.Errorf("failed to upload photo: %w", err)
@@ -113,7 +113,7 @@ func (s *Service) UploadPhoto(ctx context.Context, tenantID, ginID int64, filena
 
 	if err := s.photoRepo.Create(ctx, photo); err != nil {
 		// Rollback: delete from S3
-		s.s3Client.DeletePhoto(ctx, uploadResult.Key)
+		s.storage.DeletePhoto(ctx, uploadResult.Key)
 		return nil, fmt.Errorf("failed to create photo record: %w", err)
 	}
 
@@ -162,7 +162,7 @@ func (s *Service) DeletePhoto(ctx context.Context, tenantID, photoID int64) erro
 
 	// Delete from S3
 	if photo.StorageKey != nil {
-		if err := s.s3Client.DeletePhoto(ctx, *photo.StorageKey); err != nil {
+		if err := s.storage.DeletePhoto(ctx, *photo.StorageKey); err != nil {
 			logger.Error("Failed to delete from S3", "error", err.Error())
 			// Continue anyway to delete DB record
 		}

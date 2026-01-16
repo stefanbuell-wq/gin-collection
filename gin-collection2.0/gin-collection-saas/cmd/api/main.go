@@ -76,17 +76,37 @@ func main() {
 		Mode:         cfg.PayPal.Mode,
 	})
 
-	// Initialize S3 client
-	s3Client, err := storage.NewS3Client(&storage.S3Config{
-		Bucket:          cfg.S3.Bucket,
-		Region:          cfg.S3.Region,
-		Endpoint:        cfg.S3.Endpoint,
-		AccessKeyID:     cfg.S3.AccessKeyID,
-		SecretAccessKey: cfg.S3.SecretAccessKey,
-	})
-	if err != nil {
-		logger.Error("Failed to initialize S3 client", "error", err.Error())
-		log.Fatalf("Failed to initialize S3 client: %v", err)
+	// Initialize storage client (S3 or Local fallback)
+	var storageClient storage.Storage
+	if cfg.S3.AccessKeyID == "" || cfg.S3.SecretAccessKey == "" {
+		// Use local storage when S3 is not configured
+		storageBaseURL := cfg.Storage.BaseURL
+		if storageBaseURL == "" {
+			storageBaseURL = cfg.App.BaseURL + "/uploads"
+		}
+		storageClient, err = storage.NewLocalStorage(&storage.LocalStorageConfig{
+			BasePath: cfg.Storage.BasePath,
+			BaseURL:  storageBaseURL,
+		})
+		if err != nil {
+			logger.Error("Failed to initialize local storage", "error", err.Error())
+			log.Fatalf("Failed to initialize local storage: %v", err)
+		}
+		logger.Info("Using local file storage", "path", cfg.Storage.BasePath, "url", storageBaseURL)
+	} else {
+		// Use S3 storage
+		storageClient, err = storage.NewS3Client(&storage.S3Config{
+			Bucket:          cfg.S3.Bucket,
+			Region:          cfg.S3.Region,
+			Endpoint:        cfg.S3.Endpoint,
+			AccessKeyID:     cfg.S3.AccessKeyID,
+			SecretAccessKey: cfg.S3.SecretAccessKey,
+		})
+		if err != nil {
+			logger.Error("Failed to initialize S3 client", "error", err.Error())
+			log.Fatalf("Failed to initialize S3 client: %v", err)
+		}
+		logger.Info("Using S3 storage", "bucket", cfg.S3.Bucket, "region", cfg.S3.Region)
 	}
 
 	// Initialize Email client
@@ -137,7 +157,7 @@ func main() {
 		ginRepo,
 		usageMetricsRepo,
 		tenantRepo,
-		s3Client,
+		storageClient,
 	)
 
 	userService := userUsecase.NewService(
@@ -199,6 +219,12 @@ func main() {
 	}
 
 	r := router.Setup(routerCfg)
+
+	// Setup static file serving for local uploads (when using local storage)
+	if cfg.S3.AccessKeyID == "" || cfg.S3.SecretAccessKey == "" {
+		r.Static("/uploads", cfg.Storage.BasePath)
+		logger.Info("Static file serving enabled", "path", "/uploads", "directory", cfg.Storage.BasePath)
+	}
 
 	// Setup Admin routes
 	adminRouterCfg := &router.AdminRouterConfig{

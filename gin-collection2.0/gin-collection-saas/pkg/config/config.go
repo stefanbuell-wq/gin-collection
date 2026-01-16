@@ -13,9 +13,16 @@ type Config struct {
 	Redis    RedisConfig
 	JWT      JWTConfig
 	S3       S3Config
+	Storage  StorageConfig
 	PayPal   PayPalConfig
 	SMTP     SMTPConfig
 	App      AppConfig
+}
+
+// StorageConfig holds local storage configuration (fallback for S3)
+type StorageConfig struct {
+	BasePath string
+	BaseURL  string
 }
 
 // SMTPConfig holds SMTP email configuration
@@ -136,6 +143,10 @@ func Load() (*Config, error) {
 			Endpoint:        getEnv("S3_ENDPOINT", ""),
 			AccessKeyID:     getEnv("AWS_ACCESS_KEY_ID", ""),
 			SecretAccessKey: getEnv("AWS_SECRET_ACCESS_KEY", ""),
+		},
+		Storage: StorageConfig{
+			BasePath: getEnv("STORAGE_PATH", "/app/uploads"),
+			BaseURL:  getEnv("STORAGE_BASE_URL", ""),
 		},
 		PayPal: PayPalConfig{
 			ClientID:     getEnv("PAYPAL_CLIENT_ID", ""),
