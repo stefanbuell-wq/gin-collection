@@ -12,12 +12,14 @@ import (
 // TierEnforcementMiddleware enforces subscription tier limits
 type TierEnforcementMiddleware struct {
 	usageRepo repositories.UsageMetricsRepository
+	ginRepo   repositories.GinRepository
 }
 
 // NewTierEnforcementMiddleware creates a new tier enforcement middleware
-func NewTierEnforcementMiddleware(usageRepo repositories.UsageMetricsRepository) *TierEnforcementMiddleware {
+func NewTierEnforcementMiddleware(usageRepo repositories.UsageMetricsRepository, ginRepo repositories.GinRepository) *TierEnforcementMiddleware {
 	return &TierEnforcementMiddleware{
 		usageRepo: usageRepo,
+		ginRepo:   ginRepo,
 	}
 }
 
@@ -106,8 +108,8 @@ func (tem *TierEnforcementMiddleware) CheckGinLimit() gin.HandlerFunc {
 			return
 		}
 
-		// Get current gin count
-		currentCount, err := tem.usageRepo.GetMetric(c.Request.Context(), tenant.ID, "gin_count")
+		// Get current gin count directly from database (not from usage metrics which are monthly)
+		currentCount, err := tem.ginRepo.Count(c.Request.Context(), tenant.ID, nil)
 		if err != nil {
 			logger.Error("Failed to get gin count", "error", err.Error())
 			c.JSON(http.StatusInternalServerError, gin.H{

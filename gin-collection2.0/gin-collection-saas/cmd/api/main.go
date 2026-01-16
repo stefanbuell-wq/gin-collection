@@ -230,7 +230,7 @@ func main() {
 	// Initialize middleware
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret, userRepo)
 	tenantMiddleware := middleware.NewTenantMiddleware(tenantRepo)
-	tierEnforcement := middleware.NewTierEnforcementMiddleware(usageMetricsRepo)
+	tierEnforcement := middleware.NewTierEnforcementMiddleware(usageMetricsRepo, ginRepo)
 	platformAdminMiddleware := middleware.NewPlatformAdminMiddleware(adminService)
 
 	// Initialize rate limiting middleware (optional - requires Redis)
