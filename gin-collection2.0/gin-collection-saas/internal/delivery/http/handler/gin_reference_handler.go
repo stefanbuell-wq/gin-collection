@@ -133,3 +133,38 @@ func (h *GinReferenceHandler) GetFilters(c *gin.Context) {
 		"success": true,
 	})
 }
+
+// GetByBarcode retrieves a gin reference by barcode
+// GET /api/v1/gin-references/barcode/:barcode
+func (h *GinReferenceHandler) GetByBarcode(c *gin.Context) {
+	barcode := c.Param("barcode")
+	if barcode == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Barcode is required",
+			"success": false,
+		})
+		return
+	}
+
+	gin_ref, err := h.repo.GetByBarcode(c.Request.Context(), barcode)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to get gin reference",
+			"success": false,
+		})
+		return
+	}
+
+	if gin_ref == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "Gin reference not found for this barcode",
+			"success": false,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":    gin_ref,
+		"success": true,
+	})
+}

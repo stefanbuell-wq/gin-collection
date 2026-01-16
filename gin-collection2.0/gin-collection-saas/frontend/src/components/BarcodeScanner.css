@@ -1,0 +1,355 @@
+.barcode-scanner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.barcode-scanner-modal {
+  background: rgba(15, 61, 46, 0.98);
+  border: 1px solid rgba(212, 168, 87, 0.3);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+}
+
+.barcode-scanner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.barcode-scanner-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #D4A857;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barcode-scanner-header .close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.barcode-scanner-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.barcode-scanner-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Scanner Container */
+.barcode-reader-container {
+  width: 100%;
+  min-height: 280px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 20px;
+}
+
+.barcode-reader-container video {
+  width: 100%;
+  border-radius: 12px;
+}
+
+/* Scanner Error */
+.scanner-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(220, 53, 69, 0.15);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 10px;
+  color: #ff6b7a;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* Manual Input */
+.manual-input-section {
+  border-top: 1px solid rgba(212, 168, 87, 0.15);
+  padding-top: 20px;
+}
+
+.manual-input-label {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.manual-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.manual-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(212, 168, 87, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #fff;
+  font-size: 1rem;
+  font-family: 'Space Grotesk', monospace;
+  letter-spacing: 0.5px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.manual-input:focus {
+  border-color: #D4A857;
+  box-shadow: 0 0 0 3px rgba(212, 168, 87, 0.15);
+}
+
+.manual-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.manual-search-btn {
+  background: linear-gradient(135deg, #D4A857 0%, #C49A4B 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #0F3D2E;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manual-search-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(212, 168, 87, 0.3);
+}
+
+.manual-search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading State */
+.scanner-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+}
+
+.scanner-loading .spinner {
+  color: #D4A857;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.scanner-loading p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+}
+
+.barcode-display {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.9rem;
+  color: #D4A857;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+/* Results */
+.scanner-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-card {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(212, 168, 87, 0.15);
+}
+
+.result-card--success {
+  border-color: rgba(75, 181, 67, 0.4);
+  background: rgba(75, 181, 67, 0.1);
+}
+
+.result-card--external {
+  border-color: rgba(212, 168, 87, 0.3);
+}
+
+.result-card--not-found {
+  border-color: rgba(220, 53, 69, 0.3);
+  background: rgba(220, 53, 69, 0.08);
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.result-card--success .result-header {
+  color: #4BB543;
+}
+
+.result-card--external .result-header {
+  color: #D4A857;
+}
+
+.result-card--not-found .result-header {
+  color: #ff6b7a;
+}
+
+.result-gin {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.result-gin-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(212, 168, 87, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #D4A857;
+  flex-shrink: 0;
+}
+
+.result-gin-info {
+  flex: 1;
+}
+
+.result-gin-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.result-brand {
+  margin: 0 0 8px 0;
+  color: #D4A857;
+  font-size: 0.9rem;
+}
+
+.result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.result-meta span {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.external-note {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.not-found-text {
+  margin: 12px 0 0 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+.select-gin-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #D4A857 0%, #C49A4B 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  color: #0F3D2E;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.select-gin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 168, 87, 0.35);
+}
+
+.retry-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 12px 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retry-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+  .barcode-scanner-modal {
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+
+  .barcode-scanner-content {
+    padding: 16px;
+  }
+
+  .barcode-reader-container {
+    min-height: 240px;
+  }
+}

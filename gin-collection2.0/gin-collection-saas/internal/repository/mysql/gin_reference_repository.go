@@ -132,6 +132,33 @@ func (r *ginReferenceRepository) GetByID(ctx context.Context, id int64) (*models
 	return g, nil
 }
 
+// GetByBarcode retrieves a gin reference by barcode
+func (r *ginReferenceRepository) GetByBarcode(ctx context.Context, barcode string) (*models.GinReference, error) {
+	query := `
+		SELECT id, name, brand, country, region, gin_type, abv, bottle_size,
+		       description, nose_notes, palate_notes, finish_notes,
+		       recommended_tonic, recommended_garnish, image_url, barcode
+		FROM gin_references
+		WHERE barcode = ?
+	`
+
+	g := &models.GinReference{}
+	err := r.db.QueryRowContext(ctx, query, barcode).Scan(
+		&g.ID, &g.Name, &g.Brand, &g.Country, &g.Region, &g.GinType,
+		&g.ABV, &g.BottleSize, &g.Description, &g.NoseNotes, &g.PalateNotes,
+		&g.FinishNotes, &g.RecommendedTonic, &g.RecommendedGarnish,
+		&g.ImageURL, &g.Barcode,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get gin reference by barcode: %w", err)
+	}
+
+	return g, nil
+}
+
 // GetCountries returns list of unique countries
 func (r *ginReferenceRepository) GetCountries(ctx context.Context) ([]string, error) {
 	query := `SELECT DISTINCT country FROM gin_references WHERE country IS NOT NULL ORDER BY country`

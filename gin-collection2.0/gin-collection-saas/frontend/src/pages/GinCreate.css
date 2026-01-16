@@ -841,11 +841,45 @@
 }
 
 /* Catalog Button */
+/* Header Action Buttons */
+.gin-create-header__actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.gin-create-scan-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(184, 115, 51, 0.2) 0%, rgba(184, 115, 51, 0.08) 100%);
+  border: 1px solid rgba(184, 115, 51, 0.4);
+  border-radius: 12px;
+  color: #B87333;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.gin-create-scan-btn:hover {
+  background: linear-gradient(135deg, rgba(184, 115, 51, 0.3) 0%, rgba(184, 115, 51, 0.15) 100%);
+  border-color: #B87333;
+  box-shadow: 0 4px 20px rgba(184, 115, 51, 0.25);
+}
+
+.gin-create-scan-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 .gin-create-catalog-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
+  gap: 8px;
+  padding: 12px 18px;
   background: linear-gradient(135deg, rgba(212, 168, 87, 0.15) 0%, rgba(212, 168, 87, 0.05) 100%);
   border: 1px solid rgba(212, 168, 87, 0.3);
   border-radius: 12px;
@@ -855,7 +889,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s var(--ease-smooth);
-  margin-left: auto;
 }
 
 .gin-create-catalog-btn:hover {
@@ -888,10 +921,18 @@
 }
 
 @media (max-width: 640px) {
-  .gin-create-catalog-btn {
+  .gin-create-header__actions {
     margin-left: 0;
     width: 100%;
+    flex-direction: row;
+  }
+
+  .gin-create-scan-btn,
+  .gin-create-catalog-btn {
+    flex: 1;
     justify-content: center;
+    padding: 10px 14px;
+    font-size: 0.85rem;
   }
 
   .gin-reference-modal-overlay {

@@ -14,6 +14,9 @@ type GinReferenceRepository interface {
 	// GetByID retrieves a single gin reference by ID
 	GetByID(ctx context.Context, id int64) (*models.GinReference, error)
 
+	// GetByBarcode retrieves a gin reference by barcode
+	GetByBarcode(ctx context.Context, barcode string) (*models.GinReference, error)
+
 	// GetCountries returns list of unique countries
 	GetCountries(ctx context.Context) ([]string, error)
 

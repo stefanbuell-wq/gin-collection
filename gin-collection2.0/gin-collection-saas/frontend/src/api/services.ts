@@ -247,4 +247,7 @@ export const ginReferenceAPI = {
 
   getFilters: () =>
     apiClient.get<{ data: GinReferenceFilters }>('/gin-references/filters'),
+
+  searchByBarcode: (barcode: string) =>
+    apiClient.get<{ data: GinReference }>(`/gin-references/barcode/${barcode}`),
 };

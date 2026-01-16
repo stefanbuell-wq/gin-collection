@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import type { GinCreateRequest, GinReference } from '../types';
 import { GinReferenceSearch } from '../components/GinReferenceSearch';
+import { BarcodeScanner } from '../components/BarcodeScanner';
 import './GinCreate.css';
 
 // Common gin types for dropdown
@@ -91,6 +92,7 @@ const GinCreate = () => {
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [showCatalog, setShowCatalog] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   // Handle selection from gin catalog
   const handleCatalogSelect = (gin: GinReference) => {
@@ -264,16 +266,28 @@ const GinCreate = () => {
             </p>
           </div>
 
-          <motion.button
-            type="button"
-            onClick={() => setShowCatalog(true)}
-            className="gin-create-catalog-btn"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <BookOpen />
-            Aus Katalog wählen
-          </motion.button>
+          <div className="gin-create-header__actions">
+            <motion.button
+              type="button"
+              onClick={() => setShowScanner(true)}
+              className="gin-create-scan-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Barcode />
+              Scannen
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={() => setShowCatalog(true)}
+              className="gin-create-catalog-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <BookOpen />
+              Katalog
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Gin Catalog Modal */}
@@ -303,6 +317,13 @@ const GinCreate = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Barcode Scanner Modal */}
+        <BarcodeScanner
+          onScan={handleCatalogSelect}
+          onClose={() => setShowScanner(false)}
+          isOpen={showScanner}
+        />
 
         {/* Error Display */}
         {error && (

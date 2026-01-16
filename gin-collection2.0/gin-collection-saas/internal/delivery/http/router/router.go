@@ -155,6 +155,7 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 		{
 			ginRefs.GET("", cfg.GinReferenceHandler.Search)
 			ginRefs.GET("/filters", cfg.GinReferenceHandler.GetFilters)
+			ginRefs.GET("/barcode/:barcode", cfg.GinReferenceHandler.GetByBarcode)
 			ginRefs.GET("/:id", cfg.GinReferenceHandler.GetByID)
 		}
 
