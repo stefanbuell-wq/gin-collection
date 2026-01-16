@@ -24,6 +24,7 @@ import {
   Clock
 } from 'lucide-react';
 import type { GinCreateRequest } from '../types';
+import { PhotoGallery } from '../components/PhotoGallery';
 import './GinDetail.css';
 
 const GIN_TYPES = [
@@ -365,34 +366,17 @@ const GinDetail = () => {
           </motion.div>
         )}
 
-        {/* Photo */}
+        {/* Photo Gallery */}
         <motion.div
-          className="gin-detail-card"
           initial="hidden"
           animate="visible"
           variants={cardVariants}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <div className="gin-detail-card__header">
-            <div className="gin-detail-card__icon">
-              <Camera size={20} />
-            </div>
-            <h2 className="gin-detail-card__title">Foto</h2>
-          </div>
-
-          <div className="gin-detail-photo">
-            {currentGin.primary_photo_url || currentGin.photo_url ? (
-              <img
-                src={currentGin.primary_photo_url || currentGin.photo_url}
-                alt={currentGin.name}
-              />
-            ) : (
-              <div className="gin-detail-photo-placeholder">
-                <Wine />
-                <span>Kein Foto vorhanden</span>
-              </div>
-            )}
-          </div>
+          <PhotoGallery
+            ginId={currentGin.id}
+            onPhotoChange={() => fetchGin(currentGin.id)}
+          />
         </motion.div>
 
         {/* Basic Information */}
