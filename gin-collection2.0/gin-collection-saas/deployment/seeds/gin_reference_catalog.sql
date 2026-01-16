@@ -84,6 +84,8 @@ INSERT INTO gin_references (name, brand, country, region, gin_type, abv, bottle_
 ('Ferdinand''s Saar', 'Ferdinand''s', 'Germany', 'Saar', 'New Western', 44.0, 500, 'Riesling grape infusion, 30 botanicals', 'Riesling, lavender, rose', 'Elegant, wine-like, floral', 'Smooth, floral finish', 'Schweppes Dry', 'Lemon twist'),
 ('Siegfried Rheinland', 'Siegfried', 'Germany', 'Rhineland', 'London Dry', 41.0, 500, 'Inspired by the Nibelungen saga', 'Linden blossom, thyme, juniper', 'Herbal, floral, balanced', 'Dry, herbal finish', 'Thomas Henry', 'Thyme sprig'),
 ('Windspiel Premium Dry', 'Windspiel', 'Germany', 'Eifel', 'London Dry', 47.0, 500, 'Volcanic Eifel region, potato base', 'Juniper, lavender, lemon', 'Smooth, lavender, citrus', 'Long, floral', 'Fever-Tree Mediterranean', 'Lemon twist'),
+('Simsala Gin', 'Craft Circus', 'Germany', 'Berlin', 'New Western', 41.0, 500, 'Magischer Farbwechsel-Gin aus Berlin mit Schmetterlingsblüten', 'Floral, butterfly pea, citrus', 'Smooth, floral, magical color change', 'Clean, refreshing', 'Fever-Tree Mediterranean', 'Lemon twist'),
+('BeGinliche Weihnachten', 'Flaschenpost Gin', 'Germany', 'Berlin', 'Flavored', 40.0, 500, 'Weihnachtlicher Gin mit winterlichen Gewürzen von Craft Circus', 'Cinnamon, orange, winter spices', 'Warming, spiced, festive', 'Spicy, warming finish', 'Fever-Tree Aromatic', 'Orange slice'),
 
 -- =====================================================
 -- DUTCH GINS
@@ -158,6 +160,10 @@ INSERT INTO gin_references (name, brand, country, region, gin_type, abv, bottle_
 ('Sipsmith VJOP', 'Sipsmith', 'England', 'London', 'Navy Strength', 57.7, 700, 'Very Junipery Over Proof', 'Intense juniper, citrus peel', 'Powerful juniper, bold', 'Long, intense', 'Fever-Tree Indian', 'Lemon peel'),
 ('Four Pillars Navy Strength', 'Four Pillars', 'Australia', 'Yarra Valley', 'Navy Strength', 58.8, 700, 'Australian native botanicals', 'Intense citrus, pepper', 'Bold, spicy, citrus', 'Long, peppery', 'Fever-Tree Indian', 'Grapefruit'),
 ('Tarquin''s Cornish Pastis', 'Tarquin''s', 'England', 'Cornwall', 'Navy Strength', 57.0, 700, 'Cornish Navy Strength', 'Bold juniper, violet', 'Intense floral, juniper', 'Long, warming', 'Fever-Tree Indian', 'Orange peel');
+
+-- Update barcodes for gins that have them
+UPDATE gin_references SET barcode = '4260449550559' WHERE name = 'Simsala Gin' AND brand = 'Craft Circus';
+UPDATE gin_references SET barcode = '4260449551778' WHERE name = 'BeGinliche Weihnachten' AND brand = 'Flaschenpost Gin';
 
 -- Show summary
 SELECT gin_type, COUNT(*) as count FROM gin_references GROUP BY gin_type ORDER BY count DESC;
