@@ -7,11 +7,11 @@
 -- DELETE FROM tenants WHERE subdomain IN ('test', 'basic', 'pro', 'enterprise');
 
 -- Create Tenants
-INSERT INTO tenants (uuid, name, subdomain, tier, is_active, created_at, updated_at) VALUES
-(UUID(), 'Test Account', 'test', 'free', 1, NOW(), NOW()),
-(UUID(), 'Basic Demo', 'basic', 'basic', 1, NOW(), NOW()),
-(UUID(), 'Pro Demo', 'pro', 'pro', 1, NOW(), NOW()),
-(UUID(), 'Enterprise Demo', 'enterprise', 'enterprise', 1, NOW(), NOW());
+INSERT INTO tenants (uuid, name, subdomain, tier, status, created_at, updated_at) VALUES
+(UUID(), 'Test Account', 'test', 'free', 'active', NOW(), NOW()),
+(UUID(), 'Basic Demo', 'basic', 'basic', 'active', NOW(), NOW()),
+(UUID(), 'Pro Demo', 'pro', 'pro', 'active', NOW(), NOW()),
+(UUID(), 'Enterprise Demo', 'enterprise', 'enterprise', 'active', NOW(), NOW());
 
 -- Create Users (owner role for each tenant)
 INSERT INTO users (tenant_id, uuid, email, password_hash, first_name, last_name, role, is_active, created_at, updated_at) VALUES
