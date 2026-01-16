@@ -43,7 +43,32 @@ _Aktuell keine offenen Aufgaben_
 - [ ] Webhook-Konfiguration UI für Enterprise
 
 ### Infrastruktur
-- [ ] PayPal Plan IDs in Produktion konfigurieren
+
+#### PayPal Integration (Geschätzter Aufwand: ~2 Stunden)
+- [ ] PayPal Developer Account erstellen (https://developer.paypal.com)
+- [ ] Sandbox App erstellen (Dashboard → Apps & Credentials → Create App)
+  - Client ID notieren
+  - Client Secret notieren
+- [ ] Billing Plans in PayPal anlegen:
+  - [ ] Basic Monthly (4,99€/Monat)
+  - [ ] Basic Yearly (49,99€/Jahr)
+  - [ ] Pro Monthly (9,99€/Monat)
+  - [ ] Pro Yearly (99,99€/Jahr)
+  - [ ] Enterprise Monthly (29,99€/Monat)
+  - [ ] Enterprise Yearly (299,99€/Jahr)
+- [ ] Webhook einrichten (URL: /api/v1/webhooks/paypal)
+  - Events: BILLING.SUBSCRIPTION.ACTIVATED, CANCELLED, SUSPENDED, PAYMENT.SALE.COMPLETED
+  - Webhook ID notieren
+- [ ] Environment Variables auf Server setzen:
+  - PAYPAL_CLIENT_ID
+  - PAYPAL_CLIENT_SECRET
+  - PAYPAL_MODE=sandbox (später: live)
+  - PAYPAL_WEBHOOK_ID
+- [ ] Plan IDs im Code hinterlegen (internal/domain/models/subscription.go)
+- [ ] Sandbox-Tests durchführen
+- [ ] Live schalten (PAYPAL_MODE=live, neue Live-Credentials)
+
+#### Weitere Infrastruktur
 - [ ] S3 Storage für Produktion einrichten
 - [ ] SMTP für E-Mail-Versand konfigurieren
 
