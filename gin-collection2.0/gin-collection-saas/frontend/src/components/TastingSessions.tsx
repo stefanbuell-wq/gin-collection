@@ -43,7 +43,9 @@ export const TastingSessions = ({ ginId, ginName }: TastingSessionsProps) => {
     try {
       setIsLoading(true);
       const response = await tastingAPI.getSessions(ginId);
-      setSessions(response.data?.sessions || []);
+      // API returns { success: true, data: { sessions: [...], count: n } }
+      const data = response.data as { success?: boolean; data?: { sessions: TastingSession[] } };
+      setSessions(data.data?.sessions || []);
       setError(null);
     } catch (err) {
       console.error('Failed to load tasting sessions:', err);
