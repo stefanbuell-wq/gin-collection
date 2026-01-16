@@ -38,8 +38,8 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
   const loadPhotos = async () => {
     try {
       const response = await photoAPI.getPhotos(ginId);
-      if (response.data?.photos) {
-        setPhotos(response.data.photos);
+      if (response.data?.data?.photos) {
+        setPhotos(response.data.data.photos);
       }
     } catch (err) {
       console.error('Failed to load photos:', err);
@@ -51,8 +51,8 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
   const loadLimits = async () => {
     try {
       const response = await tenantAPI.getUsage();
-      if (response.data?.limits?.max_photos_per_gin) {
-        setPhotoLimit(response.data.limits.max_photos_per_gin);
+      if (response.data?.data?.limits?.max_photos_per_gin) {
+        setPhotoLimit(response.data.data.limits.max_photos_per_gin);
       }
     } catch (err) {
       console.error('Failed to load limits:', err);
@@ -80,8 +80,8 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
 
     try {
       const response = await photoAPI.upload(ginId, file, 'bottle');
-      if (response.data) {
-        setPhotos(prev => [...prev, response.data]);
+      if (response.data?.data) {
+        setPhotos(prev => [...prev, response.data.data]);
         onPhotoChange?.();
       }
     } catch (err: any) {
@@ -190,7 +190,7 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
               layout
             >
               <img
-                src={photo.url}
+                src={photo.photo_url}
                 alt={photo.caption || 'Gin Foto'}
                 onClick={() => setSelectedPhoto(photo)}
               />
