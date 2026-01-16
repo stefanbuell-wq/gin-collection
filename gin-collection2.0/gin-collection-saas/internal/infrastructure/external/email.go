@@ -219,7 +219,7 @@ func (c *EmailClient) sendMailTLS(addr string, auth smtp.Auth, to string, msg []
 func (c *EmailClient) SendUserInvitation(data *UserInvitationData) error {
 	return c.Send(&EmailData{
 		To:          data.RecipientEmail,
-		Subject:     fmt.Sprintf("Einladung zu %s - Gin Collection", data.TenantName),
+		Subject:     fmt.Sprintf("Einladung zu %s - GinVault", data.TenantName),
 		TemplateKey: "user_invitation",
 		Data:        data,
 	})
@@ -229,7 +229,7 @@ func (c *EmailClient) SendUserInvitation(data *UserInvitationData) error {
 func (c *EmailClient) SendPasswordReset(to string, data *PasswordResetData) error {
 	return c.Send(&EmailData{
 		To:          to,
-		Subject:     "Passwort zurücksetzen - Gin Collection",
+		Subject:     "Passwort zurücksetzen - GinVault",
 		TemplateKey: "password_reset",
 		Data:        data,
 	})
@@ -275,7 +275,7 @@ const userInvitationTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🍸 Gin Collection</div>
+        <div class="logo">🍸 GinVault</div>
     </div>
     <div class="content">
         <h2>Hallo{{if .RecipientName}} {{.RecipientName}}{{end}},</h2>
@@ -289,7 +289,7 @@ const userInvitationTemplate = `<!DOCTYPE html>
         <p>Falls du diese Einladung nicht erwartet hast, kannst du diese E-Mail ignorieren.</p>
     </div>
     <div class="footer">
-        <p>&copy; 2026 Gin Collection. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2026 GinVault. Alle Rechte vorbehalten.</p>
     </div>
 </body>
 </html>`
@@ -311,7 +311,7 @@ const passwordResetTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🍸 Gin Collection</div>
+        <div class="logo">🍸 GinVault</div>
     </div>
     <div class="content">
         <h2>Passwort zurücksetzen</h2>
@@ -324,7 +324,7 @@ const passwordResetTemplate = `<!DOCTYPE html>
         <p>Falls du kein neues Passwort angefordert hast, kannst du diese E-Mail ignorieren. Dein Passwort bleibt unverändert.</p>
     </div>
     <div class="footer">
-        <p>&copy; 2026 Gin Collection. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2026 GinVault. Alle Rechte vorbehalten.</p>
     </div>
 </body>
 </html>`
@@ -347,7 +347,7 @@ const welcomeTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🍸 Gin Collection</div>
+        <div class="logo">🍸 GinVault</div>
     </div>
     <div class="content">
         <h2>Willkommen bei {{.TenantName}}!</h2>
@@ -363,7 +363,7 @@ const welcomeTemplate = `<!DOCTYPE html>
         <div class="feature">✓ Deine Sammlung durchsuchen und filtern</div>
     </div>
     <div class="footer">
-        <p>&copy; 2026 Gin Collection. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2026 GinVault. Alle Rechte vorbehalten.</p>
     </div>
 </body>
 </html>`
@@ -388,7 +388,7 @@ const subscriptionConfirmationTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <div class="header">
-        <div class="logo">🍸 Gin Collection</div>
+        <div class="logo">🍸 GinVault</div>
     </div>
     <div class="content">
         <h2>Dein Abonnement ist aktiv! 🎉</h2>
@@ -406,7 +406,7 @@ const subscriptionConfirmationTemplate = `<!DOCTYPE html>
         <p style="margin-top: 20px;">Du hast jetzt Zugang zu allen Premium-Funktionen. Viel Spaß mit deiner erweiterten Gin-Sammlung!</p>
     </div>
     <div class="footer">
-        <p>&copy; 2026 Gin Collection. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2026 GinVault. Alle Rechte vorbehalten.</p>
     </div>
 </body>
 </html>`
