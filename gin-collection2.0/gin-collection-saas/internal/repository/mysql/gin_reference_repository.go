@@ -23,7 +23,6 @@ func NewGinReferenceRepository(db *sql.DB) repositories.GinReferenceRepository {
 func (r *ginReferenceRepository) Search(ctx context.Context, params *models.GinReferenceSearchParams) ([]*models.GinReference, int, error) {
 	var conditions []string
 	var args []interface{}
-	argIndex := 1
 
 	// Build WHERE clause
 	if params.Query != "" {
