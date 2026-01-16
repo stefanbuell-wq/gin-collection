@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS gin_references (
     image_url VARCHAR(512),
     barcode VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_gin (name, brand)
+    UNIQUE KEY unique_gin (name, brand),
+    INDEX idx_gin_ref_name (name),
+    INDEX idx_gin_ref_brand (brand),
+    INDEX idx_gin_ref_country (country),
+    INDEX idx_gin_ref_type (gin_type)
 );
 
 -- Clear existing reference data
@@ -154,12 +158,6 @@ INSERT INTO gin_references (name, brand, country, region, gin_type, abv, bottle_
 ('Sipsmith VJOP', 'Sipsmith', 'England', 'London', 'Navy Strength', 57.7, 700, 'Very Junipery Over Proof', 'Intense juniper, citrus peel', 'Powerful juniper, bold', 'Long, intense', 'Fever-Tree Indian', 'Lemon peel'),
 ('Four Pillars Navy Strength', 'Four Pillars', 'Australia', 'Yarra Valley', 'Navy Strength', 58.8, 700, 'Australian native botanicals', 'Intense citrus, pepper', 'Bold, spicy, citrus', 'Long, peppery', 'Fever-Tree Indian', 'Grapefruit'),
 ('Tarquin''s Cornish Pastis', 'Tarquin''s', 'England', 'Cornwall', 'Navy Strength', 57.0, 700, 'Cornish Navy Strength', 'Bold juniper, violet', 'Intense floral, juniper', 'Long, warming', 'Fever-Tree Indian', 'Orange peel');
-
--- Create index for faster searches
-CREATE INDEX IF NOT EXISTS idx_gin_ref_name ON gin_references(name);
-CREATE INDEX IF NOT EXISTS idx_gin_ref_brand ON gin_references(brand);
-CREATE INDEX IF NOT EXISTS idx_gin_ref_country ON gin_references(country);
-CREATE INDEX IF NOT EXISTS idx_gin_ref_type ON gin_references(gin_type);
 
 -- Show summary
 SELECT gin_type, COUNT(*) as count FROM gin_references GROUP BY gin_type ORDER BY count DESC;
