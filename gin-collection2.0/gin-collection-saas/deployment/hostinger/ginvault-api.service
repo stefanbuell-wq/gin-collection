@@ -1,0 +1,19 @@
+[Unit]
+Description=GinVault API Server
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/gin-collection/gin-collection2.0/gin-collection-saas
+ExecStart=/root/gin-collection/gin-collection2.0/gin-collection-saas/api
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+EnvironmentFile=/root/gin-collection/gin-collection2.0/gin-collection-saas/.env
+
+[Install]
+WantedBy=multi-user.target
