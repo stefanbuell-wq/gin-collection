@@ -69,10 +69,6 @@ const GinCreate = () => {
   const navigate = useNavigate();
   const { createGin, isLoading, error, clearError, upgradeRequired, upgradeInfo } = useGinStore();
 
-  // Debug logging for upgrade state
-  useEffect(() => {
-    console.log('[GinCreate] State changed:', { error, upgradeRequired, upgradeInfo, isLoading });
-  }, [error, upgradeRequired, upgradeInfo, isLoading]);
 
   const [formData, setFormData] = useState<GinCreateRequest>({
     name: '',
@@ -236,11 +232,20 @@ const GinCreate = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // Local state to ensure modal shows immediately on mobile
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [localUpgradeInfo, setLocalUpgradeInfo] = useState<{
+    limit?: number;
+    currentCount?: number;
+    currentTier?: string;
+  } | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     // Don't allow submit if upgrade modal is showing
-    if (upgradeRequired) {
+    if (showUpgradeModal || upgradeRequired) {
       return;
     }
 
@@ -260,9 +265,24 @@ const GinCreate = () => {
 
       await createGin(ginData);
       navigate('/gins');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create gin:', err);
+      // Check if this is an upgrade required error and show modal immediately
+      if (err?.response?.data?.upgrade_required) {
+        setLocalUpgradeInfo({
+          limit: err.response.data.limit,
+          currentCount: err.response.data.current_count,
+          currentTier: err.response.data.current_tier,
+        });
+        setShowUpgradeModal(true);
+      }
     }
+  };
+
+  const handleCloseUpgradeModal = () => {
+    setShowUpgradeModal(false);
+    setLocalUpgradeInfo(null);
+    clearError();
   };
 
   // Animation variants
@@ -422,14 +442,17 @@ const GinCreate = () => {
           </motion.div>
         )}
 
-        {/* Upgrade Required Modal Overlay */}
+        {/* Upgrade Required Modal Overlay - uses local state for immediate mobile response */}
         <AnimatePresence>
-          {upgradeRequired && (
+          {showUpgradeModal && (
             <motion.div
               className="gin-create-upgrade-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) handleCloseUpgradeModal();
+              }}
             >
               <motion.div
                 className="gin-create-upgrade-modal"
@@ -441,7 +464,7 @@ const GinCreate = () => {
                 <button
                   type="button"
                   className="gin-create-upgrade-modal__close"
-                  onClick={clearError}
+                  onClick={handleCloseUpgradeModal}
                 >
                   <X size={20} />
                 </button>
@@ -455,8 +478,8 @@ const GinCreate = () => {
                 </h3>
 
                 <p className="gin-create-upgrade-modal__text">
-                  {upgradeInfo ? (
-                    <>Du hast <strong>{upgradeInfo.currentCount} von {upgradeInfo.limit} Gins</strong> in deinem {upgradeInfo.currentTier?.toUpperCase() || 'aktuellen'}-Plan erreicht.</>
+                  {localUpgradeInfo ? (
+                    <>Du hast <strong>{localUpgradeInfo.currentCount} von {localUpgradeInfo.limit} Gins</strong> in deinem {localUpgradeInfo.currentTier?.toUpperCase() || 'aktuellen'}-Plan erreicht.</>
                   ) : (
                     <>Du hast das Gin-Limit deines aktuellen Plans erreicht.</>
                   )}
@@ -478,7 +501,7 @@ const GinCreate = () => {
                   <button
                     type="button"
                     className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--secondary"
-                    onClick={clearError}
+                    onClick={handleCloseUpgradeModal}
                   >
                     Später
                   </button>

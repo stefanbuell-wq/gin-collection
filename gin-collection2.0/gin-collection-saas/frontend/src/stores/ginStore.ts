@@ -23,31 +23,19 @@ function getErrorMessage(error: unknown, fallback: string): string {
 // Helper to check if error requires upgrade
 function isUpgradeRequired(error: unknown): boolean {
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data;
-    const isUpgrade = data?.upgrade_required === true;
-    console.log('[GinStore] isUpgradeRequired check:', {
-      status: error.response?.status,
-      data,
-      isUpgrade
-    });
-    return isUpgrade;
+    return error.response?.data?.upgrade_required === true;
   }
   return false;
 }
 
 // Helper to get upgrade info from error
 function getUpgradeInfo(error: unknown): { limit?: number; currentCount?: number; currentTier?: string } | null {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data;
-    if (data?.upgrade_required) {
-      const info = {
-        limit: data.limit,
-        currentCount: data.current_count,
-        currentTier: data.current_tier,
-      };
-      console.log('[GinStore] getUpgradeInfo:', info);
-      return info;
-    }
+  if (axios.isAxiosError(error) && error.response?.data?.upgrade_required) {
+    return {
+      limit: error.response.data.limit,
+      currentCount: error.response.data.current_count,
+      currentTier: error.response.data.current_tier,
+    };
   }
   return null;
 }
@@ -161,22 +149,12 @@ export const useGinStore = create<GinState>((set) => ({
 
       return newGin;
     } catch (error) {
-      console.log('[GinStore] createGin error caught:', error);
       const needsUpgrade = isUpgradeRequired(error);
-      const upgradeInfo = needsUpgrade ? getUpgradeInfo(error) : null;
-      const errorMsg = getErrorMessage(error, 'Gin konnte nicht erstellt werden');
-
-      console.log('[GinStore] Setting error state:', {
-        error: errorMsg,
-        needsUpgrade,
-        upgradeInfo
-      });
-
       set({
-        error: errorMsg,
+        error: getErrorMessage(error, 'Gin konnte nicht erstellt werden'),
         isLoading: false,
         upgradeRequired: needsUpgrade,
-        upgradeInfo: upgradeInfo,
+        upgradeInfo: needsUpgrade ? getUpgradeInfo(error) : null,
       });
       throw error;
     }
