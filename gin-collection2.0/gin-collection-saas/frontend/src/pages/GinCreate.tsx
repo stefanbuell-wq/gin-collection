@@ -458,74 +458,63 @@ const GinCreate = () => {
           </motion.div>
         )}
 
-        {/* Upgrade Required Modal Overlay - uses local state for immediate mobile response */}
-        <AnimatePresence>
-          {showUpgradeModal && (
-            <motion.div
-              className="gin-create-upgrade-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={(e) => {
-                if (e.target === e.currentTarget) handleCloseUpgradeModal();
-              }}
-            >
-              <motion.div
-                className="gin-create-upgrade-modal"
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        {/* Upgrade Required Modal Overlay - NO animation for mobile compatibility */}
+        {showUpgradeModal && (
+          <div
+            className="gin-create-upgrade-overlay"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) handleCloseUpgradeModal();
+            }}
+          >
+            <div className="gin-create-upgrade-modal">
+              <button
+                type="button"
+                className="gin-create-upgrade-modal__close"
+                onClick={handleCloseUpgradeModal}
               >
+                <X size={20} />
+              </button>
+
+              <div className="gin-create-upgrade-modal__icon">
+                <Crown size={32} />
+              </div>
+
+              <h3 className="gin-create-upgrade-modal__title">
+                Gin-Limit erreicht
+              </h3>
+
+              <p className="gin-create-upgrade-modal__text">
+                {localUpgradeInfo ? (
+                  <>Du hast <strong>{localUpgradeInfo.currentCount} von {localUpgradeInfo.limit} Gins</strong> in deinem {localUpgradeInfo.currentTier?.toUpperCase() || 'aktuellen'}-Plan erreicht.</>
+                ) : (
+                  <>Du hast das Gin-Limit deines aktuellen Plans erreicht.</>
+                )}
+              </p>
+
+              <p className="gin-create-upgrade-modal__subtitle">
+                Upgrade jetzt für mehr Platz in deinem Tresor!
+              </p>
+
+              <div className="gin-create-upgrade-modal__actions">
                 <button
                   type="button"
-                  className="gin-create-upgrade-modal__close"
+                  className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--primary"
+                  onClick={() => navigate('/subscription')}
+                >
+                  <Crown size={18} />
+                  Jetzt upgraden
+                </button>
+                <button
+                  type="button"
+                  className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--secondary"
                   onClick={handleCloseUpgradeModal}
                 >
-                  <X size={20} />
+                  Später
                 </button>
-
-                <div className="gin-create-upgrade-modal__icon">
-                  <Crown size={32} />
-                </div>
-
-                <h3 className="gin-create-upgrade-modal__title">
-                  Gin-Limit erreicht
-                </h3>
-
-                <p className="gin-create-upgrade-modal__text">
-                  {localUpgradeInfo ? (
-                    <>Du hast <strong>{localUpgradeInfo.currentCount} von {localUpgradeInfo.limit} Gins</strong> in deinem {localUpgradeInfo.currentTier?.toUpperCase() || 'aktuellen'}-Plan erreicht.</>
-                  ) : (
-                    <>Du hast das Gin-Limit deines aktuellen Plans erreicht.</>
-                  )}
-                </p>
-
-                <p className="gin-create-upgrade-modal__subtitle">
-                  Upgrade jetzt für mehr Platz in deinem Tresor!
-                </p>
-
-                <div className="gin-create-upgrade-modal__actions">
-                  <button
-                    type="button"
-                    className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--primary"
-                    onClick={() => navigate('/subscription')}
-                  >
-                    <Crown size={18} />
-                    Jetzt upgraden
-                  </button>
-                  <button
-                    type="button"
-                    className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--secondary"
-                    onClick={handleCloseUpgradeModal}
-                  >
-                    Später
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        )
 
         {/* AI Error Display */}
         {aiError && (
