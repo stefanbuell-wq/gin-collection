@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import axios from 'axios';
 import type { Gin, GinStats, GinListResponse, SearchParams } from '../types';
 import { ginAPI } from '../api/services';
 
@@ -6,6 +7,55 @@ import { ginAPI } from '../api/services';
 function unwrap<T>(response: { data: unknown }): T {
   const apiResponse = response.data as { success: boolean; data: T };
   return apiResponse.data;
+}
+
+// Helper to extract error message from API response
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error) && error.response?.data?.error) {
+    return error.response.data.error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
+
+// Helper to check if error requires upgrade
+function isUpgradeRequired(error: unknown): boolean {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+    const isUpgrade = data?.upgrade_required === true;
+    console.log('[GinStore] isUpgradeRequired check:', {
+      status: error.response?.status,
+      data,
+      isUpgrade
+    });
+    return isUpgrade;
+  }
+  return false;
+}
+
+// Helper to get upgrade info from error
+function getUpgradeInfo(error: unknown): { limit?: number; currentCount?: number; currentTier?: string } | null {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+    if (data?.upgrade_required) {
+      const info = {
+        limit: data.limit,
+        currentCount: data.current_count,
+        currentTier: data.current_tier,
+      };
+      console.log('[GinStore] getUpgradeInfo:', info);
+      return info;
+    }
+  }
+  return null;
+}
+
+interface UpgradeInfo {
+  limit?: number;
+  currentCount?: number;
+  currentTier?: string;
 }
 
 interface GinState {
@@ -17,6 +67,8 @@ interface GinState {
   limit: number;
   isLoading: boolean;
   error: string | null;
+  upgradeRequired: boolean;
+  upgradeInfo: UpgradeInfo | null;
 
   // Actions
   fetchGins: (params?: SearchParams) => Promise<void>;
@@ -39,6 +91,8 @@ export const useGinStore = create<GinState>((set) => ({
   limit: 20,
   isLoading: false,
   error: null,
+  upgradeRequired: false,
+  upgradeInfo: null,
 
   fetchGins: async (params?: SearchParams) => {
     set({ isLoading: true, error: null });
@@ -94,7 +148,7 @@ export const useGinStore = create<GinState>((set) => ({
   },
 
   createGin: async (data: Partial<Gin>) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null, upgradeRequired: false, upgradeInfo: null });
     try {
       const response = await ginAPI.create(data as any);
       const newGin = unwrap<Gin>(response);
@@ -107,9 +161,22 @@ export const useGinStore = create<GinState>((set) => ({
 
       return newGin;
     } catch (error) {
+      console.log('[GinStore] createGin error caught:', error);
+      const needsUpgrade = isUpgradeRequired(error);
+      const upgradeInfo = needsUpgrade ? getUpgradeInfo(error) : null;
+      const errorMsg = getErrorMessage(error, 'Gin konnte nicht erstellt werden');
+
+      console.log('[GinStore] Setting error state:', {
+        error: errorMsg,
+        needsUpgrade,
+        upgradeInfo
+      });
+
       set({
-        error: error instanceof Error ? error.message : 'Failed to create gin',
+        error: errorMsg,
         isLoading: false,
+        upgradeRequired: needsUpgrade,
+        upgradeInfo: upgradeInfo,
       });
       throw error;
     }
@@ -177,5 +244,5 @@ export const useGinStore = create<GinState>((set) => ({
   },
 
   setCurrentGin: (gin: Gin | null) => set({ currentGin: gin }),
-  clearError: () => set({ error: null }),
+  clearError: () => set({ error: null, upgradeRequired: false, upgradeInfo: null }),
 }));

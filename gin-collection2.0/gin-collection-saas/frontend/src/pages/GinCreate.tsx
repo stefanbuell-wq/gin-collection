@@ -69,6 +69,11 @@ const GinCreate = () => {
   const navigate = useNavigate();
   const { createGin, isLoading, error, clearError, upgradeRequired, upgradeInfo } = useGinStore();
 
+  // Debug logging for upgrade state
+  useEffect(() => {
+    console.log('[GinCreate] State changed:', { error, upgradeRequired, upgradeInfo, isLoading });
+  }, [error, upgradeRequired, upgradeInfo, isLoading]);
+
   const [formData, setFormData] = useState<GinCreateRequest>({
     name: '',
     brand: '',
@@ -419,7 +424,7 @@ const GinCreate = () => {
 
         {/* Upgrade Required Modal Overlay */}
         <AnimatePresence>
-          {upgradeRequired && upgradeInfo && (
+          {upgradeRequired && (
             <motion.div
               className="gin-create-upgrade-overlay"
               initial={{ opacity: 0 }}
@@ -450,7 +455,11 @@ const GinCreate = () => {
                 </h3>
 
                 <p className="gin-create-upgrade-modal__text">
-                  Du hast <strong>{upgradeInfo.currentCount} von {upgradeInfo.limit} Gins</strong> in deinem {upgradeInfo.currentTier?.toUpperCase()}-Plan erreicht.
+                  {upgradeInfo ? (
+                    <>Du hast <strong>{upgradeInfo.currentCount} von {upgradeInfo.limit} Gins</strong> in deinem {upgradeInfo.currentTier?.toUpperCase() || 'aktuellen'}-Plan erreicht.</>
+                  ) : (
+                    <>Du hast das Gin-Limit deines aktuellen Plans erreicht.</>
+                  )}
                 </p>
 
                 <p className="gin-create-upgrade-modal__subtitle">
