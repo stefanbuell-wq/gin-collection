@@ -23,7 +23,9 @@ import {
   Sparkles,
   Cherry,
   BookOpen,
-  Wand2
+  Wand2,
+  Crown,
+  X
 } from 'lucide-react';
 import type { GinCreateRequest, GinReference } from '../types';
 import { GinReferenceSearch } from '../components/GinReferenceSearch';
@@ -65,7 +67,7 @@ const BOTTLE_SIZES = [50, 100, 200, 350, 500, 700, 750, 1000, 1500];
 
 const GinCreate = () => {
   const navigate = useNavigate();
-  const { createGin, isLoading, error, clearError } = useGinStore();
+  const { createGin, isLoading, error, clearError, upgradeRequired, upgradeInfo } = useGinStore();
 
   const [formData, setFormData] = useState<GinCreateRequest>({
     name: '',
@@ -231,7 +233,11 @@ const GinCreate = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    clearError();
+
+    // Don't allow submit if upgrade modal is showing
+    if (upgradeRequired) {
+      return;
+    }
 
     if (!validate()) {
       return;
@@ -399,8 +405,8 @@ const GinCreate = () => {
           isOpen={showScanner}
         />
 
-        {/* Error Display */}
-        {error && (
+        {/* Error Display - Regular errors inline */}
+        {error && !upgradeRequired && (
           <motion.div
             className="gin-create-error"
             initial={{ opacity: 0, y: -10 }}
@@ -410,6 +416,68 @@ const GinCreate = () => {
             <span className="gin-create-error__text">{error}</span>
           </motion.div>
         )}
+
+        {/* Upgrade Required Modal Overlay */}
+        <AnimatePresence>
+          {upgradeRequired && upgradeInfo && (
+            <motion.div
+              className="gin-create-upgrade-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="gin-create-upgrade-modal"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              >
+                <button
+                  type="button"
+                  className="gin-create-upgrade-modal__close"
+                  onClick={clearError}
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="gin-create-upgrade-modal__icon">
+                  <Crown size={32} />
+                </div>
+
+                <h3 className="gin-create-upgrade-modal__title">
+                  Gin-Limit erreicht
+                </h3>
+
+                <p className="gin-create-upgrade-modal__text">
+                  Du hast <strong>{upgradeInfo.currentCount} von {upgradeInfo.limit} Gins</strong> in deinem {upgradeInfo.currentTier?.toUpperCase()}-Plan erreicht.
+                </p>
+
+                <p className="gin-create-upgrade-modal__subtitle">
+                  Upgrade jetzt für mehr Platz in deinem Tresor!
+                </p>
+
+                <div className="gin-create-upgrade-modal__actions">
+                  <button
+                    type="button"
+                    className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--primary"
+                    onClick={() => navigate('/subscription')}
+                  >
+                    <Crown size={18} />
+                    Jetzt upgraden
+                  </button>
+                  <button
+                    type="button"
+                    className="gin-create-upgrade-modal__btn gin-create-upgrade-modal__btn--secondary"
+                    onClick={clearError}
+                  >
+                    Später
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* AI Error Display */}
         {aiError && (
