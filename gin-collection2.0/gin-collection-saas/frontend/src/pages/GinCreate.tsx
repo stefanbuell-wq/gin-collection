@@ -514,7 +514,7 @@ const GinCreate = () => {
               </div>
             </div>
           </div>
-        )
+        )}
 
         {/* AI Error Display */}
         {aiError && (
