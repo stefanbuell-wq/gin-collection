@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
 import {
@@ -67,7 +67,20 @@ const BOTTLE_SIZES = [50, 100, 200, 350, 500, 700, 750, 1000, 1500];
 
 const GinCreate = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isDebugMode = searchParams.get('debug') === '1';
   const { createGin, isLoading, error, clearError, upgradeRequired, upgradeInfo } = useGinStore();
+
+  // Debug log state - only used when ?debug=1
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const addDebugLog = useCallback((message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    console.log(logMessage);
+    if (isDebugMode) {
+      setDebugLogs(prev => [...prev.slice(-20), logMessage]); // Keep last 20 logs
+    }
+  }, [isDebugMode]);
 
 
   const [formData, setFormData] = useState<GinCreateRequest>({
@@ -245,41 +258,35 @@ const GinCreate = () => {
 
   // Debug: Log when modal state changes
   useEffect(() => {
-    console.log('[DEBUG EFFECT] showUpgradeModal changed to:', showUpgradeModal);
-  }, [showUpgradeModal]);
+    addDebugLog(`showUpgradeModal changed to: ${showUpgradeModal}`);
+  }, [showUpgradeModal, addDebugLog]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    console.log('[DEBUG 1] handleSubmit called', {
-      isSubmittingRef: isSubmittingRef.current,
-      isLoading,
-      showUpgradeModal,
-      upgradeRequired,
-      timestamp: Date.now()
-    });
+    addDebugLog(`SUBMIT clicked | isSubmitting=${isSubmittingRef.current} | isLoading=${isLoading} | showModal=${showUpgradeModal}`);
 
     // Prevent double submission (especially on mobile touch events)
     if (isSubmittingRef.current || isLoading) {
-      console.log('[DEBUG 2] BLOCKED - already submitting');
+      addDebugLog('BLOCKED - already submitting');
       return;
     }
 
     // Don't allow submit if upgrade modal is showing
     if (showUpgradeModal || upgradeRequired) {
-      console.log('[DEBUG 3] BLOCKED - modal already showing');
+      addDebugLog('BLOCKED - modal already showing');
       return;
     }
 
     if (!validate()) {
-      console.log('[DEBUG 4] BLOCKED - validation failed');
+      addDebugLog('BLOCKED - validation failed');
       return;
     }
 
     // Lock submission
     isSubmittingRef.current = true;
-    console.log('[DEBUG 5] Submission locked, calling API...');
+    addDebugLog('Submission LOCKED, calling API...');
 
     try {
       const ginData = { ...formData };
@@ -292,33 +299,29 @@ const GinCreate = () => {
       });
 
       await createGin(ginData);
-      console.log('[DEBUG 6] API success, navigating...');
+      addDebugLog('API SUCCESS - navigating to /gins');
       navigate('/gins');
     } catch (err: any) {
-      console.log('[DEBUG 7] API error caught:', {
-        status: err?.response?.status,
-        upgrade_required: err?.response?.data?.upgrade_required,
-        data: err?.response?.data
-      });
+      addDebugLog(`API ERROR: status=${err?.response?.status} | upgrade_required=${err?.response?.data?.upgrade_required}`);
 
       // Check if this is an upgrade required error and show modal immediately
       if (err?.response?.data?.upgrade_required) {
-        console.log('[DEBUG 8] Setting modal state to TRUE');
+        addDebugLog('Setting showUpgradeModal = TRUE');
         setLocalUpgradeInfo({
           limit: err.response.data.limit,
           currentCount: err.response.data.current_count,
           currentTier: err.response.data.current_tier,
         });
         setShowUpgradeModal(true);
-        console.log('[DEBUG 9] Modal state set, should render now');
+        addDebugLog('Modal state SET - should render now');
       } else {
-        console.log('[DEBUG 10] NOT an upgrade error');
+        addDebugLog('NOT an upgrade error - no modal');
       }
     } finally {
       // Unlock after a short delay to prevent rapid re-submission
       setTimeout(() => {
         isSubmittingRef.current = false;
-        console.log('[DEBUG 11] Submission unlocked');
+        addDebugLog('Submission UNLOCKED');
       }, 500);
     }
   };
@@ -1041,6 +1044,61 @@ const GinCreate = () => {
           </motion.div>
         </form>
       </div>
+
+      {/* Debug Panel - only visible when ?debug=1 */}
+      {isDebugMode && (
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          maxHeight: '200px',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          color: '#0f0',
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          padding: '8px',
+          overflowY: 'auto',
+          zIndex: 9999,
+          borderTop: '2px solid #0f0'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '8px',
+            borderBottom: '1px solid #0f0',
+            paddingBottom: '4px'
+          }}>
+            <strong>DEBUG MODE</strong>
+            <button
+              onClick={() => setDebugLogs([])}
+              style={{
+                background: '#333',
+                color: '#0f0',
+                border: '1px solid #0f0',
+                padding: '2px 8px',
+                cursor: 'pointer',
+                fontSize: '10px'
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          {debugLogs.length === 0 ? (
+            <div style={{ color: '#666' }}>Keine Logs. Klicke auf "Speichern" um Logs zu sehen.</div>
+          ) : (
+            debugLogs.map((log, i) => (
+              <div key={i} style={{
+                padding: '2px 0',
+                borderBottom: '1px solid #333',
+                wordBreak: 'break-all'
+              }}>
+                {log}
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
