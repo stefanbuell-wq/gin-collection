@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
@@ -240,9 +240,17 @@ const GinCreate = () => {
     currentTier?: string;
   } | null>(null);
 
+  // Ref to prevent double submission on mobile
+  const isSubmittingRef = useRef(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Prevent double submission (especially on mobile touch events)
+    if (isSubmittingRef.current || isLoading) {
+      return;
+    }
 
     // Don't allow submit if upgrade modal is showing
     if (showUpgradeModal || upgradeRequired) {
@@ -252,6 +260,9 @@ const GinCreate = () => {
     if (!validate()) {
       return;
     }
+
+    // Lock submission
+    isSubmittingRef.current = true;
 
     try {
       const ginData = { ...formData };
@@ -276,6 +287,11 @@ const GinCreate = () => {
         });
         setShowUpgradeModal(true);
       }
+    } finally {
+      // Unlock after a short delay to prevent rapid re-submission
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 500);
     }
   };
 
