@@ -1023,11 +1023,16 @@ const GinCreate = () => {
               Abbrechen
             </motion.button>
             <motion.button
-              type="submit"
+              type="button"
               disabled={isLoading}
               className="gin-create-btn gin-create-btn--primary"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={handleSubmit}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleSubmit(e as any);
+              }}
             >
               {isLoading ? (
                 <>
