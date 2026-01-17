@@ -220,6 +220,133 @@
   color: #C4B5FD;
 }
 
+/* Upgrade Modal Overlay */
+.gin-create-upgrade-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.gin-create-upgrade-modal {
+  background: linear-gradient(145deg, #1a2f1a, #0d1f0d);
+  border: 1px solid rgba(74, 124, 74, 0.4);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.gin-create-upgrade-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.gin-create-upgrade-modal__close:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.gin-create-upgrade-modal__icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: white;
+}
+
+.gin-create-upgrade-modal__title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: white;
+  margin: 0 0 12px;
+}
+
+.gin-create-upgrade-modal__text {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.gin-create-upgrade-modal__text strong {
+  color: #FCD34D;
+}
+
+.gin-create-upgrade-modal__subtitle {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 24px;
+}
+
+.gin-create-upgrade-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gin-create-upgrade-modal__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.gin-create-upgrade-modal__btn--primary {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: white;
+}
+
+.gin-create-upgrade-modal__btn--primary:hover {
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+}
+
+.gin-create-upgrade-modal__btn--secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gin-create-upgrade-modal__btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
 /* Form Card */
 .gin-create-card {
   background: var(--glass-bg);
