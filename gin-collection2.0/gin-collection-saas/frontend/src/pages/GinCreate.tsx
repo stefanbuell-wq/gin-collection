@@ -243,26 +243,43 @@ const GinCreate = () => {
   // Ref to prevent double submission on mobile
   const isSubmittingRef = useRef(false);
 
+  // Debug: Log when modal state changes
+  useEffect(() => {
+    console.log('[DEBUG EFFECT] showUpgradeModal changed to:', showUpgradeModal);
+  }, [showUpgradeModal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
+    console.log('[DEBUG 1] handleSubmit called', {
+      isSubmittingRef: isSubmittingRef.current,
+      isLoading,
+      showUpgradeModal,
+      upgradeRequired,
+      timestamp: Date.now()
+    });
+
     // Prevent double submission (especially on mobile touch events)
     if (isSubmittingRef.current || isLoading) {
+      console.log('[DEBUG 2] BLOCKED - already submitting');
       return;
     }
 
     // Don't allow submit if upgrade modal is showing
     if (showUpgradeModal || upgradeRequired) {
+      console.log('[DEBUG 3] BLOCKED - modal already showing');
       return;
     }
 
     if (!validate()) {
+      console.log('[DEBUG 4] BLOCKED - validation failed');
       return;
     }
 
     // Lock submission
     isSubmittingRef.current = true;
+    console.log('[DEBUG 5] Submission locked, calling API...');
 
     try {
       const ginData = { ...formData };
@@ -275,22 +292,33 @@ const GinCreate = () => {
       });
 
       await createGin(ginData);
+      console.log('[DEBUG 6] API success, navigating...');
       navigate('/gins');
     } catch (err: any) {
-      console.error('Failed to create gin:', err);
+      console.log('[DEBUG 7] API error caught:', {
+        status: err?.response?.status,
+        upgrade_required: err?.response?.data?.upgrade_required,
+        data: err?.response?.data
+      });
+
       // Check if this is an upgrade required error and show modal immediately
       if (err?.response?.data?.upgrade_required) {
+        console.log('[DEBUG 8] Setting modal state to TRUE');
         setLocalUpgradeInfo({
           limit: err.response.data.limit,
           currentCount: err.response.data.current_count,
           currentTier: err.response.data.current_tier,
         });
         setShowUpgradeModal(true);
+        console.log('[DEBUG 9] Modal state set, should render now');
+      } else {
+        console.log('[DEBUG 10] NOT an upgrade error');
       }
     } finally {
       // Unlock after a short delay to prevent rapid re-submission
       setTimeout(() => {
         isSubmittingRef.current = false;
+        console.log('[DEBUG 11] Submission unlocked');
       }, 500);
     }
   };
