@@ -104,7 +104,8 @@ export function PhotoGallery({ ginId, onPhotoChange }: PhotoGalleryProps) {
 
     try {
       await photoAPI.delete(ginId, photoId);
-      setPhotos(prev => prev.filter(p => p.id !== photoId));
+      // Reload photos to get updated primary status from backend
+      await loadPhotos();
       onPhotoChange?.();
     } catch (err) {
       setError('Fehler beim Löschen');

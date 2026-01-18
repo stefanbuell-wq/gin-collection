@@ -160,6 +160,10 @@ func (s *Service) DeletePhoto(ctx context.Context, tenantID, photoID int64) erro
 		return fmt.Errorf("photo not found: %w", err)
 	}
 
+	// Remember if this was the primary photo
+	wasPrimary := photo.IsPrimary
+	ginID := photo.GinID
+
 	// Delete from S3
 	if photo.StorageKey != nil {
 		if err := s.storage.DeletePhoto(ctx, *photo.StorageKey); err != nil {
@@ -179,6 +183,21 @@ func (s *Service) DeletePhoto(ctx context.Context, tenantID, photoID int64) erro
 		if storageMB > 0 {
 			if err := s.usageMetricsRepo.DecrementMetric(ctx, tenantID, "storage_mb", storageMB); err != nil {
 				logger.Error("Failed to update storage metrics", "error", err.Error())
+			}
+		}
+	}
+
+	// If deleted photo was primary, set another photo as primary
+	if wasPrimary {
+		remainingPhotos, err := s.photoRepo.GetByGinID(ctx, tenantID, ginID)
+		if err != nil {
+			logger.Error("Failed to get remaining photos", "error", err.Error())
+		} else if len(remainingPhotos) > 0 {
+			// Set the first remaining photo as primary
+			if err := s.photoRepo.SetPrimary(ctx, tenantID, ginID, remainingPhotos[0].ID); err != nil {
+				logger.Error("Failed to set new primary photo", "error", err.Error())
+			} else {
+				logger.Info("New primary photo set automatically", "gin_id", ginID, "photo_id", remainingPhotos[0].ID)
 			}
 		}
 	}
