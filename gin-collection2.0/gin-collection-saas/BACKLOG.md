@@ -265,6 +265,29 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [ ] API Key Management UI für Pro/Enterprise User
 - [ ] Webhook-Konfiguration UI für Enterprise
 
+### FAQ & Dokumentation
+
+#### FAQ für die App (In-App Help)
+- [ ] "Was kann ich mit GinVault machen?" - Feature-Übersicht
+- [ ] "Wie füge ich einen Gin hinzu?" - Schritt-für-Schritt
+- [ ] "Wie funktioniert der Barcode-Scanner?"
+- [ ] "Wie erstelle ich Tasting-Notizen?"
+- [ ] "Was bedeuten die verschiedenen Abos?"
+- [ ] Erreichbar über Help-Icon in der App
+
+#### FAQ für die Webseite (Landing Page)
+- [ ] Feature-Erklärung: Was ist GinVault?
+- [ ] Subscription-Vergleichstabelle:
+  - Free: X Gins, 1 Foto, Basic Features
+  - Basic: X Gins, X Fotos, [Features]
+  - Pro: Unbegrenzt, API-Zugang, AI, Export
+  - Enterprise: Multi-User, Custom Branding, Webhooks
+- [ ] Preisübersicht (monatlich/jährlich)
+- [ ] "Für wen ist GinVault?" - Zielgruppen
+- [ ] "Kann ich upgraden/downgraden?"
+- [ ] "Wie kündige ich mein Abo?"
+- [ ] Kontakt & Support-Infos
+
 ### Infrastruktur
 
 #### PayPal Integration (Geschätzter Aufwand: ~2 Stunden)
