@@ -84,7 +84,9 @@ func (h *GinHandler) List(c *gin.Context) {
 
 	response.Success(c, gin.H{
 		"gins":  gins,
-		"count": len(gins),
+		"total": len(gins),
+		"page":  1,
+		"limit": filter.Limit,
 	})
 }
 
@@ -243,7 +245,7 @@ func (h *GinHandler) Search(c *gin.Context) {
 
 	response.Success(c, gin.H{
 		"gins":  gins,
-		"count": len(gins),
+		"total": len(gins),
 		"query": query,
 	})
 }
