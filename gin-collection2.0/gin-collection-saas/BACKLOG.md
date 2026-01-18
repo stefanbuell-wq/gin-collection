@@ -151,6 +151,12 @@ _Aktuell keine offenen Aufgaben_
 ## Erledigt
 
 ### 2026-01-18
+- [x] **Barcode-Scanner Button im Dashboard aktiviert**
+  - Pulsierender Scanner-Button unten rechts war nur visuell
+  - Jetzt mit BarcodeScanner-Komponente verbunden
+  - Scannt Barcode → API-Lookup → Navigation zu GinCreate mit vorausgefüllten Daten
+  - Mobile Touch-Support verbessert (z-index, pointer-events)
+  - Dateien: Dashboard.tsx, Dashboard.css, GinCreate.tsx
 - [x] **Mobile Double-Click Bug Fix** (GinCreate.tsx)
   - Problem: Auf Mobile musste man 2x auf "Speichern" klicken
   - Ursache: Mobile Touch-Events werden bei Form-Submit anders behandelt
