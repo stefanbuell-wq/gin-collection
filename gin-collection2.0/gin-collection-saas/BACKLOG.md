@@ -74,6 +74,40 @@ _Aktuell keine offenen Aufgaben_
 
 ---
 
+### Gin-Lexikon nach Ländern
+**Beschreibung:** Umfassende Gin-Enzyklopädie, gegliedert nach Herkunftsländern
+
+| Format | Inhalt |
+|--------|--------|
+| **GinVault-Modul** | In-App Lexikon mit Suchfunktion, Filter nach Land/Region, Verlinkung zur eigenen Sammlung |
+| **Buch/PDF** | Premium-Publikation als Nachschlagewerk, evtl. Print-on-Demand oder E-Book |
+
+**Länder-Kapitel:**
+- [ ] Deutsche Gins (Schwarzwald, Bayern, Berlin, etc.)
+- [ ] Englische Gins (London Dry, Plymouth, etc.)
+- [ ] Schottische Gins
+- [ ] Spanische Gins
+- [ ] Niederländische Gins (Genever-Tradition)
+- [ ] Amerikanische Gins
+- [ ] Japanische Gins
+- [ ] Weitere Länder (Australien, Südafrika, etc.)
+
+**Inhalte pro Land:**
+- [ ] Geschichte & Tradition der Gin-Herstellung
+- [ ] Typische Botanicals der Region
+- [ ] Top-Brennereien mit Portraits
+- [ ] Empfohlene Gins (Klassiker + Geheimtipps)
+- [ ] Regionale Tonic-Pairings
+
+**Akzeptanzkriterien:**
+- [ ] Mindestens 5 Länder zum Launch
+- [ ] Pro Land: 10-20 Gin-Einträge mit Details
+- [ ] Integration mit Sammlung ("Habe ich" / "Möchte ich")
+- [ ] Suchbar und filterbar
+- [ ] Optional: Buchversion als Premium-Download (Pro/Enterprise)
+
+---
+
 ## Offen - Mittlere Priorität
 
 ### Features

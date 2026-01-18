@@ -16,6 +16,7 @@ var (
 	ErrInvalidCredentials  = errors.New("invalid email or password")
 	ErrEmailAlreadyExists  = errors.New("email already exists")
 	ErrInvalidToken        = errors.New("invalid or expired token")
+	ErrTokenExpired        = errors.New("token has expired")
 	ErrEmailNotVerified    = errors.New("email not verified")
 
 	// Tenant errors

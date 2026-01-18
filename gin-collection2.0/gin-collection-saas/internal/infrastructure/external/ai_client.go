@@ -98,15 +98,21 @@ func (c *AIClient) SuggestGinInfo(name, brand string) (*GinSuggestion, error) {
 }
 
 func buildGinPrompt(name, brand string) string {
-	return fmt.Sprintf(`Du bist ein Gin-Experte. Generiere Informationen für folgenden Gin:
+	return fmt.Sprintf(`Du bist ein Gin-Experte und Barkeeper. Generiere detaillierte Informationen für diesen Gin:
 
 Name: %s
 Marke: %s
 
-Antworte ausschließlich im folgenden JSON-Format (keine andere Ausgabe, kein Markdown):
-{"description":"Eine ausführliche Beschreibung des Gins auf Deutsch (2-3 Sätze)","nose_notes":"Aromen in der Nase, kommagetrennt auf Deutsch","palate_notes":"Geschmack am Gaumen, kommagetrennt auf Deutsch","finish_notes":"Nachklang/Abgang, kommagetrennt auf Deutsch","recommended_tonics":["Tonic 1","Tonic 2"],"recommended_garnish":["Garnish 1","Garnish 2"],"country":"Herkunftsland","region":"Region falls bekannt, sonst leer","gin_type":"London Dry, Old Tom, New Western, etc.","estimated_price":35.00,"abv":43.0}
+WICHTIG: Ersetze ALLE Platzhalter durch echte, spezifische Werte!
 
-Falls du den Gin nicht kennst, mache plausible Annahmen basierend auf dem Namen und der Marke. Gib NUR das JSON zurück, keine Erklärungen, kein Markdown.`, name, brand)
+Für recommended_tonics: Nenne echte Tonic-Marken wie "Fever-Tree Mediterranean", "Thomas Henry Tonic", "Schweppes Indian Tonic", "1724 Tonic Water", etc.
+
+Für recommended_garnish: Nenne echte Garnituren wie "Zitronenzeste", "Gurkenscheibe", "Rosmarinzweig", "Wacholderbeeren", "Orangenschale", "Grapefruit", etc.
+
+Antworte NUR mit diesem JSON (ersetze alle Werte durch echte Informationen):
+{"description":"HIER echte Beschreibung auf Deutsch","nose_notes":"HIER echte Aromen","palate_notes":"HIER echter Geschmack","finish_notes":"HIER echter Abgang","recommended_tonics":["HIER echtes Tonic 1","HIER echtes Tonic 2"],"recommended_garnish":["HIER echte Garnitur 1","HIER echte Garnitur 2"],"country":"HIER Land","region":"HIER Region","gin_type":"HIER Typ","estimated_price":35.00,"abv":43.0}
+
+Falls du den Gin nicht kennst, mache plausible Annahmen. Gib NUR valides JSON zurück.`, name, brand)
 }
 
 // Ollama API types

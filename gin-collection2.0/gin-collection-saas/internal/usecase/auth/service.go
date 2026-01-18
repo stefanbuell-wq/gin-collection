@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -9,16 +11,23 @@ import (
 	"github.com/yourusername/gin-collection-saas/internal/domain/errors"
 	"github.com/yourusername/gin-collection-saas/internal/domain/models"
 	"github.com/yourusername/gin-collection-saas/internal/domain/repositories"
+	"github.com/yourusername/gin-collection-saas/internal/infrastructure/external"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
 	"github.com/yourusername/gin-collection-saas/pkg/utils"
 )
 
+// Token expiry duration for password reset
+const PasswordResetTokenExpiry = 1 * time.Hour
+
 // Service handles authentication business logic
 type Service struct {
-	userRepo   repositories.UserRepository
-	tenantRepo repositories.TenantRepository
-	jwtSecret  string
-	jwtExpiration time.Duration
+	userRepo          repositories.UserRepository
+	tenantRepo        repositories.TenantRepository
+	passwordResetRepo repositories.PasswordResetRepository
+	emailClient       *external.EmailClient
+	baseURL           string
+	jwtSecret         string
+	jwtExpiration     time.Duration
 }
 
 // NewService creates a new auth service
@@ -34,6 +43,21 @@ func NewService(
 		jwtSecret:     jwtSecret,
 		jwtExpiration: jwtExpiration,
 	}
+}
+
+// SetPasswordResetRepo sets the password reset repository (optional dependency)
+func (s *Service) SetPasswordResetRepo(repo repositories.PasswordResetRepository) {
+	s.passwordResetRepo = repo
+}
+
+// SetEmailClient sets the email client (optional dependency)
+func (s *Service) SetEmailClient(client *external.EmailClient) {
+	s.emailClient = client
+}
+
+// SetBaseURL sets the base URL for password reset links
+func (s *Service) SetBaseURL(baseURL string) {
+	s.baseURL = baseURL
 }
 
 // Register registers a new tenant with an owner user
@@ -380,4 +404,147 @@ func (s *Service) GetCurrentUser(ctx context.Context, userID int64) (*models.Use
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 	return user, nil
+}
+
+// RequestPasswordReset initiates a password reset for a user
+func (s *Service) RequestPasswordReset(ctx context.Context, email string) error {
+	logger.Info("Password reset requested", "email", email)
+
+	// Check if password reset repo is configured
+	if s.passwordResetRepo == nil {
+		return fmt.Errorf("password reset not configured")
+	}
+
+	// Find user by email (across all tenants)
+	user, err := s.userRepo.GetByEmailGlobal(ctx, email)
+	if err != nil {
+		// Don't reveal if user exists or not for security
+		logger.Debug("User not found for password reset", "email", email)
+		return nil // Return success even if user not found
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		logger.Debug("Inactive user requested password reset", "user_id", user.ID)
+		return nil // Return success even if user is inactive
+	}
+
+	// Delete any existing tokens for this user
+	if err := s.passwordResetRepo.DeleteByUserID(ctx, user.ID); err != nil {
+		logger.Error("Failed to delete existing tokens", "error", err.Error())
+		// Continue anyway
+	}
+
+	// Generate secure token
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		logger.Error("Failed to generate token", "error", err.Error())
+		return fmt.Errorf("failed to generate token: %w", err)
+	}
+	token := hex.EncodeToString(tokenBytes)
+
+	// Create password reset token
+	resetToken := &models.PasswordResetToken{
+		UserID:    user.ID,
+		Token:     token,
+		ExpiresAt: time.Now().Add(PasswordResetTokenExpiry),
+	}
+
+	if err := s.passwordResetRepo.Create(ctx, resetToken); err != nil {
+		logger.Error("Failed to create password reset token", "error", err.Error())
+		return fmt.Errorf("failed to create reset token: %w", err)
+	}
+
+	// Send email
+	if s.emailClient != nil {
+		recipientName := ""
+		if user.FirstName != nil {
+			recipientName = *user.FirstName
+		}
+
+		resetLink := fmt.Sprintf("%s/reset-password?token=%s", s.baseURL, token)
+
+		emailData := &external.PasswordResetData{
+			RecipientName: recipientName,
+			ResetLink:     resetLink,
+			ExpiresIn:     "1 Stunde",
+		}
+
+		if err := s.emailClient.SendPasswordReset(email, emailData); err != nil {
+			logger.Error("Failed to send password reset email", "error", err.Error(), "email", email)
+			// Don't fail the request, token is created
+		} else {
+			logger.Info("Password reset email sent", "email", email)
+		}
+	}
+
+	logger.Info("Password reset token created", "user_id", user.ID)
+	return nil
+}
+
+// ResetPassword resets a user's password using a valid token
+func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) error {
+	logger.Info("Password reset attempt")
+
+	// Check if password reset repo is configured
+	if s.passwordResetRepo == nil {
+		return fmt.Errorf("password reset not configured")
+	}
+
+	// Get token
+	resetToken, err := s.passwordResetRepo.GetByToken(ctx, token)
+	if err != nil {
+		logger.Debug("Invalid password reset token")
+		return errors.ErrInvalidToken
+	}
+
+	// Check if token is valid
+	if !resetToken.IsValid() {
+		logger.Debug("Password reset token expired or used", "token_id", resetToken.ID)
+		return errors.ErrTokenExpired
+	}
+
+	// Get user
+	user, err := s.userRepo.GetByID(ctx, resetToken.UserID)
+	if err != nil {
+		logger.Error("Failed to get user for password reset", "error", err.Error())
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Hash new password
+	newHash, err := utils.HashPassword(newPassword)
+	if err != nil {
+		logger.Error("Failed to hash new password", "error", err.Error())
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	// Update password
+	user.PasswordHash = newHash
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		logger.Error("Failed to update user password", "error", err.Error())
+		return fmt.Errorf("failed to update password: %w", err)
+	}
+
+	// Mark token as used
+	if err := s.passwordResetRepo.MarkAsUsed(ctx, resetToken.ID); err != nil {
+		logger.Error("Failed to mark token as used", "error", err.Error())
+		// Don't fail, password is already changed
+	}
+
+	logger.Info("Password reset successful", "user_id", user.ID)
+	return nil
+}
+
+// ValidateResetToken checks if a password reset token is valid
+func (s *Service) ValidateResetToken(ctx context.Context, token string) (bool, error) {
+	if s.passwordResetRepo == nil {
+		return false, fmt.Errorf("password reset not configured")
+	}
+
+	resetToken, err := s.passwordResetRepo.GetByToken(ctx, token)
+	if err != nil {
+		return false, nil
+	}
+
+	return resetToken.IsValid(), nil
 }

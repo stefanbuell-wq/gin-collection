@@ -64,6 +64,11 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			// Refresh token
 			auth.POST("/refresh", cfg.AuthHandler.RefreshToken)
 
+			// Password reset (no auth required)
+			auth.POST("/forgot-password", cfg.AuthHandler.ForgotPassword)
+			auth.POST("/reset-password", cfg.AuthHandler.ResetPassword)
+			auth.GET("/validate-reset-token", cfg.AuthHandler.ValidateResetToken)
+
 			// Logout (requires auth)
 			auth.POST("/logout", cfg.AuthMiddleware.RequireAuth(), cfg.AuthHandler.Logout)
 
@@ -79,9 +84,10 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 		}
 
 		// Protected routes (require tenant + auth + rate limiting)
+		// Note: Auth middleware must run before Tenant middleware so JWT claims are available
 		protected := v1.Group("")
-		protected.Use(cfg.TenantMiddleware.ExtractTenant())
 		protected.Use(cfg.AuthMiddleware.RequireAuth())
+		protected.Use(cfg.TenantMiddleware.ExtractTenant())
 		// Apply rate limiting if available
 		if cfg.RateLimitMiddleware != nil {
 			protected.Use(cfg.RateLimitMiddleware.RateLimitByTenant())

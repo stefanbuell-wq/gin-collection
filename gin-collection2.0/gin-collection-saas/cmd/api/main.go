@@ -83,6 +83,7 @@ func main() {
 	auditLogRepo := mysql.NewAuditLogRepository(db)
 	platformAdminRepo := mysql.NewPlatformAdminRepository(db)
 	tastingRepo := mysql.NewTastingSessionRepository(db)
+	passwordResetRepo := mysql.NewPasswordResetRepository(db)
 
 	logger.Info("Repositories initialized")
 
@@ -160,6 +161,10 @@ func main() {
 		cfg.JWT.Secret,
 		cfg.JWT.Expiration,
 	)
+	// Set optional dependencies for password reset
+	authService.SetPasswordResetRepo(passwordResetRepo)
+	authService.SetEmailClient(emailClient)
+	authService.SetBaseURL(cfg.App.BaseURL)
 
 	ginService := ginUsecase.NewService(
 		ginRepo,

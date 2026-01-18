@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import './Subscription.css';
 
-// Plan definitions
+// Plan definitions - MUST match backend limits in internal/domain/models/tenant.go
 const PLANS: SubscriptionPlan[] = [
   {
     id: 'free',
@@ -31,13 +31,13 @@ const PLANS: SubscriptionPlan[] = [
     price_monthly: 0,
     price_yearly: 0,
     features: [
-      'Bis zu 25 Gins',
+      'Bis zu 5 Gins',
       '3 Fotos pro Gin',
       'Basis-Statistiken',
       'Community Support'
     ],
     limits: {
-      max_gins: 25,
+      max_gins: 5,
       max_photos_per_gin: 3,
       features: ['basic_stats']
     }
@@ -46,18 +46,18 @@ const PLANS: SubscriptionPlan[] = [
     id: 'basic',
     name: 'Basic',
     tier: 'basic',
-    description: 'Fur Hobby-Sammler',
+    description: 'Für Hobby-Sammler',
     price_monthly: 4.99,
     price_yearly: 49.99,
     features: [
-      'Bis zu 100 Gins',
+      'Bis zu 15 Gins',
       '10 Fotos pro Gin',
       'Erweiterte Statistiken',
       'Export-Funktion',
       'E-Mail Support'
     ],
     limits: {
-      max_gins: 100,
+      max_gins: 15,
       max_photos_per_gin: 10,
       features: ['basic_stats', 'advanced_stats', 'export']
     }
@@ -66,28 +66,29 @@ const PLANS: SubscriptionPlan[] = [
     id: 'pro',
     name: 'Pro',
     tier: 'pro',
-    description: 'Fur ernsthafte Sammler',
+    description: 'Für ernsthafte Sammler',
     price_monthly: 9.99,
     price_yearly: 99.99,
     features: [
-      'Bis zu 500 Gins',
+      'Bis zu 100 Gins',
       '25 Fotos pro Gin',
-      'Alle Statistiken',
+      'Botanicals & Cocktails',
+      'KI-Vorschläge',
+      'Import & Export',
       'API-Zugang',
-      'Priority Support',
-      'Barcode-Scanner'
+      'Priority Support'
     ],
     limits: {
-      max_gins: 500,
+      max_gins: 100,
       max_photos_per_gin: 25,
-      features: ['basic_stats', 'advanced_stats', 'export', 'api_access', 'barcode_scanner']
+      features: ['basic_stats', 'advanced_stats', 'export', 'import', 'api_access', 'botanicals', 'cocktails', 'ai_suggestions']
     }
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
     tier: 'enterprise',
-    description: 'Fur Bars & Handler',
+    description: 'Für Bars & Händler',
     price_monthly: 29.99,
     price_yearly: 299.99,
     features: [
@@ -102,7 +103,7 @@ const PLANS: SubscriptionPlan[] = [
     limits: {
       max_gins: -1,
       max_photos_per_gin: -1,
-      features: ['basic_stats', 'advanced_stats', 'export', 'api_access', 'barcode_scanner', 'team_management', 'white_label']
+      features: ['basic_stats', 'advanced_stats', 'export', 'import', 'api_access', 'botanicals', 'cocktails', 'ai_suggestions', 'team_management', 'white_label']
     }
   }
 ];
@@ -616,9 +617,9 @@ const Subscription = () => {
               <tbody>
                 <tr>
                   <td>Max. Gins</td>
-                  <td>25</td>
+                  <td>5</td>
+                  <td>15</td>
                   <td>100</td>
-                  <td>500</td>
                   <td>Unbegrenzt</td>
                 </tr>
                 <tr>
@@ -626,13 +627,6 @@ const Subscription = () => {
                   <td>3</td>
                   <td>10</td>
                   <td>25</td>
-                  <td>Unbegrenzt</td>
-                </tr>
-                <tr>
-                  <td>Team-Mitglieder</td>
-                  <td>1</td>
-                  <td>1</td>
-                  <td>5</td>
                   <td>Unbegrenzt</td>
                 </tr>
                 <tr>
@@ -650,14 +644,28 @@ const Subscription = () => {
                   <td><Check size={16} className="subscription-comparison-check" /></td>
                 </tr>
                 <tr>
-                  <td>API-Zugang</td>
+                  <td>Import</td>
                   <td><X size={16} className="subscription-comparison-x" /></td>
                   <td><X size={16} className="subscription-comparison-x" /></td>
                   <td><Check size={16} className="subscription-comparison-check" /></td>
                   <td><Check size={16} className="subscription-comparison-check" /></td>
                 </tr>
                 <tr>
-                  <td>Barcode-Scanner</td>
+                  <td>Botanicals & Cocktails</td>
+                  <td><X size={16} className="subscription-comparison-x" /></td>
+                  <td><X size={16} className="subscription-comparison-x" /></td>
+                  <td><Check size={16} className="subscription-comparison-check" /></td>
+                  <td><Check size={16} className="subscription-comparison-check" /></td>
+                </tr>
+                <tr>
+                  <td>KI-Vorschläge</td>
+                  <td><X size={16} className="subscription-comparison-x" /></td>
+                  <td><X size={16} className="subscription-comparison-x" /></td>
+                  <td><Check size={16} className="subscription-comparison-check" /></td>
+                  <td><Check size={16} className="subscription-comparison-check" /></td>
+                </tr>
+                <tr>
+                  <td>API-Zugang</td>
                   <td><X size={16} className="subscription-comparison-x" /></td>
                   <td><X size={16} className="subscription-comparison-x" /></td>
                   <td><Check size={16} className="subscription-comparison-check" /></td>

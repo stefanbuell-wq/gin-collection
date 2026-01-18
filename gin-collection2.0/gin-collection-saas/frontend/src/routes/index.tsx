@@ -7,6 +7,8 @@ import { lazy, Suspense } from 'react';
 
 const Login = lazy(() => import('../pages/Login'));
 const Register = lazy(() => import('../pages/Register'));
+const ForgotPassword = lazy(() => import('../pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('../pages/ResetPassword'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const GinList = lazy(() => import('../pages/GinList'));
 const GinDetail = lazy(() => import('../pages/GinDetail'));
@@ -43,6 +45,22 @@ export const router = createBrowserRouter([
     element: (
       <LazyPage>
         <Register />
+      </LazyPage>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <LazyPage>
+        <ForgotPassword />
+      </LazyPage>
+    ),
+  },
+  {
+    path: '/reset-password',
+    element: (
+      <LazyPage>
+        <ResetPassword />
       </LazyPage>
     ),
   },

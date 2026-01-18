@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/yourusername/gin-collection-saas/internal/delivery/http/middleware"
 	"github.com/yourusername/gin-collection-saas/internal/delivery/http/response"
@@ -198,5 +200,77 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 
 	response.Success(c, gin.H{
 		"message": "Password changed successfully",
+	})
+}
+
+// ForgotPassword handles POST /api/v1/auth/forgot-password
+func (h *AuthHandler) ForgotPassword(c *gin.Context) {
+	var req models.ForgotPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Debug("Invalid forgot password request", "error", err.Error())
+		response.ValidationError(c, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Request password reset
+	if err := h.authService.RequestPasswordReset(c.Request.Context(), req.Email); err != nil {
+		logger.Error("Password reset request failed", "error", err.Error())
+		// Don't reveal if the operation failed for security
+	}
+
+	// Always return success to prevent email enumeration
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Wenn ein Konto mit dieser E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.",
+	})
+}
+
+// ResetPassword handles POST /api/v1/auth/reset-password
+func (h *AuthHandler) ResetPassword(c *gin.Context) {
+	var req models.ResetPasswordRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Debug("Invalid reset password request", "error", err.Error())
+		response.ValidationError(c, map[string]string{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Reset password
+	if err := h.authService.ResetPassword(c.Request.Context(), req.Token, req.NewPassword); err != nil {
+		logger.Error("Password reset failed", "error", err.Error())
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{
+		"success": true,
+		"message": "Passwort wurde erfolgreich zurückgesetzt. Du kannst dich jetzt anmelden.",
+	})
+}
+
+// ValidateResetToken handles GET /api/v1/auth/validate-reset-token
+func (h *AuthHandler) ValidateResetToken(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		response.ValidationError(c, map[string]string{
+			"error": "Token is required",
+		})
+		return
+	}
+
+	valid, err := h.authService.ValidateResetToken(c.Request.Context(), token)
+	if err != nil {
+		logger.Error("Token validation failed", "error", err.Error())
+		response.Error(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{
+		"valid": valid,
 	})
 }
