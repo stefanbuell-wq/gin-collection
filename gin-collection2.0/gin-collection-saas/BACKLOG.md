@@ -17,7 +17,7 @@ _Aktuell keine offenen Aufgaben_
 
 ### Sofort (diese Woche)
 - [ ] PayPal Sandbox einrichten und testen
-- [ ] S3 Bucket für Production konfigurieren
+- [x] S3 Bucket für Production konfigurieren - ✅ Cloudflare R2 (10GB Free Tier)
 - [ ] Backup/Restore-Skripte testen (`scripts/backup.sh`, `scripts/restore.sh`)
 
 ### Kurzfristig (nächste 2-4 Wochen)
@@ -292,9 +292,9 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [ ] Live schalten (PAYPAL_MODE=live, neue Live-Credentials)
 
 #### Weitere Infrastruktur
-- [ ] S3 Storage für Produktion einrichten
-- [ ] S3 Presigned URLs implementieren (1h Expiry für private Bilder)
-- [ ] CDN für Static Assets einrichten (CloudFlare)
+- [x] S3 Storage für Produktion einrichten - ✅ Cloudflare R2 konfiguriert am 2026-01-18
+- [ ] S3 Presigned URLs implementieren (1h Expiry für private Bilder) - *erst bei 9GB Storage relevant*
+- [x] CDN für Static Assets - ✅ Cloudflare R2 Public URL
 - [ ] MySQL Transparent Data Encryption aktivieren
 - [x] SMTP für E-Mail-Versand konfiguriert (Hostinger, info@ginvault.cloud)
 
