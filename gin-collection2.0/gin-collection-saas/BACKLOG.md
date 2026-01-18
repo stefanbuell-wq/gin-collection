@@ -1,12 +1,126 @@
 # GinVault - Backlog & Open Points
 
 > Letzte Aktualisierung: 2026-01-18
+> Quellen: Security Audit, Phase 10 Summary, Super-Admin Plan, SaaS Migration Plan
 
 ---
 
 ## In Arbeit
 
 _Aktuell keine offenen Aufgaben_
+
+---
+
+## 🚀 Launch-Vorbereitung
+
+> Aus Phase 10 Summary - Production Deployment Checklist
+
+### Sofort (diese Woche)
+- [ ] PayPal Sandbox einrichten und testen
+- [ ] S3 Bucket für Production konfigurieren
+- [ ] Backup/Restore-Skripte testen (`scripts/backup.sh`, `scripts/restore.sh`)
+
+### Kurzfristig (nächste 2-4 Wochen)
+- [ ] Production Server Setup
+- [ ] Domain und SSL-Zertifikate konfigurieren
+- [ ] Deploy to Staging Environment
+- [ ] User Acceptance Testing (UAT)
+- [ ] Performance Testing
+- [ ] Security Audit durchführen
+- [ ] Load Testing (Ziel: 1000+ req/s)
+
+### Launch
+- [ ] Production Deployment
+- [ ] Monitoring-Dashboards verifizieren (Prometheus/Grafana)
+- [ ] Soft Launch (Beta-User einladen)
+- [ ] Marketing-Ankündigung
+- [ ] Full Public Launch 🚀
+
+### Post-Launch
+- [ ] Metriken und Alerts monitoren
+- [ ] User-Feedback sammeln und auswerten
+- [ ] Performance-Optimierungen basierend auf echten Daten
+- [ ] Regelmäßige Security-Updates
+
+---
+
+## 🛡️ Super-Admin Platform
+
+> Aus Super-Admin Plan (smooth-singing-peacock.md)
+
+### Admin Dashboard - Statistiken
+- [ ] Tenant-Übersicht: Anzahl aktiv/suspendiert/gekündigt
+- [ ] User-Gesamtzahl über alle Tenants
+- [ ] Gin-Gesamtzahl über alle Tenants
+- [ ] Revenue-Anzeige pro Tier (Free/Basic/Pro/Enterprise)
+- [ ] Neue Registrierungen Chart (letzte 7/30 Tage)
+- [ ] Storage-Nutzung Übersicht
+
+### Tenant-Management (Admin)
+- [ ] Tenant-Liste mit Filter und Suche
+- [ ] Tenant-Details: User, Gins, Subscription-Status
+- [ ] Tenant suspendieren / reaktivieren
+- [ ] Subscription-Tier manuell ändern (Override)
+- [ ] Tenant soft-delete mit Bestätigung
+
+### User-Management (Admin)
+- [ ] Alle User aller Tenants anzeigen
+- [ ] User-Suche nach Email und Name
+- [ ] User-Detailansicht (Tenant, Rolle, Aktivität)
+- [ ] User deaktivieren/aktivieren
+
+### System Health Dashboard
+- [ ] API-Status Live-Anzeige
+- [ ] Database Connection Status
+- [ ] Redis Connection Status
+- [ ] S3/Storage Status
+- [ ] Background Jobs Status (falls vorhanden)
+
+---
+
+## 🏢 Enterprise Features
+
+> Aus SaaS Migration Plan (vivid-cooking-phoenix.md)
+
+### Multi-Tenancy Enterprise
+- [ ] Separate Datenbank pro Enterprise-Tenant (DB Provisioning)
+- [ ] Multi-User Support: Owner, Admin, Member, Viewer Rollen
+- [ ] Custom Branding: Logo, Farben, Domain
+- [ ] SLA Monitoring & Health Checks pro Tenant
+- [ ] Audit Logging für Enterprise-Tenants
+
+### Enterprise API
+- [ ] API-Key Authentifizierung für Enterprise
+- [ ] Webhook-System für Enterprise (Events: gin.created, gin.updated, etc.)
+- [ ] Rate Limits: 10000 req/h für Enterprise
+
+### GDPR & Compliance
+- [ ] Data Export API (alle Nutzerdaten als JSON)
+- [ ] Account Deletion API (vollständige Löschung)
+- [ ] Data Retention Policies konfigurierbar
+
+---
+
+## 🧪 Testing & QA
+
+> Aus Phase 10 Summary und SaaS Migration Plan
+
+### Load Testing
+- [ ] 1000 concurrent requests/sec Test
+- [ ] 10,000 Tenants Simulation
+- [ ] Database Connection Pool unter Last testen
+- [ ] Redis Rate Limiting Performance verifizieren
+
+### Integration Tests
+- [ ] Tenant-Isolation Tests (Cross-Tenant-Leak Prevention)
+- [ ] Tier-Enforcement Tests (Feature Gates)
+- [ ] PayPal Subscription Flow E2E Test
+
+### Security Tests
+- [ ] Penetration Testing durchführen
+- [ ] SQL Injection Versuche testen
+- [ ] XSS Prevention verifizieren
+- [ ] CSRF Token Validation testen
 
 ---
 
@@ -179,7 +293,20 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 
 #### Weitere Infrastruktur
 - [ ] S3 Storage für Produktion einrichten
+- [ ] S3 Presigned URLs implementieren (1h Expiry für private Bilder)
+- [ ] CDN für Static Assets einrichten (CloudFlare)
+- [ ] MySQL Transparent Data Encryption aktivieren
 - [x] SMTP für E-Mail-Versand konfiguriert (Hostinger, info@ginvault.cloud)
+
+#### Monitoring & Observability
+- [ ] Prometheus Metriken Dashboard erstellen
+- [ ] Grafana Visualisierungen konfigurieren
+- [ ] Alert-Rules aktivieren:
+  - API Down (>1 Minute)
+  - High Error Rate (>5%)
+  - Database Connection Pool Exhaustion
+  - Disk Space Low (<10%)
+- [ ] Structured Logging (JSON) in Production aktivieren
 
 ---
 
@@ -227,9 +354,12 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [ ] Dark/Light Mode Toggle
 
 ### Admin Panel
-- [ ] Platform Admin Dashboard erweitern
+- [ ] Platform Admin Dashboard erweitern (siehe Super-Admin Platform Sektion)
 - [ ] Tenant-Statistiken verbessern
 - [ ] Audit-Log für Admin-Aktionen
+- [ ] Server-Deployment UI (Git Pull, Docker Restart)
+- [ ] Backup-Management UI (manueller Backup-Trigger)
+- [ ] System-Logs Viewer im Admin Panel
 
 ### Performance
 - [ ] Redis Caching für häufige Abfragen
@@ -255,9 +385,32 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [ ] API Documentation (Swagger/OpenAPI)
 - [ ] Error Tracking (Sentry Integration)
 
+### CI/CD Pipeline
+- [ ] GitHub Actions Workflows aktivieren (`.github/workflows/ci.yml`)
+- [ ] Automatic Deployment to Staging bei Push auf `develop`
+- [ ] Automatic Deployment to Production bei Push auf `main`
+- [ ] Security Scanning in Pipeline (Trivy, Gosec)
+- [ ] Slack/Discord Notifications bei Deployment
+
 ---
 
 ## Erledigt
+
+### Projekt-Meilensteine
+
+**Phase 1-10 der SaaS-Migration abgeschlossen** ✅
+> Dokumentiert in `docs/PHASE_10_SUMMARY.md`
+
+- [x] Phase 1: Foundation (Go Module, Docker, Config)
+- [x] Phase 2: Domain & Repositories
+- [x] Phase 3: Auth & Multi-Tenancy
+- [x] Phase 4: Core Gin Features (CRUD, Search, Export)
+- [x] Phase 5: Subscriptions & Feature-Gating
+- [x] Phase 6: Advanced Features (Botanicals, Cocktails, AI)
+- [x] Phase 7: Enterprise Features (Multi-User, API Keys)
+- [x] Phase 8: Frontend (React SPA, PWA)
+- [x] Phase 9: Migration & Testing
+- [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
 
 ### 2026-01-18
 - [x] **CSRF-Schutz implementiert** (Backend + Frontend)
