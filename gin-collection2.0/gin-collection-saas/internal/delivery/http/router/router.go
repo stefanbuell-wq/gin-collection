@@ -45,6 +45,9 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 	r.GET("/health", healthCheck)
 	r.GET("/ready", readyCheck)
 
+	// Static file server for uploads
+	r.Static("/uploads", "/app/uploads")
+
 	// API v1 routes
 	v1 := r.Group("/api/v1")
 	{
