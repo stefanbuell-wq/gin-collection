@@ -10,6 +10,112 @@ _Aktuell keine offenen Aufgaben_
 
 ---
 
+## 🔴 Sicherheit - KRITISCH
+
+> Security Audit durchgeführt am 2026-01-18
+
+### Sofort-Maßnahmen (24-48 Stunden)
+
+#### 1. JWT Secret austauschen
+- [ ] Echtes 256-bit Secret generieren: `openssl rand -base64 32`
+- [ ] In sicherem Secret Manager speichern (nicht in .env)
+- [ ] Validierung im Code: Reject schwache Secrets in Production
+
+#### 2. Secrets aus Git entfernen
+- [ ] `.env` aus Git-History entfernen: `git rm --cached .env`
+- [ ] `.env` zu `.gitignore` hinzufügen
+- [ ] Pre-commit Hook für Secret-Scanning einrichten (git-secrets)
+- [ ] Alle Passwörter/API-Keys rotieren (kompromittiert anzunehmen)
+
+#### 3. CSRF-Schutz implementieren
+- [ ] CSRF-Token Middleware für POST/PUT/DELETE Requests
+- [ ] Token-Generierung mit `crypto/rand`
+- [ ] Double-Submit Cookie Pattern oder Server-Side Storage
+- [ ] `SameSite=Strict` für Cookies setzen
+
+#### 4. Rate Limiting aktivieren
+- [ ] Login: 5 Versuche pro 15 Min pro IP
+- [ ] Registrierung: 3 pro Stunde pro IP
+- [ ] Password Reset: 3 pro Stunde pro E-Mail
+- [ ] API-Endpoints: 100 Requests pro Stunde pro Tenant
+- [ ] Fallback In-Memory Rate Limiting wenn Redis unavailable
+
+#### 5. Tokens aus localStorage entfernen
+- [ ] JWT in HttpOnly Cookie speichern
+- [ ] `Secure` Flag setzen (nur HTTPS)
+- [ ] `SameSite=Strict` setzen
+- [ ] Refresh Token ebenfalls in HttpOnly Cookie
+
+---
+
+## 🟠 Sicherheit - HOCH
+
+### 6. HTTPS erzwingen
+- [ ] nginx: HTTP → HTTPS Redirect (301)
+- [ ] HSTS Header: `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+- [ ] Minimum TLS 1.3 konfigurieren
+
+### 7. Security Headers hinzufügen
+```nginx
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval';" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "DENY" always;
+add_header X-Permitted-Cross-Domain-Policies "none" always;
+add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" always;
+```
+
+### 8. Token-Blacklist für Logout
+- [ ] Redis-basierte Token-Blacklist implementieren
+- [ ] Tokens invalidieren bei: Logout, Password Change, Password Reset
+- [ ] Blacklist-TTL = JWT-TTL (24h)
+
+### 9. File-Upload Sicherheit
+- [ ] Magic-Byte Validierung (nicht nur Extension)
+- [ ] Max Upload Size Middleware (50MB für Bilder, 1MB für JSON)
+- [ ] Dateinamen sanitizen (UUID + Extension)
+- [ ] Virus-Scan Integration (ClamAV) - optional
+
+### 10. Passwort-Policy verschärfen
+- [ ] Minimum 12 Zeichen
+- [ ] Groß-/Kleinbuchstaben + Zahlen + Sonderzeichen erforderlich
+- [ ] Common-Password-Check (haveibeenpwned API)
+- [ ] Password History (letzte 5 nicht wiederverwendbar)
+
+---
+
+## 🟡 Sicherheit - MITTEL
+
+### Authentifizierung & Autorisierung
+- [ ] MFA für Admin-Accounts implementieren
+- [ ] IP-Whitelist Option für Admin-Panel
+- [ ] API-Key Rotation Mechanismus (jährlich)
+- [ ] API-Key Expiration implementieren
+
+### Logging & Monitoring
+- [ ] Structured Logging (JSON Format)
+- [ ] Sensitive Daten in Logs maskieren
+- [ ] Security-Events separat loggen
+- [ ] Alerting bei verdächtigen Aktivitäten
+
+### Dependency Security
+- [ ] `npm audit` in CI/CD Pipeline
+- [ ] `go list -m -json all | nancy` für Go Dependencies
+- [ ] Dependabot für GitHub aktivieren
+- [ ] Monatliche Security-Updates
+
+### CORS einschränken
+- [ ] Localhost-Origins aus Production entfernen
+- [ ] Nur spezifische Production-Domains whitelisten
+- [ ] Wildcard `*` Support entfernen
+
+### Sonstiges
+- [ ] `/.well-known/security.txt` erstellen
+- [ ] Vulnerability Disclosure Policy dokumentieren
+- [ ] SMTP SKIP_VERIFY in Production verbieten
+- [ ] Docker Images pinnen (z.B. `alpine:3.19` statt `alpine:latest`)
+
+---
+
 ## Offen - Hohe Priorität
 
 ### GIN Tasting Anleitung (Premium Feature)
