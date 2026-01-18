@@ -1,6 +1,6 @@
 # GinVault - Backlog & Open Points
 
-> Letzte Aktualisierung: 2026-01-16
+> Letzte Aktualisierung: 2026-01-18
 
 ---
 
@@ -70,7 +70,7 @@ _Aktuell keine offenen Aufgaben_
 
 #### Weitere Infrastruktur
 - [ ] S3 Storage für Produktion einrichten
-- [ ] SMTP für E-Mail-Versand konfigurieren
+- [x] SMTP für E-Mail-Versand konfiguriert (Hostinger, info@ginvault.cloud)
 
 ---
 
@@ -115,6 +115,33 @@ _Aktuell keine offenen Aufgaben_
 ---
 
 ## Erledigt
+
+### 2026-01-18
+- [x] **Mobile Double-Click Bug Fix** (GinCreate.tsx)
+  - Problem: Auf Mobile musste man 2x auf "Speichern" klicken
+  - Ursache: Mobile Touch-Events werden bei Form-Submit anders behandelt
+  - Lösung: Button von `type="submit"` auf `type="button"` geändert mit expliziten `onClick` und `onTouchEnd` Handlern
+- [x] **Upgrade Modal als Overlay** (GinCreate.tsx, GinCreate.css)
+  - Modal erscheint jetzt als fixed Overlay über der Seite
+  - Backdrop mit Blur-Effekt
+  - Zentrierte Darstellung auf allen Geräten
+- [x] **Debug-Modus für Mobile-Testing**
+  - URL-Parameter `?debug=1` aktiviert sichtbares Debug-Panel
+  - Zeigt letzte 20 Log-Einträge mit Timestamps
+  - Hilfreich für Debugging auf Mobile-Geräten ohne DevTools
+- [x] **Gin-Limit Enforcement mit Upgrade-Benachrichtigung**
+  - Backend gibt `upgrade_required: true` zurück bei 403
+  - Enthält: `limit`, `current_count`, `current_tier`
+  - ginStore.ts extrahiert Upgrade-Info aus Fehler-Response
+  - Modal zeigt aktuellen Tier und Limit an
+- [x] **Password Reset Feature** (Backend + Frontend)
+  - Forgot Password Seite (ForgotPassword.tsx)
+  - Reset Password Seite (ResetPassword.tsx)
+  - Backend-Endpoints: `/forgot-password`, `/reset-password`, `/validate-reset-token`
+  - Token-basiertes Reset mit E-Mail-Versand
+- [x] **GinVault E-Mail Templates**
+  - Branding auf GinVault umgestellt
+  - Dark Theme Design
 
 ### 2026-01-16
 - [x] Verkostungsnotizen/Tasting Sessions pro Gin implementiert
