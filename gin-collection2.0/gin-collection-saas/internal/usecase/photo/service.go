@@ -157,7 +157,7 @@ func (s *Service) DeletePhoto(ctx context.Context, tenantID, photoID int64) erro
 	// Get photo
 	photo, err := s.photoRepo.GetByID(ctx, tenantID, photoID)
 	if err != nil {
-		return fmt.Errorf("photo not found: %w", err)
+		return err
 	}
 
 	// Remember if this was the primary photo

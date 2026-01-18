@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	domainErrors "github.com/yourusername/gin-collection-saas/internal/domain/errors"
 	"github.com/yourusername/gin-collection-saas/internal/domain/models"
 )
 
@@ -81,7 +82,7 @@ func (r *PhotoRepository) GetByID(ctx context.Context, tenantID, id int64) (*mod
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("photo not found")
+		return nil, domainErrors.ErrPhotoNotFound
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get photo: %w", err)
@@ -236,7 +237,7 @@ func (r *PhotoRepository) SetPrimary(ctx context.Context, tenantID, ginID, photo
 	}
 
 	if rows == 0 {
-		return fmt.Errorf("photo not found or does not belong to gin")
+		return domainErrors.ErrPhotoNotFound
 	}
 
 	// Commit transaction

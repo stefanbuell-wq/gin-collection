@@ -26,7 +26,7 @@ func Created(c *gin.Context, data interface{}) {
 // Error sends an error response based on the error type
 func Error(c *gin.Context, err error) {
 	switch err {
-	case domainErrors.ErrNotFound, domainErrors.ErrGinNotFound, domainErrors.ErrTenantNotFound:
+	case domainErrors.ErrNotFound, domainErrors.ErrGinNotFound, domainErrors.ErrTenantNotFound, domainErrors.ErrPhotoNotFound:
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
 			"error":   err.Error(),

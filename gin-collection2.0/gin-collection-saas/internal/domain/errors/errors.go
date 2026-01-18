@@ -35,6 +35,7 @@ var (
 	ErrInvalidRating       = errors.New("rating must be between 1 and 5")
 
 	// Photo errors
+	ErrPhotoNotFound       = errors.New("photo not found")
 	ErrPhotoLimitReached   = errors.New("photo limit reached for this gin")
 	ErrStorageLimitReached = errors.New("storage limit reached")
 	ErrInvalidFileType     = errors.New("invalid file type - only images allowed")
