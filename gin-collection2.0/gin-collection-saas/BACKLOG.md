@@ -22,10 +22,10 @@ _Aktuell keine offenen Aufgaben_
 - [ ] Validierung im Code: Reject schwache Secrets in Production
 
 #### 2. Secrets aus Git entfernen
-- [ ] `.env` aus Git-History entfernen: `git rm --cached .env`
-- [ ] `.env` zu `.gitignore` hinzufügen
+- [x] `.env` aus Git-History entfernen - ✅ War nie committed
+- [x] `.env` zu `.gitignore` hinzufügen - ✅ Bereits vorhanden
 - [ ] Pre-commit Hook für Secret-Scanning einrichten (git-secrets)
-- [ ] Alle Passwörter/API-Keys rotieren (kompromittiert anzunehmen)
+- [ ] Alle Passwörter/API-Keys rotieren (empfohlen bei Production)
 
 #### 3. CSRF-Schutz implementieren
 - [ ] CSRF-Token Middleware für POST/PUT/DELETE Requests
