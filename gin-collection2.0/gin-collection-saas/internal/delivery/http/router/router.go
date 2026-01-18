@@ -26,6 +26,7 @@ type RouterConfig struct {
 	TenantMiddleware     *middleware.TenantMiddleware
 	TierEnforcement      *middleware.TierEnforcementMiddleware
 	RateLimitMiddleware  *middleware.RateLimitMiddleware
+	CSRFMiddleware       *middleware.CSRFMiddleware
 	AllowedOrigins       []string
 }
 
@@ -51,6 +52,11 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 	// API v1 routes
 	v1 := r.Group("/api/v1")
 	{
+		// CSRF token endpoint (generates new token)
+		if cfg.CSRFMiddleware != nil {
+			v1.GET("/csrf-token", cfg.CSRFMiddleware.GenerateToken(), cfg.CSRFMiddleware.GetCSRFToken())
+		}
+
 		// Auth routes (tenant middleware only, no auth required)
 		auth := v1.Group("/auth")
 		{
@@ -86,7 +92,7 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			}
 		}
 
-		// Protected routes (require tenant + auth + rate limiting)
+		// Protected routes (require tenant + auth + rate limiting + CSRF)
 		// Note: Auth middleware must run before Tenant middleware so JWT claims are available
 		protected := v1.Group("")
 		protected.Use(cfg.AuthMiddleware.RequireAuth())
@@ -94,6 +100,10 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 		// Apply rate limiting if available
 		if cfg.RateLimitMiddleware != nil {
 			protected.Use(cfg.RateLimitMiddleware.RateLimitByTenant())
+		}
+		// Apply CSRF validation for state-changing requests
+		if cfg.CSRFMiddleware != nil {
+			protected.Use(cfg.CSRFMiddleware.ValidateToken())
 		}
 		{
 			// Tenants

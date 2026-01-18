@@ -27,11 +27,14 @@ _Aktuell keine offenen Aufgaben_
 - [ ] Pre-commit Hook für Secret-Scanning einrichten (git-secrets)
 - [ ] Alle Passwörter/API-Keys rotieren (empfohlen bei Production)
 
-#### 3. CSRF-Schutz implementieren
-- [ ] CSRF-Token Middleware für POST/PUT/DELETE Requests
-- [ ] Token-Generierung mit `crypto/rand`
-- [ ] Double-Submit Cookie Pattern oder Server-Side Storage
-- [ ] `SameSite=Strict` für Cookies setzen
+#### 3. CSRF-Schutz implementieren - ✅ Erledigt am 2026-01-18
+- [x] CSRF-Token Middleware für POST/PUT/DELETE Requests
+- [x] Token-Generierung mit `crypto/rand`
+- [x] Double-Submit Cookie Pattern + Redis Server-Side Storage
+- [x] Secure Cookie in Production
+- [x] Frontend: CSRF Token bei App-Start und Login laden
+- [x] Frontend: Token in X-CSRF-Token Header bei POST/PUT/DELETE/PATCH senden
+- [x] Automatischer Token-Refresh bei CSRF-Fehler
 
 #### 4. Rate Limiting aktivieren
 - [ ] Login: 5 Versuche pro 15 Min pro IP
@@ -257,6 +260,15 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 ## Erledigt
 
 ### 2026-01-18
+- [x] **CSRF-Schutz implementiert** (Backend + Frontend)
+  - Backend: csrf.go Middleware mit Double-Submit Cookie + Redis Validation
+  - Token-Generierung mit crypto/rand (32 Bytes, 24h Expiry)
+  - Secure Cookie Flag in Production
+  - Endpoint: GET /api/v1/csrf-token
+  - Frontend: Token bei App-Start und Login laden
+  - Axios Interceptor sendet X-CSRF-Token Header bei POST/PUT/DELETE/PATCH
+  - Automatischer Token-Refresh bei CSRF-Fehler (403 + CSRF_* Code)
+  - Dateien: csrf.go, router.go, main.go, client.ts, authStore.ts, App.tsx
 - [x] **Barcode-Scanner Button im Dashboard aktiviert**
   - Pulsierender Scanner-Button unten rechts war nur visuell
   - Jetzt mit BarcodeScanner-Komponente verbunden

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, Tenant } from '../types';
 import { authAPI } from '../api/services';
+import { fetchCSRFToken, clearCSRFToken } from '../api/client';
 
 interface AuthState {
   user: User | null;
@@ -23,6 +24,7 @@ interface AuthState {
   }) => Promise<void>;
   setUser: (user: User) => void;
   setTenant: (tenant: Tenant) => void;
+  initializeAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -55,6 +57,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
+
+          // Fetch CSRF token after successful login
+          fetchCSRFToken();
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -70,6 +75,7 @@ export const useAuthStore = create<AuthState>()(
           // Clear tokens
           localStorage.removeItem('auth_token');
           localStorage.removeItem('refresh_token');
+          clearCSRFToken();
 
           set({
             user: null,
@@ -101,6 +107,9 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
           });
+
+          // Fetch CSRF token after successful registration
+          fetchCSRFToken();
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -109,6 +118,14 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user: User) => set({ user }),
       setTenant: (tenant: Tenant) => set({ tenant }),
+
+      // Initialize auth on app load - fetch CSRF token if authenticated
+      initializeAuth: () => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          fetchCSRFToken();
+        }
+      },
     }),
     {
       name: 'auth-storage',

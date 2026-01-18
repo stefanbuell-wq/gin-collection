@@ -248,6 +248,11 @@ func main() {
 		logger.Warn("Rate limiting disabled - Redis not available")
 	}
 
+	// Initialize CSRF middleware
+	secureCookie := cfg.App.Env == "production"
+	csrfMiddleware := middleware.NewCSRFMiddleware(redisClient, secureCookie)
+	logger.Info("CSRF protection enabled", "secure_cookie", secureCookie)
+
 	// Initialize Admin handlers
 	platformAdminHandler := adminHandler.NewHandler(adminService)
 
@@ -279,6 +284,7 @@ func main() {
 		TenantMiddleware:    tenantMiddleware,
 		TierEnforcement:     tierEnforcement,
 		RateLimitMiddleware: rateLimitMiddleware,
+		CSRFMiddleware:      csrfMiddleware,
 		AllowedOrigins:      cfg.App.AllowedOrigins,
 	}
 

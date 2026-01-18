@@ -1,6 +1,9 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { AuthResponse, APIError } from '../types';
 
+// CSRF token storage
+let csrfToken: string | null = null;
+
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
@@ -8,6 +11,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required for CSRF cookies
 });
 
 // Helper to get tenant subdomain from auth storage
@@ -24,13 +28,46 @@ function getTenantSubdomain(): string | null {
   return null;
 }
 
-// Request interceptor to add auth token and tenant header
+// Fetch CSRF token from server
+export async function fetchCSRFToken(): Promise<string | null> {
+  try {
+    const response = await axios.get('/api/v1/csrf-token', {
+      withCredentials: true,
+    });
+    csrfToken = response.data?.csrf_token || response.headers['x-csrf-token'];
+    return csrfToken;
+  } catch (error) {
+    console.error('Failed to fetch CSRF token:', error);
+    return null;
+  }
+}
+
+// Get current CSRF token (fetch if not available)
+export async function getCSRFToken(): Promise<string | null> {
+  if (!csrfToken) {
+    return fetchCSRFToken();
+  }
+  return csrfToken;
+}
+
+// Clear CSRF token (call on logout)
+export function clearCSRFToken(): void {
+  csrfToken = null;
+}
+
+// Request interceptor to add auth token, tenant header, and CSRF token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // Add JWT token from localStorage
     const token = localStorage.getItem('auth_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Add CSRF token for state-changing requests
+    const method = config.method?.toUpperCase();
+    if (csrfToken && config.headers && method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      config.headers['X-CSRF-Token'] = csrfToken;
     }
 
     // Add tenant subdomain header
@@ -104,6 +141,16 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 403 && error.response.data?.upgrade_required) {
       // Could trigger upgrade modal here
       console.warn('Upgrade required:', error.response.data.error);
+    }
+
+    // Handle CSRF token errors - refetch token and retry
+    if (error.response?.status === 403 && error.response.data?.code?.startsWith('CSRF_')) {
+      console.warn('CSRF token error, refetching token...');
+      const newToken = await fetchCSRFToken();
+      if (newToken && originalRequest.headers) {
+        originalRequest.headers['X-CSRF-Token'] = newToken;
+        return apiClient(originalRequest);
+      }
     }
 
     return Promise.reject(error);
