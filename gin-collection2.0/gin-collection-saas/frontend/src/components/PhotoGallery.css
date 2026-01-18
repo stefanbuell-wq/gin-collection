@@ -278,14 +278,27 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Mobile: Action-Buttons immer sichtbar (Hover funktioniert nicht auf Touch) */
-@media (hover: none) {
+/* Mobile Layout */
+@media (max-width: 768px) {
+  /* Action-Buttons IMMER sichtbar auf Mobile */
   .photo-actions {
-    opacity: 1;
+    opacity: 1 !important;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+    bottom: 0;
+    right: 0;
+    left: 0;
+    padding: 8px;
+    justify-content: flex-end;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .photo-action-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.8);
   }
 }
 
-/* Mobile Layout */
 @media (max-width: 480px) {
   .photo-gallery-grid {
     grid-template-columns: repeat(2, 1fr);
