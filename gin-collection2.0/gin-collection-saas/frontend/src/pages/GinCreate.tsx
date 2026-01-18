@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
 import {
@@ -67,9 +67,13 @@ const BOTTLE_SIZES = [50, 100, 200, 350, 500, 700, 750, 1000, 1500];
 
 const GinCreate = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const isDebugMode = searchParams.get('debug') === '1';
   const { createGin, isLoading, error, clearError, upgradeRequired, upgradeInfo } = useGinStore();
+
+  // Get ginReference from navigation state (from Dashboard barcode scanner)
+  const ginReferenceFromScanner = (location.state as { ginReference?: GinReference } | null)?.ginReference;
 
   // Debug log state - only used when ?debug=1
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
@@ -187,6 +191,13 @@ const GinCreate = () => {
     }));
     setShowCatalog(false);
   };
+
+  // Pre-fill form when ginReference comes from navigation state (Dashboard scanner)
+  useEffect(() => {
+    if (ginReferenceFromScanner) {
+      handleCatalogSelect(ginReferenceFromScanner);
+    }
+  }, [ginReferenceFromScanner]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

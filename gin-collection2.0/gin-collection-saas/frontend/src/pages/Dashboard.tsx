@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
 import { useAuthStore } from '../stores/authStore';
+import BarcodeScanner from '../components/BarcodeScanner';
+import type { GinReference } from '../types';
 import {
   Wine,
   Star,
@@ -171,23 +173,6 @@ const GinCard = ({ gin, index }: { gin: GinCardData; index: number }) => {
   );
 };
 
-// Scanner Button Component
-const ScannerButton = () => (
-  <motion.button
-    className="scanner-btn"
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.5, delay: 1 }}
-    title="Barcode scannen"
-  >
-    <span className="scanner-btn__ring" />
-    <span className="scanner-btn__ring scanner-btn__ring--delayed" />
-    <Scan size={28} />
-  </motion.button>
-);
-
 // Main Dashboard Component
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -195,6 +180,13 @@ const Dashboard = () => {
   const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [displayGins, setDisplayGins] = useState<GinCardData[]>([]);
+  const [showScanner, setShowScanner] = useState(false);
+
+  // Handle barcode scan - navigate to GinCreate with pre-filled data
+  const handleBarcodeScan = (ginReference: GinReference) => {
+    setShowScanner(false);
+    navigate('/gins/new', { state: { ginReference } });
+  };
 
   useEffect(() => {
     fetchStats();
@@ -391,7 +383,23 @@ const Dashboard = () => {
       </section>
 
       {/* Floating Scanner Button */}
-      <ScannerButton />
+      <button
+        className="scanner-btn"
+        onClick={() => setShowScanner(true)}
+        type="button"
+        aria-label="Barcode scannen"
+      >
+        <span className="scanner-btn__ring" />
+        <span className="scanner-btn__ring scanner-btn__ring--delayed" />
+        <Scan size={28} />
+      </button>
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScanner
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScan={handleBarcodeScan}
+      />
 
       {/* Bottom Navigation */}
       <motion.nav

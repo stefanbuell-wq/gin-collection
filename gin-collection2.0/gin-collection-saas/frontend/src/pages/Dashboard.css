@@ -747,7 +747,12 @@
   color: white;
   cursor: pointer;
   box-shadow: var(--shadow-lg), 0 0 30px rgba(198, 125, 78, 0.4);
-  z-index: 90;
+  z-index: 110;
+  /* Mobile touch improvements */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .scanner-btn__ring {
@@ -757,6 +762,7 @@
   border-radius: 24px;
   opacity: 0;
   animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
 }
 
 .scanner-btn__ring--delayed {
