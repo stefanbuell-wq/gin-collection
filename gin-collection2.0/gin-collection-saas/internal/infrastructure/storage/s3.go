@@ -19,10 +19,11 @@ import (
 
 // S3Client handles S3 storage operations
 type S3Client struct {
-	client   *s3.S3
-	uploader *s3manager.Uploader
-	bucket   string
-	region   string
+	client    *s3.S3
+	uploader  *s3manager.Uploader
+	bucket    string
+	region    string
+	publicURL string // Public URL for accessing files (e.g., R2 public bucket URL)
 }
 
 // S3Config holds S3 configuration
@@ -32,6 +33,7 @@ type S3Config struct {
 	Endpoint        string // Optional for S3-compatible services
 	AccessKeyID     string
 	SecretAccessKey string
+	PublicURL       string // Public URL for accessing files (optional)
 }
 
 // UploadResult represents the result of an upload
@@ -66,10 +68,11 @@ func NewS3Client(cfg *S3Config) (*S3Client, error) {
 	logger.Info("S3 client initialized", "bucket", cfg.Bucket, "region", cfg.Region)
 
 	return &S3Client{
-		client:   client,
-		uploader: uploader,
-		bucket:   cfg.Bucket,
-		region:   cfg.Region,
+		client:    client,
+		uploader:  uploader,
+		bucket:    cfg.Bucket,
+		region:    cfg.Region,
+		publicURL: cfg.PublicURL,
 	}, nil
 }
 
@@ -94,11 +97,21 @@ func (c *S3Client) UploadPhoto(ctx context.Context, tenantID int64, ginID int64,
 		return nil, fmt.Errorf("failed to upload to S3: %w", err)
 	}
 
-	logger.Info("Photo uploaded successfully", "key", key, "location", result.Location)
+	// Generate public URL
+	var publicURL string
+	if c.publicURL != "" {
+		// Use configured public URL (e.g., Cloudflare R2 public bucket)
+		publicURL = fmt.Sprintf("%s/%s", c.publicURL, key)
+	} else {
+		// Fallback to S3 location
+		publicURL = result.Location
+	}
+
+	logger.Info("Photo uploaded successfully", "key", key, "url", publicURL)
 
 	return &UploadResult{
 		Key:       key,
-		URL:       result.Location,
+		URL:       publicURL,
 		SizeBytes: int64(len(data)),
 	}, nil
 }

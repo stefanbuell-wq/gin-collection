@@ -79,6 +79,7 @@ type S3Config struct {
 	Endpoint        string
 	AccessKeyID     string
 	SecretAccessKey string
+	PublicURL       string // Public URL for R2/S3 (e.g., https://pub-xxx.r2.dev)
 }
 
 // PayPalConfig holds PayPal configuration
@@ -152,8 +153,9 @@ func Load() (*Config, error) {
 			Bucket:          getEnv("S3_BUCKET", "gin-collection-photos"),
 			Region:          getEnv("S3_REGION", "eu-central-1"),
 			Endpoint:        getEnv("S3_ENDPOINT", ""),
-			AccessKeyID:     getEnv("AWS_ACCESS_KEY_ID", ""),
-			SecretAccessKey: getEnv("AWS_SECRET_ACCESS_KEY", ""),
+			AccessKeyID:     getEnvWithFallback("S3_ACCESS_KEY", "AWS_ACCESS_KEY_ID", ""),
+			SecretAccessKey: getEnvWithFallback("S3_SECRET_KEY", "AWS_SECRET_ACCESS_KEY", ""),
+			PublicURL:       getEnv("S3_PUBLIC_URL", ""),
 		},
 		Storage: StorageConfig{
 			BasePath: getEnv("STORAGE_PATH", "/app/uploads"),
@@ -210,6 +212,19 @@ func getEnv(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+// getEnvWithFallback tries primary key first, then fallback key
+func getEnvWithFallback(primary, fallback, defaultValue string) string {
+	value := os.Getenv(primary)
+	if value != "" {
+		return value
+	}
+	value = os.Getenv(fallback)
+	if value != "" {
+		return value
+	}
+	return defaultValue
 }
 
 // parseCSV parses a comma-separated string into a slice

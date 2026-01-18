@@ -119,12 +119,13 @@ func main() {
 			Endpoint:        cfg.S3.Endpoint,
 			AccessKeyID:     cfg.S3.AccessKeyID,
 			SecretAccessKey: cfg.S3.SecretAccessKey,
+			PublicURL:       cfg.S3.PublicURL,
 		})
 		if err != nil {
 			logger.Error("Failed to initialize S3 client", "error", err.Error())
 			log.Fatalf("Failed to initialize S3 client: %v", err)
 		}
-		logger.Info("Using S3 storage", "bucket", cfg.S3.Bucket, "region", cfg.S3.Region)
+		logger.Info("Using S3 storage", "bucket", cfg.S3.Bucket, "region", cfg.S3.Region, "publicURL", cfg.S3.PublicURL)
 	}
 
 	// Initialize Email client
