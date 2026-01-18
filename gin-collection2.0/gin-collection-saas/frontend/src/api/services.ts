@@ -69,12 +69,33 @@ export const tenantAPI = {
 
   getUsage: () =>
     apiClient.get<{
-      gin_count: number;
-      storage_mb: number;
-      limits: {
-        max_gins: number;
-        max_photos_per_gin: number;
-        storage_limit_mb?: number;
+      usage: {
+        gins: {
+          current: number;
+          limit: number | null;
+          percentage: number;
+          unlimited: boolean;
+        };
+        storage: {
+          current_mb: number;
+          limit_mb: number | null;
+          percentage: number;
+          unlimited: boolean;
+        };
+        photos: {
+          total: number;
+          per_gin_limit: number;
+        };
+      };
+      tier: string;
+      features: {
+        botanicals: boolean;
+        cocktails: boolean;
+        ai_suggestions: boolean;
+        export: boolean;
+        import: boolean;
+        multi_user: boolean;
+        api_access: boolean;
       };
     }>('/tenants/usage'),
 };

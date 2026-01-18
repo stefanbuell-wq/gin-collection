@@ -139,6 +139,31 @@
   font-weight: 600;
 }
 
+.gin-list-header__limit {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.gin-list-header__limit-reached {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  padding: 4px 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 20px;
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.gin-list-stat__limit {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
 /* Add Button */
 .gin-list-add-btn {
   display: flex;

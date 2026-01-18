@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGinStore } from '../stores/ginStore';
+import { tenantAPI } from '../api/services';
 import {
   Wine,
   Star,
@@ -11,7 +12,8 @@ import {
   Droplets,
   TrendingUp,
   Award,
-  Package
+  Package,
+  Lock
 } from 'lucide-react';
 import './GinList.css';
 
@@ -19,9 +21,26 @@ const GinList = () => {
   const { gins, total, fetchGins, isLoading } = useGinStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'available' | 'favorite'>('all');
+  const [ginLimit, setGinLimit] = useState<number | null>(null);
+  const [isUnlimited, setIsUnlimited] = useState(false);
 
   useEffect(() => {
     fetchGins({ filter, limit: 50 });
+
+    // Fetch usage limits
+    const fetchUsage = async () => {
+      try {
+        const response = await tenantAPI.getUsage();
+        const data = response.data as unknown as { success: boolean; data: { usage: { gins: { limit: number | null; unlimited: boolean } } } };
+        if (data.success && data.data?.usage?.gins) {
+          setGinLimit(data.data.usage.gins.limit);
+          setIsUnlimited(data.data.usage.gins.unlimited);
+        }
+      } catch (err) {
+        console.error('Failed to fetch usage:', err);
+      }
+    };
+    fetchUsage();
   }, [filter]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -123,7 +142,19 @@ const GinList = () => {
               Meine Sammlung
             </h1>
             <p className="gin-list-header__subtitle">
-              <span className="gin-list-header__count">{total}</span> Gins in deinem Tresor
+              <span className="gin-list-header__count">{total}</span>
+              {ginLimit !== null && !isUnlimited && (
+                <span className="gin-list-header__limit"> / {ginLimit}</span>
+              )}
+              {isUnlimited && (
+                <span className="gin-list-header__limit"> / ∞</span>
+              )}
+              {' '}Gins in deinem Tresor
+              {ginLimit !== null && !isUnlimited && total >= ginLimit && (
+                <span className="gin-list-header__limit-reached">
+                  <Lock size={12} /> Limit erreicht
+                </span>
+              )}
             </p>
           </div>
 
@@ -151,7 +182,12 @@ const GinList = () => {
                 <Package />
               </div>
               <div className="gin-list-stat__info">
-                <span className="gin-list-stat__value">{total}</span>
+                <span className="gin-list-stat__value">
+                  {total}
+                  {ginLimit !== null && !isUnlimited && (
+                    <span className="gin-list-stat__limit">/{ginLimit}</span>
+                  )}
+                </span>
                 <span className="gin-list-stat__label">Flaschen</span>
               </div>
             </motion.div>
@@ -171,8 +207,14 @@ const GinList = () => {
                 <Droplets />
               </div>
               <div className="gin-list-stat__info">
-                <span className="gin-list-stat__value">{stats.availableCount}</span>
-                <span className="gin-list-stat__label">Verfügbar</span>
+                <span className="gin-list-stat__value">
+                  {ginLimit !== null && !isUnlimited
+                    ? ginLimit - total
+                    : stats.availableCount}
+                </span>
+                <span className="gin-list-stat__label">
+                  {ginLimit !== null && !isUnlimited ? 'Frei' : 'Verfügbar'}
+                </span>
               </div>
             </motion.div>
 
