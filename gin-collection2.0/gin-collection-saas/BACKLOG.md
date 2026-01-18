@@ -17,9 +17,9 @@ _Aktuell keine offenen Aufgaben_
 ### Sofort-Maßnahmen (24-48 Stunden)
 
 #### 1. JWT Secret austauschen
-- [ ] Echtes 256-bit Secret generieren: `openssl rand -base64 32`
-- [ ] In sicherem Secret Manager speichern (nicht in .env)
-- [ ] Validierung im Code: Reject schwache Secrets in Production
+- [x] Echtes 256-bit Secret generieren - ✅ Erledigt am 2026-01-18
+- [ ] In sicherem Secret Manager speichern (nicht in .env) - Optional für später
+- [ ] Validierung im Code: Reject schwache Secrets in Production - Optional
 
 #### 2. Secrets aus Git entfernen
 - [x] `.env` aus Git-History entfernen - ✅ War nie committed
