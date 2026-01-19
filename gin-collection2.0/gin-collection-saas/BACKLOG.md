@@ -707,13 +707,28 @@ _Aktuell keine offenen Aufgaben_
 ---
 
 ### 14. Sammler-Wertentwicklung & Rare-Bottle-Tracking
-**Priorität:** Niedrig
-**Beschreibung:** Für Premium-Sammler:
-- Preisentwicklung tracken
-- Seltenheitsindex
-- Marktwert der eigenen Sammlung
+**Priorität:** Mittel
+**Beschreibung:** Für Premium-Sammler - GinVault als "Gin-Portfolio-Tracker"
 
-**Vision:** GinVault als "Gin-Portfolio-Tracker".
+| Feature | Beschreibung |
+|---------|--------------|
+| **Preisentwicklung** | Historische Preisdaten, Kauf- vs. aktueller Wert |
+| **Seltenheitsindex** | Automatische Bewertung basierend auf Verfügbarkeit, Auflage, Alter |
+| **Marktwert Sammlung** | Gesamtwert der eigenen Sammlung in Echtzeit |
+| **Rare Bottle Alerts** | Benachrichtigung wenn seltene Flaschen verfügbar werden |
+| **Investment-Analyse** | ROI-Berechnung, Wertsteigerung über Zeit |
+
+**Tier-Zuordnung:**
+- **Pro:** Preisentwicklung anzeigen, Seltenheitsindex
+- **Enterprise:** Voller Portfolio-Tracker, Alerts, Investment-Analyse, Export
+
+**Technische Überlegungen:**
+- [ ] Preisdaten-Quelle (API? Web-Scraping? Community-Input?)
+- [ ] Seltenheitsindex-Algorithmus definieren
+- [ ] Historische Preisdaten-Tabelle in DB
+- [ ] Chart-Komponente für Preisentwicklung
+
+**Vision:** GinVault als "Gin-Portfolio-Tracker" - differenziert von allen anderen Gin-Apps.
 
 ---
 
