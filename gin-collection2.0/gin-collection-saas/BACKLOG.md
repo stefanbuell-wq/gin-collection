@@ -186,11 +186,11 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [ ] Tokens invalidieren bei: Logout, Password Change, Password Reset
 - [ ] Blacklist-TTL = JWT-TTL (24h)
 
-### 9. File-Upload Sicherheit
-- [ ] Magic-Byte Validierung (nicht nur Extension)
-- [ ] Max Upload Size Middleware (50MB für Bilder, 1MB für JSON)
-- [ ] Dateinamen sanitizen (UUID + Extension)
-- [ ] Virus-Scan Integration (ClamAV) - optional
+### 9. File-Upload Sicherheit - ✅ Erledigt am 2026-01-19
+- [x] Magic-Byte Validierung (nicht nur Extension)
+- [x] Max Upload Size Middleware (50MB für Bilder)
+- [x] Dateinamen sanitizen (UUID + Extension) - war bereits implementiert
+- [ ] Virus-Scan Integration (ClamAV) - optional, später
 
 ### 10. Passwort-Policy verschärfen
 - [ ] Minimum 12 Zeichen
@@ -436,6 +436,13 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
 
 ### 2026-01-19
+- [x] **File-Upload Sicherheit implementiert** (Backend)
+  - Magic-Byte-Validierung statt Extension-basierter Prüfung
+  - Prüft tatsächlichen Dateiinhalt (JPEG, PNG, GIF, WebP)
+  - Verhindert Upload von getarnten Dateien (exe→jpg)
+  - Upload-Size-Limit Middleware (50MB für Bilder)
+  - Schützt vor Memory-Exhaustion-Angriffen
+  - Dateien: filevalidation.go (neu), upload.go (neu), service.go, router.go
 - [x] **HttpOnly JWT Cookies implementiert** (Backend + Frontend)
   - JWT Access Token in HttpOnly Cookie (statt localStorage)
   - Refresh Token in HttpOnly Cookie (Path: /api/v1/auth)

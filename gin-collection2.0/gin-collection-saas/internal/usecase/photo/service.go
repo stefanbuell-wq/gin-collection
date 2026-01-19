@@ -3,12 +3,12 @@ package photo
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/yourusername/gin-collection-saas/internal/domain/models"
 	"github.com/yourusername/gin-collection-saas/internal/domain/repositories"
 	"github.com/yourusername/gin-collection-saas/internal/infrastructure/storage"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
+	"github.com/yourusername/gin-collection-saas/pkg/utils"
 )
 
 // Service handles photo business logic
@@ -83,13 +83,15 @@ func (s *Service) UploadPhoto(ctx context.Context, tenantID, ginID int64, filena
 		}
 	}
 
-	// Validate file type
-	contentType := detectContentType(filename)
-	if !isValidImageType(contentType) {
-		return nil, fmt.Errorf("invalid file type: %s (allowed: jpg, jpeg, png, webp)", contentType)
+	// Validate file type using magic bytes (actual file content, not extension)
+	// This prevents attacks where malicious files are renamed with image extensions
+	contentType, err := utils.ValidateImageMagicBytes(data)
+	if err != nil {
+		logger.Warn("Invalid file upload attempt", "tenant_id", tenantID, "gin_id", ginID, "filename", filename, "error", err.Error())
+		return nil, fmt.Errorf("invalid image file: %w (allowed: jpg, png, gif, webp)", err)
 	}
 
-	// Upload to S3
+	// Upload to storage with validated content type
 	uploadResult, err := s.storage.UploadPhoto(ctx, tenantID, ginID, filename, data, contentType)
 	if err != nil {
 		logger.Error("Failed to upload to S3", "error", err.Error())
@@ -231,45 +233,3 @@ func (s *Service) SetPrimaryPhoto(ctx context.Context, tenantID, ginID, photoID 
 	return nil
 }
 
-// detectContentType detects content type from filename
-func detectContentType(filename string) string {
-	ext := strings.ToLower(strings.TrimPrefix(strings.ToLower(filename), "."))
-
-	// Extract extension
-	parts := strings.Split(filename, ".")
-	if len(parts) > 1 {
-		ext = strings.ToLower(parts[len(parts)-1])
-	}
-
-	switch ext {
-	case "jpg", "jpeg":
-		return "image/jpeg"
-	case "png":
-		return "image/png"
-	case "webp":
-		return "image/webp"
-	case "gif":
-		return "image/gif"
-	default:
-		return "application/octet-stream"
-	}
-}
-
-// isValidImageType checks if content type is a valid image
-func isValidImageType(contentType string) bool {
-	validTypes := []string{
-		"image/jpeg",
-		"image/jpg",
-		"image/png",
-		"image/webp",
-		"image/gif",
-	}
-
-	for _, validType := range validTypes {
-		if contentType == validType {
-			return true
-		}
-	}
-
-	return false
-}

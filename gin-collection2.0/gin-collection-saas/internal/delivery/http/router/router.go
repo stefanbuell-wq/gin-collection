@@ -162,9 +162,9 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 				gins.POST("/:id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.LinkCocktail)
 				gins.DELETE("/:id/cocktails/:cocktail_id", cfg.TierEnforcement.RequireFeature("cocktails"), cfg.CocktailHandler.UnlinkCocktail)
 
-				// Gin Photos
+				// Gin Photos (upload has 50MB size limit)
 				gins.GET("/:id/photos", cfg.PhotoHandler.GetPhotos)
-				gins.POST("/:id/photos", cfg.PhotoHandler.Upload)
+				gins.POST("/:id/photos", middleware.LimitImageUpload(), cfg.PhotoHandler.Upload)
 				gins.DELETE("/:id/photos/:photo_id", cfg.PhotoHandler.Delete)
 				gins.PUT("/:id/photos/:photo_id/primary", cfg.PhotoHandler.SetPrimary)
 
