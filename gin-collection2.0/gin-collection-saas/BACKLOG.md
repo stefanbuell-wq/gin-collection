@@ -167,19 +167,19 @@ _Aktuell keine offenen Aufgaben_
 
 ## 🟠 Sicherheit - HOCH
 
-### 6. HTTPS erzwingen
-- [ ] nginx: HTTP → HTTPS Redirect (301)
-- [ ] HSTS Header: `Strict-Transport-Security: max-age=31536000; includeSubDomains`
-- [ ] Minimum TLS 1.3 konfigurieren
+### 6. HTTPS erzwingen - ✅ Erledigt am 2026-01-19
+- [x] nginx: HTTP → HTTPS Redirect (301) - war bereits konfiguriert
+- [x] HSTS Header: `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- [x] Minimum TLS 1.2/1.3 konfiguriert (ssl-params.conf)
 
-### 7. Security Headers hinzufügen
-```nginx
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval';" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header X-Frame-Options "DENY" always;
-add_header X-Permitted-Cross-Domain-Policies "none" always;
-add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" always;
-```
+### 7. Security Headers hinzufügen - ✅ Erledigt am 2026-01-19
+- [x] Content-Security-Policy
+- [x] X-Content-Type-Options: nosniff
+- [x] X-Frame-Options: DENY
+- [x] X-XSS-Protection: 1; mode=block
+- [x] Referrer-Policy: strict-origin-when-cross-origin
+- [x] Permissions-Policy
+- [x] X-Permitted-Cross-Domain-Policies: none
 
 ### 8. Token-Blacklist für Logout - ✅ Erledigt am 2026-01-19
 - [x] Redis-basierte Token-Blacklist implementieren
@@ -436,6 +436,17 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
 
 ### 2026-01-19
+- [x] **HTTPS & Security Headers implementiert** (nginx)
+  - HSTS Header mit 1 Jahr Gültigkeit, includeSubDomains, preload
+  - TLS 1.2/1.3 Minimum mit modernen Cipher Suites
+  - Content-Security-Policy für Main Site und Admin
+  - X-Frame-Options: DENY (Clickjacking-Schutz)
+  - X-Content-Type-Options: nosniff
+  - X-XSS-Protection: 1; mode=block
+  - Referrer-Policy: strict-origin-when-cross-origin
+  - Permissions-Policy für Kamera, Mikrofon, Geolocation
+  - OCSP Stapling aktiviert
+  - Dateien: nginx-ginvault.conf, ssl-params.conf (neu)
 - [x] **Token-Blacklist für JWT-Invalidierung implementiert** (Backend)
   - Redis-basierte Token-Blacklist für sofortige Token-Invalidierung
   - JTI (JWT ID) zu Token-Claims hinzugefügt für eindeutige Identifikation
