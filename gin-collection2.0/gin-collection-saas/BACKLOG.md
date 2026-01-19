@@ -1,6 +1,6 @@
 # GinVault - Backlog & Open Points
 
-> Letzte Aktualisierung: 2026-01-18
+> Letzte Aktualisierung: 2026-01-19
 > Quellen: Security Audit, Phase 10 Summary, Super-Admin Plan, SaaS Migration Plan
 
 ---
@@ -181,10 +181,10 @@ add_header X-Permitted-Cross-Domain-Policies "none" always;
 add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" always;
 ```
 
-### 8. Token-Blacklist für Logout
-- [ ] Redis-basierte Token-Blacklist implementieren
-- [ ] Tokens invalidieren bei: Logout, Password Change, Password Reset
-- [ ] Blacklist-TTL = JWT-TTL (24h)
+### 8. Token-Blacklist für Logout - ✅ Erledigt am 2026-01-19
+- [x] Redis-basierte Token-Blacklist implementieren
+- [x] Tokens invalidieren bei: Logout, Password Change, Password Reset
+- [x] Blacklist-TTL = JWT-TTL (24h)
 
 ### 9. File-Upload Sicherheit - ✅ Erledigt am 2026-01-19
 - [x] Magic-Byte Validierung (nicht nur Extension)
@@ -436,6 +436,15 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
 
 ### 2026-01-19
+- [x] **Token-Blacklist für JWT-Invalidierung implementiert** (Backend)
+  - Redis-basierte Token-Blacklist für sofortige Token-Invalidierung
+  - JTI (JWT ID) zu Token-Claims hinzugefügt für eindeutige Identifikation
+  - Token wird bei Logout zur Blacklist hinzugefügt
+  - Alle User-Tokens werden bei Password Change/Reset invalidiert
+  - Blacklist-Check in Auth-Middleware (RequireAuth, OptionalAuth)
+  - Graceful Degradation wenn Redis nicht verfügbar
+  - Redis-Keys: `blacklist:{jti}` (TTL: verbleibende Token-Lebenszeit), `user_revoked:{userID}` (TTL: 24h)
+  - Dateien: tokenblacklist.go (neu), jwt.go, auth.go, auth_handler.go, service.go, main.go
 - [x] **File-Upload Sicherheit implementiert** (Backend)
   - Magic-Byte-Validierung statt Extension-basierter Prüfung
   - Prüft tatsächlichen Dateiinhalt (JPEG, PNG, GIF, WebP)
