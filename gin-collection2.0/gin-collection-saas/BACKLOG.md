@@ -696,13 +696,31 @@ _Aktuell keine offenen Aufgaben_
 ---
 
 ### 13. Erweiterte Cocktail-Features
-**Priorität:** Mittel
-**Beschreibung:** Viele Gin-Fans sind auch Cocktail-Fans:
-- Cocktail-Rezepte basierend auf eigener Sammlung
-- "Was kann ich mit meinen Gins mixen?"
-- KI-Mixing-Assistent
+**Priorität:** Hoch
+**Beschreibung:** Viele Gin-Fans sind auch Cocktail-Fans - erweitert die Zielgruppe enorm
 
-**Potenzial:** Erweitert die Zielgruppe enorm.
+| Feature | Beschreibung |
+|---------|--------------|
+| **Sammlungs-basierte Rezepte** | "Was kann ich mit meinen Gins mixen?" - Filter basierend auf vorhandenen Gins |
+| **Zutaten-Inventar** | Tonic, Vermouth, Bitter etc. erfassen - vollständige Mixbar |
+| **KI-Mixing-Assistent** | "Ich habe Monkey 47 und Fever-Tree - was kann ich machen?" |
+| **Cocktail-Empfehlungen** | Basierend auf Geschmacksprofil und Gin-Botanicals |
+| **Rezept-Skalierung** | Automatische Mengenberechnung für 1-10 Drinks |
+| **Einkaufsliste** | Fehlende Zutaten für Wunsch-Cocktails |
+
+**Tier-Zuordnung:**
+- **Free:** Basis-Cocktail-Rezepte anzeigen (10 Klassiker)
+- **Basic:** Alle Rezepte, Sammlungs-Filter
+- **Pro:** KI-Mixing-Assistent, Zutaten-Inventar, Einkaufsliste
+- **Enterprise:** Custom Cocktail-Karten für Gastronomie, Branding
+
+**Technische Überlegungen:**
+- [ ] Cocktail-Rezepte Datenmodell (ingredients, steps, gin_pairings)
+- [ ] Zutaten-Inventar Tabelle
+- [ ] KI-Prompt für Mixing-Assistent (Ollama/Anthropic)
+- [ ] Matching-Algorithmus Gin → Cocktail basierend auf Botanicals
+
+**Potenzial:** Erweitert die Zielgruppe enorm - jeder Gin-Trinker ist auch Cocktail-interessiert.
 
 ---
 
