@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -12,12 +13,20 @@ type Config struct {
 	Database DatabaseConfig
 	Redis    RedisConfig
 	JWT      JWTConfig
+	Cookie   CookieConfig
 	S3       S3Config
 	Storage  StorageConfig
 	PayPal   PayPalConfig
 	SMTP     SMTPConfig
 	App      AppConfig
 	AI       AIConfig
+}
+
+// CookieConfig holds cookie configuration for auth tokens
+type CookieConfig struct {
+	Domain   string
+	Secure   bool
+	SameSite http.SameSite
 }
 
 // AIConfig holds AI service configuration
@@ -191,6 +200,11 @@ func Load() (*Config, error) {
 			Enabled:         getEnv("AI_ENABLED", "true") == "true",
 			AnthropicAPIKey: getEnv("ANTHROPIC_API_KEY", ""),
 		},
+		Cookie: CookieConfig{
+			Domain:   getEnv("COOKIE_DOMAIN", ""),
+			Secure:   getEnv("APP_ENV", "development") == "production",
+			SameSite: parseSameSite(getEnv("COOKIE_SAMESITE", "Strict")),
+		},
 	}
 
 	// Validate required fields
@@ -289,4 +303,18 @@ func (d *DatabaseConfig) DSN() string {
 		d.Port,
 		d.Name,
 	)
+}
+
+// parseSameSite converts a string to http.SameSite
+func parseSameSite(s string) http.SameSite {
+	switch s {
+	case "Lax":
+		return http.SameSiteLaxMode
+	case "None":
+		return http.SameSiteNoneMode
+	case "Strict":
+		return http.SameSiteStrictMode
+	default:
+		return http.SameSiteStrictMode
+	}
 }

@@ -25,6 +25,7 @@ import (
 	userUsecase "github.com/yourusername/gin-collection-saas/internal/usecase/user"
 	"github.com/yourusername/gin-collection-saas/pkg/config"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
+	"github.com/yourusername/gin-collection-saas/pkg/utils"
 )
 
 func main() {
@@ -220,7 +221,12 @@ func main() {
 	logger.Info("Services initialized")
 
 	// Initialize HTTP handlers
-	authHandler := handler.NewAuthHandler(authService)
+	cookieConfig := &utils.CookieConfig{
+		Domain:   cfg.Cookie.Domain,
+		Secure:   cfg.Cookie.Secure,
+		SameSite: cfg.Cookie.SameSite,
+	}
+	authHandler := handler.NewAuthHandler(authService, cookieConfig, cfg.JWT.Expiration)
 	ginHandler := handler.NewGinHandler(ginService)
 	ginReferenceHandler := handler.NewGinReferenceHandler(ginReferenceRepo)
 	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)

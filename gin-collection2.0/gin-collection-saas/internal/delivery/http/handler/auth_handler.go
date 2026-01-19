@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yourusername/gin-collection-saas/internal/delivery/http/middleware"
@@ -9,17 +10,22 @@ import (
 	"github.com/yourusername/gin-collection-saas/internal/domain/models"
 	"github.com/yourusername/gin-collection-saas/internal/usecase/auth"
 	"github.com/yourusername/gin-collection-saas/pkg/logger"
+	"github.com/yourusername/gin-collection-saas/pkg/utils"
 )
 
 // AuthHandler handles authentication HTTP requests
 type AuthHandler struct {
-	authService *auth.Service
+	authService  *auth.Service
+	cookieConfig *utils.CookieConfig
+	jwtExpiry    time.Duration
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(authService *auth.Service) *AuthHandler {
+func NewAuthHandler(authService *auth.Service, cookieConfig *utils.CookieConfig, jwtExpiry time.Duration) *AuthHandler {
 	return &AuthHandler{
-		authService: authService,
+		authService:  authService,
+		cookieConfig: cookieConfig,
+		jwtExpiry:    jwtExpiry,
 	}
 }
 
@@ -43,7 +49,21 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, authResp)
+	// Set HttpOnly cookies for authentication
+	utils.SetAuthCookies(
+		c,
+		authResp.Token,
+		authResp.RefreshToken,
+		h.cookieConfig,
+		h.jwtExpiry,
+		30*24*time.Hour, // Refresh token: 30 days
+	)
+
+	// Return response WITHOUT tokens (they are in HttpOnly cookies now)
+	response.Created(c, gin.H{
+		"user":   authResp.User,
+		"tenant": authResp.Tenant,
+	})
 }
 
 // Login handles POST /api/v1/auth/login
@@ -78,39 +98,61 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, authResp)
+	// Set HttpOnly cookies for authentication
+	utils.SetAuthCookies(
+		c,
+		authResp.Token,
+		authResp.RefreshToken,
+		h.cookieConfig,
+		h.jwtExpiry,
+		30*24*time.Hour, // Refresh token: 30 days
+	)
+
+	// Return response WITHOUT tokens (they are in HttpOnly cookies now)
+	response.Success(c, gin.H{
+		"user":   authResp.User,
+		"tenant": authResp.Tenant,
+	})
 }
 
 // RefreshToken handles POST /api/v1/auth/refresh
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	var req struct {
-		RefreshToken string `json:"refresh_token" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.ValidationError(c, map[string]string{
-			"error": err.Error(),
-		})
-		return
+	// Try to get refresh token from HttpOnly cookie first
+	refreshToken, err := utils.GetRefreshTokenFromCookie(c)
+	if err != nil || refreshToken == "" {
+		// Fallback: Try JSON body (backward compatibility for API clients)
+		var req struct {
+			RefreshToken string `json:"refresh_token"`
+		}
+		if err := c.ShouldBindJSON(&req); err != nil || req.RefreshToken == "" {
+			response.ValidationError(c, map[string]string{
+				"error": "Refresh token required",
+			})
+			return
+		}
+		refreshToken = req.RefreshToken
 	}
 
 	// Generate new access token
-	newToken, err := h.authService.RefreshToken(c.Request.Context(), req.RefreshToken)
+	newToken, err := h.authService.RefreshToken(c.Request.Context(), refreshToken)
 	if err != nil {
 		response.Error(c, err)
 		return
 	}
 
+	// Set new access token cookie
+	utils.SetAccessTokenCookie(c, newToken, h.cookieConfig, h.jwtExpiry)
+
 	response.Success(c, gin.H{
-		"token": newToken,
+		"message": "Token refreshed successfully",
 	})
 }
 
 // Logout handles POST /api/v1/auth/logout
 func (h *AuthHandler) Logout(c *gin.Context) {
-	// For JWT, logout is handled client-side by removing the token
-	// Server-side logout would require a token blacklist (Redis)
-	// For now, just return success
+	// Clear HttpOnly auth cookies
+	utils.ClearAuthCookies(c, h.cookieConfig)
+
 	response.Success(c, gin.H{
 		"message": "Logged out successfully",
 	})

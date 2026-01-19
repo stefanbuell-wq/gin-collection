@@ -25,35 +25,44 @@ func NewAuthMiddleware(jwtSecret string, userRepo repositories.UserRepository) *
 	}
 }
 
-// RequireAuth middleware validates JWT token
+// RequireAuth middleware validates JWT token from cookie OR header
 func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Extract token from Authorization header
+		var tokenString string
+		var tokenSource string
+
+		// Priority 1: Authorization header (for API keys and backward compatibility)
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				tokenString = parts[1]
+				tokenSource = "header"
+			}
+		}
+
+		// Priority 2: HttpOnly cookie
+		if tokenString == "" {
+			cookie, err := c.Cookie(utils.AccessTokenCookieName)
+			if err == nil && cookie != "" {
+				tokenString = cookie
+				tokenSource = "cookie"
+			}
+		}
+
+		// No token found
+		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Authorization header required",
+				"error": "Authentication required",
 			})
 			c.Abort()
 			return
 		}
-
-		// Check Bearer prefix
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid authorization header format. Use: Bearer <token>",
-			})
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
 
 		// Validate token
 		claims, err := utils.ValidateToken(tokenString, am.jwtSecret)
 		if err != nil {
-			logger.Debug("Invalid JWT token", "error", err.Error())
+			logger.Debug("Invalid JWT token", "error", err.Error(), "source", tokenSource)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid or expired token",
 			})
@@ -67,8 +76,9 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		c.Set("tenant_id", claims.TenantID)
 		c.Set("user_email", claims.Email)
 		c.Set("user_role", claims.Role)
+		c.Set("token_source", tokenSource)
 
-		logger.Debug("User authenticated", "user_id", claims.UserID, "email", claims.Email)
+		logger.Debug("User authenticated", "user_id", claims.UserID, "email", claims.Email, "source", tokenSource)
 
 		c.Next()
 	}
@@ -77,19 +87,28 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 // OptionalAuth middleware validates JWT token if present but doesn't require it
 func (am *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var tokenString string
+
+		// Try header first
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		if authHeader != "" {
+			parts := strings.Split(authHeader, " ")
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				tokenString = parts[1]
+			}
+		}
+
+		// Try cookie if no header token
+		if tokenString == "" {
+			cookie, _ := c.Cookie(utils.AccessTokenCookieName)
+			tokenString = cookie
+		}
+
+		if tokenString == "" {
 			c.Next()
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.Next()
-			return
-		}
-
-		tokenString := parts[1]
 		claims, err := utils.ValidateToken(tokenString, am.jwtSecret)
 		if err != nil {
 			c.Next()

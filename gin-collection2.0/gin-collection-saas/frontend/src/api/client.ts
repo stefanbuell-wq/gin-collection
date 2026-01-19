@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import type { AuthResponse, APIError } from '../types';
+import type { APIError } from '../types';
 
 // CSRF token storage
 let csrfToken: string | null = null;
@@ -55,15 +55,10 @@ export function clearCSRFToken(): void {
   csrfToken = null;
 }
 
-// Request interceptor to add auth token, tenant header, and CSRF token
+// Request interceptor to add tenant header and CSRF token
+// Note: JWT is now stored in HttpOnly cookies (sent automatically by browser)
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Add JWT token from localStorage
-    const token = localStorage.getItem('auth_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
     // Add CSRF token for state-changing requests
     const method = config.method?.toUpperCase();
     if (csrfToken && config.headers && method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
@@ -109,29 +104,20 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // Handle 401 Unauthorized (try to refresh token)
+    // JWT tokens are now in HttpOnly cookies - refresh token is sent automatically
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          const response = await axios.post<AuthResponse>('/api/v1/auth/refresh', {
-            refresh_token: refreshToken,
-          });
+        // Call refresh endpoint - HttpOnly cookie is sent automatically by browser
+        await axios.post('/api/v1/auth/refresh', {}, {
+          withCredentials: true,
+        });
 
-          const { token } = response.data;
-          localStorage.setItem('auth_token', token);
-
-          // Retry original request with new token
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          return apiClient(originalRequest);
-        }
+        // Retry original request - new access token cookie is now set
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, logout user
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('refresh_token');
+        // Refresh failed, redirect to login
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

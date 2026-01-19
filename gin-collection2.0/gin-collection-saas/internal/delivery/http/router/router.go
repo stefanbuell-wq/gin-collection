@@ -60,10 +60,15 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 		// Auth routes (tenant middleware only, no auth required)
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/register", cfg.AuthHandler.Register)
+			// Registration with rate limiting (3 per hour per IP)
+			registerMiddleware := []gin.HandlerFunc{}
+			if cfg.RateLimitMiddleware != nil {
+				registerMiddleware = append(registerMiddleware, cfg.RateLimitMiddleware.RateLimitRegistration())
+			}
+			auth.POST("/register", append(registerMiddleware, cfg.AuthHandler.Register)...)
 
 			// Login with optional tenant (allows login via email only for localhost)
-			// Apply login rate limiting if available
+			// Apply login rate limiting if available (5 per 15 minutes per IP)
 			loginMiddleware := []gin.HandlerFunc{cfg.TenantMiddleware.OptionalTenant()}
 			if cfg.RateLimitMiddleware != nil {
 				loginMiddleware = append([]gin.HandlerFunc{cfg.RateLimitMiddleware.RateLimitLogin()}, loginMiddleware...)
@@ -73,10 +78,20 @@ func Setup(cfg *RouterConfig) *gin.Engine {
 			// Refresh token
 			auth.POST("/refresh", cfg.AuthHandler.RefreshToken)
 
-			// Password reset (no auth required)
-			auth.POST("/forgot-password", cfg.AuthHandler.ForgotPassword)
-			auth.POST("/reset-password", cfg.AuthHandler.ResetPassword)
-			auth.GET("/validate-reset-token", cfg.AuthHandler.ValidateResetToken)
+			// Password reset with rate limiting
+			if cfg.RateLimitMiddleware != nil {
+				// Forgot password: 3 per hour per email
+				auth.POST("/forgot-password", cfg.RateLimitMiddleware.RateLimitPasswordReset(), cfg.AuthHandler.ForgotPassword)
+				// Reset password: 3 per hour per IP
+				auth.POST("/reset-password", cfg.RateLimitMiddleware.RateLimitByIPHourly(3), cfg.AuthHandler.ResetPassword)
+				// Validate reset token: 3 per hour per IP
+				auth.GET("/validate-reset-token", cfg.RateLimitMiddleware.RateLimitByIPHourly(3), cfg.AuthHandler.ValidateResetToken)
+			} else {
+				// Fallback without rate limiting
+				auth.POST("/forgot-password", cfg.AuthHandler.ForgotPassword)
+				auth.POST("/reset-password", cfg.AuthHandler.ResetPassword)
+				auth.GET("/validate-reset-token", cfg.AuthHandler.ValidateResetToken)
+			}
 
 			// Logout (requires auth)
 			auth.POST("/logout", cfg.AuthMiddleware.RequireAuth(), cfg.AuthHandler.Logout)

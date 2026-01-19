@@ -150,18 +150,18 @@ _Aktuell keine offenen Aufgaben_
 - [x] Frontend: Token in X-CSRF-Token Header bei POST/PUT/DELETE/PATCH senden
 - [x] Automatischer Token-Refresh bei CSRF-Fehler
 
-#### 4. Rate Limiting aktivieren
-- [ ] Login: 5 Versuche pro 15 Min pro IP
-- [ ] Registrierung: 3 pro Stunde pro IP
-- [ ] Password Reset: 3 pro Stunde pro E-Mail
-- [ ] API-Endpoints: 100 Requests pro Stunde pro Tenant
-- [ ] Fallback In-Memory Rate Limiting wenn Redis unavailable
+#### 4. Rate Limiting aktivieren - ✅ Erledigt am 2026-01-19
+- [x] Login: 5 Versuche pro 15 Min pro IP
+- [x] Registrierung: 3 pro Stunde pro IP
+- [x] Password Reset: 3 pro Stunde pro E-Mail
+- [x] API-Endpoints: 100 Requests pro Stunde pro Tenant (war bereits implementiert)
+- [x] Fallback In-Memory Rate Limiting wenn Redis unavailable
 
-#### 5. Tokens aus localStorage entfernen
-- [ ] JWT in HttpOnly Cookie speichern
-- [ ] `Secure` Flag setzen (nur HTTPS)
-- [ ] `SameSite=Strict` setzen
-- [ ] Refresh Token ebenfalls in HttpOnly Cookie
+#### 5. Tokens aus localStorage entfernen - ✅ Erledigt am 2026-01-19
+- [x] JWT in HttpOnly Cookie speichern
+- [x] `Secure` Flag setzen (nur HTTPS)
+- [x] `SameSite=Strict` setzen
+- [x] Refresh Token ebenfalls in HttpOnly Cookie
 
 ---
 
@@ -434,6 +434,25 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 - [x] Phase 8: Frontend (React SPA, PWA)
 - [x] Phase 9: Migration & Testing
 - [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
+
+### 2026-01-19
+- [x] **HttpOnly JWT Cookies implementiert** (Backend + Frontend)
+  - JWT Access Token in HttpOnly Cookie (statt localStorage)
+  - Refresh Token in HttpOnly Cookie (Path: /api/v1/auth)
+  - Secure Flag in Production, SameSite=Strict
+  - Backend: Cookie-Helper (pkg/utils/cookies.go)
+  - Backend: Auth-Handler setzt Cookies bei Login/Register, löscht bei Logout
+  - Backend: Auth-Middleware liest Token aus Cookie ODER Header (Backward-Compat für API-Keys)
+  - Frontend: localStorage Token-Speicherung entfernt
+  - Frontend: Refresh-Flow angepasst (Cookie wird automatisch gesendet)
+  - Dateien: cookies.go, config.go, auth_handler.go, auth.go, main.go, client.ts, authStore.ts
+- [x] **Rate Limiting erweitert** (Backend)
+  - Login: 5 Versuche pro 15 Min pro IP (reduziert von 10)
+  - Registration: 3 pro Stunde pro IP (neu)
+  - Password Reset: 3 pro Stunde pro Email (neu)
+  - Token Validation: 3 pro Stunde pro IP (neu)
+  - In-Memory Fallback wenn Redis unavailable (neu)
+  - Dateien: rate_limit.go, router.go
 
 ### 2026-01-18
 - [x] **CSRF-Schutz implementiert** (Backend + Frontend)

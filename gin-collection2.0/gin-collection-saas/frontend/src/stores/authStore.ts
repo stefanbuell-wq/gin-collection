@@ -7,7 +7,6 @@ import { fetchCSRFToken, clearCSRFToken } from '../api/client';
 interface AuthState {
   user: User | null;
   tenant: Tenant | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
@@ -24,15 +23,15 @@ interface AuthState {
   }) => Promise<void>;
   setUser: (user: User) => void;
   setTenant: (tenant: Tenant) => void;
-  initializeAuth: () => void;
+  initializeAuth: () => Promise<void>;
+  checkAuth: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       tenant: null,
-      token: null,
       isAuthenticated: false,
       isLoading: false,
 
@@ -40,20 +39,14 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const response = await authAPI.login(email, password);
-          // API returns { success: true, data: { token, user, tenant, ... } }
-          const apiResponse = response.data as unknown as { success: boolean; data: { token: string; refresh_token?: string; user: User; tenant: Tenant } };
-          const { token, refresh_token, user, tenant } = apiResponse.data;
-
-          // Store tokens
-          localStorage.setItem('auth_token', token);
-          if (refresh_token) {
-            localStorage.setItem('refresh_token', refresh_token);
-          }
+          // API returns { success: true, data: { user, tenant } }
+          // Tokens are now stored in HttpOnly cookies by the server
+          const apiResponse = response.data as unknown as { success: boolean; data: { user: User; tenant: Tenant } };
+          const { user, tenant } = apiResponse.data;
 
           set({
             user,
             tenant,
-            token,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -68,19 +61,16 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
+          // Server clears HttpOnly cookies
           await authAPI.logout();
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
-          // Clear tokens
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
           clearCSRFToken();
 
           set({
             user: null,
             tenant: null,
-            token: null,
             isAuthenticated: false,
           });
         }
@@ -90,20 +80,14 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const response = await authAPI.register(data);
-          // API returns { success: true, data: { token, user, tenant, ... } }
-          const apiResponse = response.data as unknown as { success: boolean; data: { token: string; refresh_token?: string; user: User; tenant: Tenant } };
-          const { token, refresh_token, user, tenant } = apiResponse.data;
-
-          // Store tokens
-          localStorage.setItem('auth_token', token);
-          if (refresh_token) {
-            localStorage.setItem('refresh_token', refresh_token);
-          }
+          // API returns { success: true, data: { user, tenant } }
+          // Tokens are now stored in HttpOnly cookies by the server
+          const apiResponse = response.data as unknown as { success: boolean; data: { user: User; tenant: Tenant } };
+          const { user, tenant } = apiResponse.data;
 
           set({
             user,
             tenant,
-            token,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -119,11 +103,32 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user: User) => set({ user }),
       setTenant: (tenant: Tenant) => set({ tenant }),
 
-      // Initialize auth on app load - fetch CSRF token if authenticated
-      initializeAuth: () => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-          fetchCSRFToken();
+      // Check if user is authenticated by calling /auth/me
+      checkAuth: async () => {
+        try {
+          const response = await authAPI.me();
+          const apiResponse = response.data as unknown as { success: boolean; data: User };
+          if (apiResponse.success && apiResponse.data) {
+            set({ user: apiResponse.data, isAuthenticated: true });
+            return true;
+          }
+          return false;
+        } catch {
+          set({ user: null, tenant: null, isAuthenticated: false });
+          return false;
+        }
+      },
+
+      // Initialize auth on app load - verify auth state with server
+      initializeAuth: async () => {
+        const state = get();
+        // If we think we're authenticated, verify with the server
+        if (state.isAuthenticated) {
+          await state.checkAuth();
+          // Fetch CSRF token if still authenticated
+          if (get().isAuthenticated) {
+            fetchCSRFToken();
+          }
         }
       },
     }),
