@@ -792,6 +792,48 @@ _Aktuell keine offenen Aufgaben_
 
 ---
 
+### 16. Gin-Werbung & Sponsored Content
+**Priorität:** Hoch
+**Beschreibung:** Monetarisierung durch Werbung - zusätzliche Einnahmequelle neben Subscriptions
+
+| Feature | Beschreibung |
+|---------|--------------|
+| **Sponsored Gins** | Brennereien zahlen für Premium-Platzierung in Suche/Listen |
+| **Banner-Werbung** | Dezente Werbebanner auf Website und in App (nur Free-Tier) |
+| **Gin des Monats** | Bezahlte Feature-Platzierung auf Dashboard |
+| **Brennerei-Profile** | Bezahlte Profilseiten für Hersteller mit Shop-Link |
+| **Affiliate-Links** | Provision bei Weiterleitung zu Online-Shops |
+| **Native Ads** | "Empfohlen für dich" basierend auf Geschmacksprofil |
+| **Newsletter-Sponsoring** | Sponsored Section im GinVault Newsletter |
+
+**Tier-Zuordnung:**
+- **Free:** Werbung sichtbar (Banner, Sponsored Gins)
+- **Basic:** Reduzierte Werbung (nur Sponsored Gins, keine Banner)
+- **Pro/Enterprise:** Komplett werbefrei
+
+**Monetarisierung für Brennereien:**
+- Sponsored Listing: 49€/Monat
+- Gin des Monats: 199€/Monat
+- Brennerei-Profil: 29€/Monat
+- Affiliate: 5-10% Provision
+
+**Technische Überlegungen:**
+- [ ] Ad-Server oder einfache DB-Lösung für Sponsored Content
+- [ ] Tracking: Impressions, Clicks, Conversions
+- [ ] Admin-Panel für Werbekunden (Self-Service)
+- [ ] A/B Testing für Ad-Platzierungen
+- [ ] GDPR-konforme Werbe-Einwilligung
+- [ ] Ad-Blocker Detection (Hinweis auf Premium)
+
+**Vorteile:**
+- Passive Einnahmen neben Subscriptions
+- Win-Win: Brennereien erreichen Zielgruppe, User entdecken neue Gins
+- Incentive für Free→Basic Upgrade (weniger Werbung)
+
+**Potenzial:** Skalierbare Einnahmequelle - je mehr User, desto wertvoller für Werbepartner.
+
+---
+
 ## Notizen
 
 _Platz für allgemeine Notizen und Ideen_
