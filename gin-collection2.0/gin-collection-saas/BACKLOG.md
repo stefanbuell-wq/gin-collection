@@ -684,14 +684,45 @@ _Aktuell keine offenen Aufgaben_
 ---
 
 ### 12. GinVault für Firmen (Corporate Tasting)
-**Priorität:** Mittel
-**Beschreibung:** Firmen lieben Tasting-Events:
-- Digitale Tasting-Boxen
-- Moderierte Sessions
-- Firmenprofile
-- Mitarbeiter-Challenges
+**Priorität:** Hoch
+**Beschreibung:** Firmen lieben Tasting-Events - extrem lukrativer B2B-Markt
 
-**Potenzial:** Extrem lukrativer B2B-Markt.
+| Feature | Beschreibung |
+|---------|--------------|
+| **Firmenprofile** | Eigener Workspace mit Branding, Logo, Farben |
+| **Digitale Tasting-Boxen** | Kuratierte Gin-Sets mit QR-Code zu digitalem Erlebnis |
+| **Event-Management** | Tasting-Events erstellen, planen, durchführen |
+| **Gäste-Einladung** | Per Link/QR-Code - kein Account nötig für Teilnehmer |
+| **Moderierte Sessions** | Live-Führung durch Tasting mit Timer & Anweisungen |
+| **Live-Voting** | Echtzeit-Bewertungen aller Teilnehmer |
+| **Ergebnis-Dashboard** | Live-Statistiken, Ranking, Export als PDF |
+| **Mitarbeiter-Challenges** | Gamification: Teams, Punkte, Bestenlisten |
+| **White-Label** | Komplettes Custom Branding für Events |
+
+**Tier-Zuordnung:**
+- **Enterprise:** Alle Features inklusive
+- **Custom B2B-Paket:** Volumen-Pricing für große Firmen (100+ Teilnehmer)
+
+**Preismodell-Ideen:**
+- Pro Event: 99-299€ (je nach Teilnehmerzahl)
+- Jahres-Flat: 999€/Jahr für unbegrenzte Events
+- Tasting-Box + Digital: Kombi-Paket mit physischen Boxen
+
+**Technische Überlegungen:**
+- [ ] Event-Datenmodell (host, participants, gins, schedule)
+- [ ] Gast-Zugang ohne Account (Token-basiert, zeitlich begrenzt)
+- [ ] WebSocket für Live-Voting & Echtzeit-Updates
+- [ ] PDF-Generator für Event-Reports
+- [ ] Firmen-Workspace mit eigenem Branding
+- [ ] Kalender-Integration (Outlook, Google Calendar)
+
+**Go-to-Market:**
+- HR-Abteilungen (Teambuilding)
+- Event-Agenturen
+- Weihnachtsfeiern / Firmenjubiläen
+- Incentive-Programme
+
+**Potenzial:** Extrem lukrativer B2B-Markt - hohe Margen, wiederkehrende Buchungen.
 
 ---
 
