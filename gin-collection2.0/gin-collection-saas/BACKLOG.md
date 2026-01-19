@@ -721,3 +721,23 @@ add_header Permissions-Policy "geolocation=(), microphone=(), camera=(self)" alw
 
 _Platz für allgemeine Notizen und Ideen_
 
+---
+
+### Nützliche Tools & Services (Reminder)
+
+> "How To Launch Your Own Company (with $0)"
+
+| # | Zweck | Tool/Service |
+|---|-------|--------------|
+| 1 | Business-Idee finden | [Stratup.ai](https://stratup.ai) |
+| 2 | Firmennamen generieren | [BusinessNameGenerator](https://businessnamegenerator.com) |
+| 3 | Business Model entwickeln | [ChatGPT](https://chat.openai.com) |
+| 4 | Website bauen | [Durable.ai](https://durable.ai) |
+| 5 | Kostenlose Domain | [Freenom.com](https://freenom.com) |
+| 6 | Produkt-Ideen finden | [OneThread.app](https://onethread.app) |
+| 7 | Produkt/Service erstellen | [ChatGPT](https://chat.openai.com) |
+| 8 | Produkte verkaufen | [Gumroad](https://gumroad.com) |
+| 9 | Zahlungen abwickeln | [Stripe](https://stripe.com) / [PayPal](https://paypal.com) |
+| 10 | Marketing | [Instagram](https://instagram.com) |
+| 11 | Automatisierung | [Make.com](https://make.com) |
+
