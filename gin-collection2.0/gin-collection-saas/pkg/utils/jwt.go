@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 // JWTClaims represents the claims in a JWT token
@@ -24,6 +25,7 @@ func GenerateToken(userID, tenantID int64, email, role, secret string, expiratio
 		Email:    email,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(), // Unique Token ID for blacklisting
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
@@ -68,6 +70,7 @@ func GenerateRefreshToken(userID, tenantID int64, email, secret string) (string,
 		TenantID: tenantID,
 		Email:    email,
 		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        uuid.New().String(), // Unique Token ID for blacklisting
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)), // 30 days
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},

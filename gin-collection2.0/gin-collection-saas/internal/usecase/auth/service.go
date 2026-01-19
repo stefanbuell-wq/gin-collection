@@ -28,6 +28,7 @@ type Service struct {
 	baseURL           string
 	jwtSecret         string
 	jwtExpiration     time.Duration
+	tokenBlacklist    *utils.TokenBlacklist
 }
 
 // NewService creates a new auth service
@@ -58,6 +59,11 @@ func (s *Service) SetEmailClient(client *external.EmailClient) {
 // SetBaseURL sets the base URL for password reset links
 func (s *Service) SetBaseURL(baseURL string) {
 	s.baseURL = baseURL
+}
+
+// SetTokenBlacklist sets the token blacklist for token invalidation
+func (s *Service) SetTokenBlacklist(blacklist *utils.TokenBlacklist) {
+	s.tokenBlacklist = blacklist
 }
 
 // Register registers a new tenant with an owner user
@@ -392,6 +398,16 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, currentPassw
 		return fmt.Errorf("failed to update password: %w", err)
 	}
 
+	// Invalidate all existing tokens for this user
+	if s.tokenBlacklist != nil {
+		if err := s.tokenBlacklist.RevokeAllUserTokens(ctx, userID, time.Now()); err != nil {
+			logger.Error("Failed to revoke user tokens", "error", err.Error(), "user_id", userID)
+			// Don't fail the password change, just log the error
+		} else {
+			logger.Info("All user tokens revoked after password change", "user_id", userID)
+		}
+	}
+
 	logger.Info("User password changed successfully", "user_id", userID)
 
 	return nil
@@ -529,6 +545,16 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	if err := s.passwordResetRepo.MarkAsUsed(ctx, resetToken.ID); err != nil {
 		logger.Error("Failed to mark token as used", "error", err.Error())
 		// Don't fail, password is already changed
+	}
+
+	// Invalidate all existing tokens for this user
+	if s.tokenBlacklist != nil {
+		if err := s.tokenBlacklist.RevokeAllUserTokens(ctx, user.ID, time.Now()); err != nil {
+			logger.Error("Failed to revoke user tokens", "error", err.Error(), "user_id", user.ID)
+			// Don't fail the password reset, just log the error
+		} else {
+			logger.Info("All user tokens revoked after password reset", "user_id", user.ID)
+		}
 	}
 
 	logger.Info("Password reset successful", "user_id", user.ID)

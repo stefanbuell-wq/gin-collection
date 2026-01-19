@@ -13,15 +13,17 @@ import (
 
 // AuthMiddleware handles JWT authentication
 type AuthMiddleware struct {
-	jwtSecret  string
-	userRepo   repositories.UserRepository
+	jwtSecret      string
+	userRepo       repositories.UserRepository
+	tokenBlacklist *utils.TokenBlacklist
 }
 
 // NewAuthMiddleware creates a new auth middleware
-func NewAuthMiddleware(jwtSecret string, userRepo repositories.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(jwtSecret string, userRepo repositories.UserRepository, blacklist *utils.TokenBlacklist) *AuthMiddleware {
 	return &AuthMiddleware{
-		jwtSecret: jwtSecret,
-		userRepo:  userRepo,
+		jwtSecret:      jwtSecret,
+		userRepo:       userRepo,
+		tokenBlacklist: blacklist,
 	}
 }
 
@@ -70,6 +72,29 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			return
 		}
 
+		// Check if token is blacklisted
+		if am.tokenBlacklist != nil {
+			// Check specific token (by JTI)
+			if claims.ID != "" && am.tokenBlacklist.IsRevoked(c.Request.Context(), claims.ID) {
+				logger.Debug("Revoked token used", "jti", claims.ID, "user_id", claims.UserID)
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Token has been revoked",
+				})
+				c.Abort()
+				return
+			}
+
+			// Check if all user tokens before certain time are revoked (password change)
+			if claims.IssuedAt != nil && am.tokenBlacklist.IsUserTokenRevoked(c.Request.Context(), claims.UserID, claims.IssuedAt.Time) {
+				logger.Debug("User tokens revoked", "user_id", claims.UserID, "issued_at", claims.IssuedAt.Time)
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Token has been revoked",
+				})
+				c.Abort()
+				return
+			}
+		}
+
 		// Store claims in context
 		c.Set("jwt_claims", claims)
 		c.Set("user_id", claims.UserID)
@@ -113,6 +138,18 @@ func (am *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
 		if err != nil {
 			c.Next()
 			return
+		}
+
+		// Check if token is blacklisted (silently skip if revoked)
+		if am.tokenBlacklist != nil {
+			if claims.ID != "" && am.tokenBlacklist.IsRevoked(c.Request.Context(), claims.ID) {
+				c.Next()
+				return
+			}
+			if claims.IssuedAt != nil && am.tokenBlacklist.IsUserTokenRevoked(c.Request.Context(), claims.UserID, claims.IssuedAt.Time) {
+				c.Next()
+				return
+			}
 		}
 
 		c.Set("jwt_claims", claims)

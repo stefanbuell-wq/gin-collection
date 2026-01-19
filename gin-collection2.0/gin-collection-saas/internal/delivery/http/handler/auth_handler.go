@@ -15,17 +15,19 @@ import (
 
 // AuthHandler handles authentication HTTP requests
 type AuthHandler struct {
-	authService  *auth.Service
-	cookieConfig *utils.CookieConfig
-	jwtExpiry    time.Duration
+	authService    *auth.Service
+	cookieConfig   *utils.CookieConfig
+	jwtExpiry      time.Duration
+	tokenBlacklist *utils.TokenBlacklist
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(authService *auth.Service, cookieConfig *utils.CookieConfig, jwtExpiry time.Duration) *AuthHandler {
+func NewAuthHandler(authService *auth.Service, cookieConfig *utils.CookieConfig, jwtExpiry time.Duration, tokenBlacklist *utils.TokenBlacklist) *AuthHandler {
 	return &AuthHandler{
-		authService:  authService,
-		cookieConfig: cookieConfig,
-		jwtExpiry:    jwtExpiry,
+		authService:    authService,
+		cookieConfig:   cookieConfig,
+		jwtExpiry:      jwtExpiry,
+		tokenBlacklist: tokenBlacklist,
 	}
 }
 
@@ -150,6 +152,25 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 // Logout handles POST /api/v1/auth/logout
 func (h *AuthHandler) Logout(c *gin.Context) {
+	// Blacklist current token if available
+	if h.tokenBlacklist != nil {
+		claims, ok := c.Get("jwt_claims")
+		if ok {
+			jwtClaims := claims.(*utils.JWTClaims)
+			if jwtClaims.ID != "" && jwtClaims.ExpiresAt != nil {
+				if err := h.tokenBlacklist.RevokeToken(
+					c.Request.Context(),
+					jwtClaims.ID,
+					jwtClaims.ExpiresAt.Time,
+				); err != nil {
+					logger.Error("Failed to blacklist token", "error", err.Error(), "jti", jwtClaims.ID)
+				} else {
+					logger.Debug("Token blacklisted on logout", "jti", jwtClaims.ID, "user_id", jwtClaims.UserID)
+				}
+			}
+		}
+	}
+
 	// Clear HttpOnly auth cookies
 	utils.ClearAuthCookies(c, h.cookieConfig)
 

@@ -156,6 +156,15 @@ func main() {
 		logger.Info("AI client disabled")
 	}
 
+	// Initialize Token Blacklist (requires Redis)
+	var tokenBlacklist *utils.TokenBlacklist
+	if redisClient != nil {
+		tokenBlacklist = utils.NewTokenBlacklist(redisClient)
+		logger.Info("Token blacklist enabled")
+	} else {
+		logger.Warn("Token blacklist disabled - Redis not available")
+	}
+
 	// Initialize use cases
 	authService := auth.NewService(
 		userRepo,
@@ -167,6 +176,7 @@ func main() {
 	authService.SetPasswordResetRepo(passwordResetRepo)
 	authService.SetEmailClient(emailClient)
 	authService.SetBaseURL(cfg.App.BaseURL)
+	authService.SetTokenBlacklist(tokenBlacklist)
 
 	ginService := ginUsecase.NewService(
 		ginRepo,
@@ -226,7 +236,7 @@ func main() {
 		Secure:   cfg.Cookie.Secure,
 		SameSite: cfg.Cookie.SameSite,
 	}
-	authHandler := handler.NewAuthHandler(authService, cookieConfig, cfg.JWT.Expiration)
+	authHandler := handler.NewAuthHandler(authService, cookieConfig, cfg.JWT.Expiration, tokenBlacklist)
 	ginHandler := handler.NewGinHandler(ginService)
 	ginReferenceHandler := handler.NewGinReferenceHandler(ginReferenceRepo)
 	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)
@@ -240,7 +250,7 @@ func main() {
 	tastingHandler := handler.NewTastingHandler(tastingService)
 
 	// Initialize middleware
-	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret, userRepo)
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret, userRepo, tokenBlacklist)
 	tenantMiddleware := middleware.NewTenantMiddleware(tenantRepo)
 	tierEnforcement := middleware.NewTierEnforcementMiddleware(usageMetricsRepo, ginRepo)
 	platformAdminMiddleware := middleware.NewPlatformAdminMiddleware(adminService)
