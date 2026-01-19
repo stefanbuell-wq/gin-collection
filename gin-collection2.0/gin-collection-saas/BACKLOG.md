@@ -192,11 +192,11 @@ _Aktuell keine offenen Aufgaben_
 - [x] Dateinamen sanitizen (UUID + Extension) - war bereits implementiert
 - [ ] Virus-Scan Integration (ClamAV) - optional, später
 
-### 10. Passwort-Policy verschärfen
-- [ ] Minimum 12 Zeichen
-- [ ] Groß-/Kleinbuchstaben + Zahlen + Sonderzeichen erforderlich
-- [ ] Common-Password-Check (haveibeenpwned API)
-- [ ] Password History (letzte 5 nicht wiederverwendbar)
+### 10. Passwort-Policy verschärfen - ✅ Erledigt am 2026-01-19
+- [x] Minimum 12 Zeichen
+- [x] Groß-/Kleinbuchstaben + Zahlen + Sonderzeichen erforderlich
+- [x] Common-Password-Check (haveibeenpwned API)
+- [x] Password History (letzte 5 nicht wiederverwendbar)
 
 ---
 
@@ -436,6 +436,13 @@ _Aktuell keine offenen Aufgaben_
 - [x] Phase 10: Deployment (Docker, CI/CD, Monitoring)
 
 ### 2026-01-19
+- [x] **Passwort-Policy verschärft** (Backend)
+  - Minimum 12 Zeichen (Login, Register, Password Reset)
+  - Komplexitätsanforderungen: Großbuchstabe, Kleinbuchstabe, Zahl, Sonderzeichen
+  - haveibeenpwned API Check mit k-Anonymity (nur SHA1-Prefix gesendet)
+  - Password History: Letzte 5 Passwörter nicht wiederverwendbar
+  - Migration: 005_password_history.up.sql für password_history Tabelle
+  - Dateien: password_policy.go (neu), password_history.go (neu), password_history_repository.go (neu+impl), service.go, user.go, main.go
 - [x] **HTTPS & Security Headers implementiert** (nginx)
   - HSTS Header mit 1 Jahr Gültigkeit, includeSubDomains, preload
   - TLS 1.2/1.3 Minimum mit modernen Cipher Suites

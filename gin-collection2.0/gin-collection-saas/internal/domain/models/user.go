@@ -70,7 +70,7 @@ func (r UserRole) HasPermission(action string) bool {
 // LoginRequest represents a login request
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
+	Password string `json:"password" binding:"required,min=12"`
 }
 
 // RegisterRequest represents a registration request
@@ -78,7 +78,7 @@ type RegisterRequest struct {
 	TenantName string `json:"tenant_name" binding:"required,min=2,max=255"`
 	Subdomain  string `json:"subdomain" binding:"required,min=3,max=63,alphanum"`
 	Email      string `json:"email" binding:"required,email"`
-	Password   string `json:"password" binding:"required,min=8"`
+	Password   string `json:"password" binding:"required,min=12"`
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 }

@@ -85,6 +85,7 @@ func main() {
 	platformAdminRepo := mysql.NewPlatformAdminRepository(db)
 	tastingRepo := mysql.NewTastingSessionRepository(db)
 	passwordResetRepo := mysql.NewPasswordResetRepository(db)
+	passwordHistoryRepo := mysql.NewPasswordHistoryRepository(db)
 
 	logger.Info("Repositories initialized")
 
@@ -177,6 +178,7 @@ func main() {
 	authService.SetEmailClient(emailClient)
 	authService.SetBaseURL(cfg.App.BaseURL)
 	authService.SetTokenBlacklist(tokenBlacklist)
+	authService.SetPasswordHistoryRepo(passwordHistoryRepo)
 
 	ginService := ginUsecase.NewService(
 		ginRepo,

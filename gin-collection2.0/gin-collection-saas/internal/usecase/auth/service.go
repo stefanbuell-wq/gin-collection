@@ -21,14 +21,15 @@ const PasswordResetTokenExpiry = 1 * time.Hour
 
 // Service handles authentication business logic
 type Service struct {
-	userRepo          repositories.UserRepository
-	tenantRepo        repositories.TenantRepository
-	passwordResetRepo repositories.PasswordResetRepository
-	emailClient       *external.EmailClient
-	baseURL           string
-	jwtSecret         string
-	jwtExpiration     time.Duration
-	tokenBlacklist    *utils.TokenBlacklist
+	userRepo            repositories.UserRepository
+	tenantRepo          repositories.TenantRepository
+	passwordResetRepo   repositories.PasswordResetRepository
+	passwordHistoryRepo repositories.PasswordHistoryRepository
+	emailClient         *external.EmailClient
+	baseURL             string
+	jwtSecret           string
+	jwtExpiration       time.Duration
+	tokenBlacklist      *utils.TokenBlacklist
 }
 
 // NewService creates a new auth service
@@ -66,6 +67,11 @@ func (s *Service) SetTokenBlacklist(blacklist *utils.TokenBlacklist) {
 	s.tokenBlacklist = blacklist
 }
 
+// SetPasswordHistoryRepo sets the password history repository
+func (s *Service) SetPasswordHistoryRepo(repo repositories.PasswordHistoryRepository) {
+	s.passwordHistoryRepo = repo
+}
+
 // Register registers a new tenant with an owner user
 func (s *Service) Register(ctx context.Context, req *models.RegisterRequest) (*models.AuthResponse, error) {
 	logger.Info("Registering new tenant", "subdomain", req.Subdomain, "email", req.Email)
@@ -78,6 +84,12 @@ func (s *Service) Register(ctx context.Context, req *models.RegisterRequest) (*m
 
 	// Validate email is not already used
 	// Note: We can't check across tenants easily here, but we'll check when tenant is created
+
+	// Validate password against policy
+	if err := utils.ValidatePasswordWithPolicy(req.Password); err != nil {
+		logger.Debug("Password validation failed", "error", err.Error())
+		return nil, fmt.Errorf("password validation failed: %w", err)
+	}
 
 	// Hash password
 	passwordHash, err := utils.HashPassword(req.Password)
@@ -384,6 +396,44 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, currentPassw
 		return errors.ErrInvalidCredentials
 	}
 
+	// Validate new password against policy
+	if err := utils.ValidatePasswordWithPolicy(newPassword); err != nil {
+		logger.Debug("Password validation failed", "error", err.Error(), "user_id", userID)
+		return fmt.Errorf("password validation failed: %w", err)
+	}
+
+	// Check password history (prevent reuse of last 5 passwords)
+	if s.passwordHistoryRepo != nil {
+		history, err := s.passwordHistoryRepo.GetByUserID(ctx, userID, models.MaxPasswordHistory)
+		if err != nil {
+			logger.Error("Failed to get password history", "error", err.Error(), "user_id", userID)
+			// Continue anyway - don't block password change if history check fails
+		} else {
+			// Check if new password matches any in history
+			for _, h := range history {
+				if utils.CheckPasswordHash(newPassword, h.PasswordHash) {
+					return fmt.Errorf("password was used recently, please choose a different password")
+				}
+			}
+			// Also check against current password
+			if utils.CheckPasswordHash(newPassword, user.PasswordHash) {
+				return fmt.Errorf("new password cannot be the same as current password")
+			}
+		}
+	}
+
+	// Save current password to history before changing
+	if s.passwordHistoryRepo != nil {
+		if err := s.passwordHistoryRepo.Add(ctx, userID, user.PasswordHash); err != nil {
+			logger.Error("Failed to add password to history", "error", err.Error(), "user_id", userID)
+			// Continue anyway
+		}
+		// Cleanup old history entries
+		if err := s.passwordHistoryRepo.Cleanup(ctx, userID, models.MaxPasswordHistory); err != nil {
+			logger.Error("Failed to cleanup password history", "error", err.Error(), "user_id", userID)
+		}
+	}
+
 	// Hash new password
 	newHash, err := utils.HashPassword(newPassword)
 	if err != nil {
@@ -525,6 +575,39 @@ func (s *Service) ResetPassword(ctx context.Context, token, newPassword string) 
 	if err != nil {
 		logger.Error("Failed to get user for password reset", "error", err.Error())
 		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Validate new password against policy
+	if err := utils.ValidatePasswordWithPolicy(newPassword); err != nil {
+		logger.Debug("Password validation failed", "error", err.Error(), "user_id", user.ID)
+		return fmt.Errorf("password validation failed: %w", err)
+	}
+
+	// Check password history (prevent reuse of last 5 passwords)
+	if s.passwordHistoryRepo != nil {
+		history, err := s.passwordHistoryRepo.GetByUserID(ctx, user.ID, models.MaxPasswordHistory)
+		if err != nil {
+			logger.Error("Failed to get password history", "error", err.Error(), "user_id", user.ID)
+		} else {
+			for _, h := range history {
+				if utils.CheckPasswordHash(newPassword, h.PasswordHash) {
+					return fmt.Errorf("password was used recently, please choose a different password")
+				}
+			}
+			if utils.CheckPasswordHash(newPassword, user.PasswordHash) {
+				return fmt.Errorf("new password cannot be the same as current password")
+			}
+		}
+	}
+
+	// Save current password to history before changing
+	if s.passwordHistoryRepo != nil {
+		if err := s.passwordHistoryRepo.Add(ctx, user.ID, user.PasswordHash); err != nil {
+			logger.Error("Failed to add password to history", "error", err.Error(), "user_id", user.ID)
+		}
+		if err := s.passwordHistoryRepo.Cleanup(ctx, user.ID, models.MaxPasswordHistory); err != nil {
+			logger.Error("Failed to cleanup password history", "error", err.Error(), "user_id", user.ID)
+		}
 	}
 
 	// Hash new password

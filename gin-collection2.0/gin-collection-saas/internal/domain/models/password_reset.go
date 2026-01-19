@@ -35,5 +35,5 @@ type ForgotPasswordRequest struct {
 // ResetPasswordRequest is the request for resetting password
 type ResetPasswordRequest struct {
 	Token       string `json:"token" binding:"required"`
-	NewPassword string `json:"new_password" binding:"required,min=8"`
+	NewPassword string `json:"new_password" binding:"required,min=12"`
 }
